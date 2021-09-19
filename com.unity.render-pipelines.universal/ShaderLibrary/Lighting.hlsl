@@ -468,4 +468,81 @@ half4 UniversalFragmentBakedLit(InputData inputData, half3 color, half alpha, ha
     return UniversalFragmentBakedLit(inputData, surfaceData);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// Toon
+////////////////////////////////////////////////////////////////////////////////
+
+// Computes the scalar specular term for Minimalist CookTorrance BRDF
+// NOTE: needs to be multiplied with reflectance f0, i.e. specular color to complete
+half DirectToonSpecular(BRDFData brdfData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS)
+{
+    float3 lightDirectionWSFloat3 = float3(lightDirectionWS);
+    float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(viewDirectionWS));
+
+    float NoH = saturate(dot(float3(normalWS), halfDir));
+    half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
+
+    // GGX Distribution multiplied by combined approximation of Visibility and Fresnel
+    // BRDFspec = (D * V * F) / 4.0
+    // D = roughness^2 / ( NoH^2 * (roughness^2 - 1) + 1 )^2
+    // V * F = 1.0 / ( LoH^2 * (roughness + 0.5) )
+    // See "Optimizing PBR for Mobile" from Siggraph 2015 moving mobile graphics course
+    // https://community.arm.com/events/1155
+
+    // Final BRDFspec = roughness^2 / ( NoH^2 * (roughness^2 - 1) + 1 )^2 * (LoH^2 * (roughness + 0.5) * 4.0)
+    // We further optimize a few light invariant terms
+    // brdfData.normalizationTerm = (roughness + 0.5) * 4.0 rewritten as roughness * 4.0 + 2.0 to a fit a MAD.
+    float d = NoH * NoH * brdfData.roughness2MinusOne + 1.00001f;
+    half d2 = half(d * d);
+
+    half LoH2 = LoH * LoH;
+    half specularTerm = brdfData.roughness2 / (d2 * max(half(0.1), LoH2) * brdfData.normalizationTerm);
+
+    				// Calculate specular reflection.
+
+				// Multiply _Glossiness by itself to allow artist to use smaller
+				// glossiness values in the inspector.
+    //float specularIntensity = pow(NoH * lightIntensity, _Glossiness * _Glossiness);
+    //float specularIntensitySmooth = smoothstep(0.005, 0.01, specularIntensity);
+    //float4 specular = specularIntensitySmooth * _SpecularColor;
+
+    
+    // On platforms where half actually means something, the denominator has a risk of overflow
+    // clamp below was added specifically to "fix" that, but dx compiler (we convert bytecode to metal/gles)
+    // sees that specularTerm have only non-negative terms, so it skips max(0,..) in clamp (leaving only min(100,...))
+#if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+    specularTerm = specularTerm - HALF_MIN;
+    specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+#endif
+
+    return specularTerm;
+}
+
+
+
+half3 LightingToon(BRDFData brdfData, Light light, half3 normalWS, half3 viewDirectionWS, bool specularHighlightsOff)
+{
+
+    half3 lightColor = light.color;
+    half3 lightDirectionWS = light.direction;
+    half lightAttenuation = light.distanceAttenuation * light.shadowAttenuation;
+    
+    half NdotL = saturate(dot(normalWS, lightDirectionWS));
+    half3 radiance = lightColor * smoothstep(0.0, 0.05, (NdotL* lightAttenuation)) ;
+
+    half3 brdf = brdfData.diffuse;
+#ifndef _SPECULARHIGHLIGHTS_OFF
+    [branch]
+    if (!specularHighlightsOff)
+    {
+        brdf += brdfData.specular * DirectToonSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
+    }
+#endif // _SPECULARHIGHLIGHTS_OFF
+
+    return brdf * radiance;
+}
+
+
+
 #endif
