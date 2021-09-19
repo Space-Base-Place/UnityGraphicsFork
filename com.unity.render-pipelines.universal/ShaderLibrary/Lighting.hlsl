@@ -499,6 +499,7 @@ half DirectToonSpecular(BRDFData brdfData, half3 normalWS, half3 lightDirectionW
     half LoH2 = LoH * LoH;
     half specularTerm = brdfData.roughness2 / (d2 * max(half(0.1), LoH2) * brdfData.normalizationTerm);
 
+    half specularToon = smoothstep(0.1, 0.5, specularTerm) * (1 - brdfData.roughness);
     				// Calculate specular reflection.
 
 				// Multiply _Glossiness by itself to allow artist to use smaller
@@ -516,7 +517,7 @@ half DirectToonSpecular(BRDFData brdfData, half3 normalWS, half3 lightDirectionW
     specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
 #endif
 
-    return specularTerm;
+    return specularToon;
 }
 
 
@@ -531,16 +532,33 @@ half3 LightingToon(BRDFData brdfData, Light light, half3 normalWS, half3 viewDir
     half NdotL = saturate(dot(normalWS, lightDirectionWS));
     half3 radiance = lightColor * smoothstep(0.0, 0.05, (NdotL* lightAttenuation)) ;
 
+
+    				// Calculate rim lighting.
+    half rimDot = 1 - dot(viewDirectionWS, normalWS);
+	// We only want rim to appear on the lit side of the surface,
+	// so multiply it by NdotL, raised to a power to smoothly blend it.
+    half rimIntensity = rimDot * pow(NdotL, 0.1) * lightAttenuation;
+    half rimRadiance = smoothstep(0.7, 0.71, rimIntensity) * (1 - brdfData.roughness);
+
+        //alternate rim lighting
+        //tries to keep the rim only visible when facing the light to simulate subsurface effects
+        //probably not worth the trouble
+    //half lightDot = 1 - dot(viewDirectionWS, lightDirectionWS);
+    //half rim2 = rimDot * lightDot * 0.25; //rimdot and lightdot are range 0-2, normalize here
+    //half rimRadiance2 = smoothstep(0.3, 0.31, rim2) * (1 - brdfData.roughness) * 0.5;
+    //half rimRadiance3 = (rimRadiance + rimRadiance2);
+    
     half3 brdf = brdfData.diffuse;
 #ifndef _SPECULARHIGHLIGHTS_OFF
     [branch]
     if (!specularHighlightsOff)
     {
+        //return brdfData.specular * DirectToonSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
         brdf += brdfData.specular * DirectToonSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
     }
 #endif // _SPECULARHIGHLIGHTS_OFF
 
-    return brdf * radiance;
+    return brdf * (radiance + rimRadiance);
 }
 
 
