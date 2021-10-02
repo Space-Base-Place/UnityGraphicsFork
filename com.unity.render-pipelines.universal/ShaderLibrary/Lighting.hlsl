@@ -524,7 +524,7 @@ half3 LightingToon(BRDFData brdfData, Light light, half3 normalWS, half3 viewDir
     half lightAttenuation = light.distanceAttenuation * light.shadowAttenuation;
     
     half NdotL = saturate(dot(normalWS, lightDirectionWS));
-    half3 radiance = lightColor * smoothstep(0.0, 0.02, (NdotL)) * lightAttenuation; // linear fade light rings
+    half3 radiance = lightColor * smoothstep(0.0, 0.02, NdotL) * lightAttenuation; // linear fade light rings
     //half3 radiance = lightColor * smoothstep(0.0, 0.02, (NdotL * light.distanceAttenuation)) * light.shadowAttenuation;  // sharp light rings
     //half3 radiance = lightColor * smoothstep(0.0, 0.05, (NdotL * lightAttenuation)); // no shadows
 
