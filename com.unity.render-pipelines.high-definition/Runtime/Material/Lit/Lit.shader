@@ -479,10 +479,7 @@ Shader "HDRP/Lit"
 
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile_fragment _ LIGHTMAP_ON
-            // Both DIRLIGHTMAP_COMBINED and DYNAMICLIGHTMAP_ON must have vertex frequency to be able to include UV2 in player
-            // If DIRLIGHTMAP_COMBINED isn't define, then DYNAMICLIGHTMAP_ON will not. This is hardcoded in C++
-            // For ShaderGraph we don't have this issue as UV2 are always included.
-            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile_fragment _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
             #pragma multi_compile_fragment _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment PROBE_VOLUMES_OFF PROBE_VOLUMES_L1 PROBE_VOLUMES_L2
@@ -765,7 +762,7 @@ Shader "HDRP/Lit"
 
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile_fragment _ LIGHTMAP_ON
-            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile_fragment _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
             #pragma multi_compile_fragment _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment PROBE_VOLUMES_OFF PROBE_VOLUMES_L1 PROBE_VOLUMES_L2
@@ -846,7 +843,7 @@ Shader "HDRP/Lit"
 
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile_fragment _ LIGHTMAP_ON
-            #pragma multi_compile _ DIRLIGHTMAP_COMBINED
+            #pragma multi_compile_fragment _ DIRLIGHTMAP_COMBINED
             #pragma multi_compile _ DYNAMICLIGHTMAP_ON
             #pragma multi_compile_fragment _ SHADOWS_SHADOWMASK
             #pragma multi_compile_fragment PROBE_VOLUMES_OFF PROBE_VOLUMES_L1 PROBE_VOLUMES_L2

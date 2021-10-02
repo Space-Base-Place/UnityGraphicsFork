@@ -197,8 +197,7 @@ namespace UnityEngine.Experimental.Rendering
 
             SetBakingContext(perSceneDataList);
 
-            if (m_BakingSettings.virtualOffsetSettings.useVirtualOffset)
-                AddOccluders();
+            AddOccluders();
 
             RunPlacement();
         }
@@ -800,7 +799,6 @@ namespace UnityEngine.Experimental.Rendering
                     float scaleForSearchDist = voSettings.searchMultiplier;
                     positions[i] = PushPositionOutOfGeometry(positions[i], scaleForSearchDist * searchDistance, voSettings.outOfGeoOffset);
                 }
-                CleanupOccluders();
             }
 
             UnityEditor.Experimental.Lightmapping.SetAdditionalBakedProbes(m_BakingBatch.index, positions);

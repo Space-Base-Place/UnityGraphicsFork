@@ -294,7 +294,6 @@ void ClosestHit(inout PathIntersection pathIntersection : SV_RayPayload, Attribu
 
 #ifdef HAS_LIGHTLOOP
 
-    float3 lightPosition;
     float pdf = 1.0;
     bool sampleLocalLights, sampleVolume = false;
 
@@ -305,11 +304,11 @@ void ClosestHit(inout PathIntersection pathIntersection : SV_RayPayload, Attribu
 
         // For the time being, we test for volumetric scattering only on camera rays
         if (!currentDepth)
-            sampleVolume = SampleVolumeScatteringPosition(pathIntersection.pixelCoord, inputSample.w, pathIntersection.t, pdf, sampleLocalLights, lightPosition);
+            sampleVolume = SampleVolumeScatteringPosition(inputSample.w, pathIntersection.t, pdf, sampleLocalLights);
     }
 
     if (sampleVolume)
-        ComputeVolumeScattering(pathIntersection, inputSample.xyz, sampleLocalLights, lightPosition);
+        ComputeVolumeScattering(pathIntersection, inputSample.xyz, sampleLocalLights);
     else
         ComputeSurfaceScattering(pathIntersection, attributeData, inputSample);
 

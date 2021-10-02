@@ -10,7 +10,7 @@ float ComputeHeightFogMultiplier(float height)
     return ComputeHeightFogMultiplier(height, _HeightFogBaseHeight, _HeightFogExponents);
 }
 
-bool SampleVolumeScatteringPosition(uint2 pixelCoord, inout float inputSample, inout float t, inout float pdf, out bool sampleLocalLights, out float3 lightPosition)
+bool SampleVolumeScatteringPosition(inout float theSample, inout float t, inout float pdf, out bool sampleLocalLights)
 {
     sampleLocalLights = false;
 
@@ -23,30 +23,28 @@ bool SampleVolumeScatteringPosition(uint2 pixelCoord, inout float inputSample, i
     float tFog = min(t, _MaxFogDistance);
 
 #ifdef HAS_LIGHTLOOP
-
-    float pickedLightWeight;
-    float localWeight = PickLocalLightInterval(WorldRayOrigin(), WorldRayDirection(), inputSample, lightPosition, pickedLightWeight, tMin, tMax);
+    float localWeight = GetLocalLightsInterval(WorldRayOrigin(), WorldRayDirection(), tMin, tMax);
 
     if (localWeight < 0.0)
         return false;
 
-    sampleLocalLights = inputSample < localWeight;
+    sampleLocalLights = theSample < localWeight;
     if (sampleLocalLights)
     {
         tMax = min(tMax, tFog);
         if (tMin >= tMax)
             return false;
 
-        inputSample /= localWeight;
-        pdfVol *= localWeight * pickedLightWeight;
+        theSample /= localWeight;
+        pdfVol *= localWeight;
     }
     else
     {
         tMin = 0.0;
         tMax = tFog;
 
-        inputSample -= localWeight;
-        inputSample /= 1.0 - localWeight;
+        theSample -= localWeight;
+        theSample /= 1.0 - localWeight;
         pdfVol *= 1.0 - localWeight;
     }
 #else
@@ -56,15 +54,14 @@ bool SampleVolumeScatteringPosition(uint2 pixelCoord, inout float inputSample, i
 
     // FIXME: not quite sure what the sigmaT value is supposed to be...
     const float sigmaT = _HeightFogBaseExtinction;
-    const float transmittanceTMin = max(exp(-tMin * sigmaT), 0.01);
     const float transmittanceTMax = max(exp(-tMax * sigmaT), 0.01);
     const float transmittanceThreshold = t < FLT_MAX ? 1.0 - min(0.5, transmittanceTMax) : 1.0;
 
-    if (inputSample >= transmittanceThreshold)
+    if (theSample >= transmittanceThreshold)
     {
         // Re-scale the sample
-        inputSample -= transmittanceThreshold;
-        inputSample /= 1.0 - transmittanceThreshold;
+        theSample -= transmittanceThreshold;
+        theSample /= 1.0 - transmittanceThreshold;
 
         // Adjust the pdf
         pdf *= 1.0 - transmittanceThreshold;
@@ -73,23 +70,35 @@ bool SampleVolumeScatteringPosition(uint2 pixelCoord, inout float inputSample, i
     }
 
     // Re-scale the sample
-    inputSample /= transmittanceThreshold;
+    theSample /= transmittanceThreshold;
 
     // Adjust the pdf
     pdf *= pdfVol * transmittanceThreshold;
 
-    // Exponential sampling
-    float transmittance = transmittanceTMax + inputSample * (transmittanceTMin - transmittanceTMax);
-    t = -log(transmittance) / sigmaT;
+    if (sampleLocalLights)
+    {
+        // Linear sampling
+        float deltaT = tMax - tMin;
+        t = tMin + theSample * deltaT;
 
-    // Adjust the pdf
-    pdf *= sigmaT * transmittance / (transmittanceTMin - transmittanceTMax);
+        // Adjust the pdf
+        pdf /= deltaT;
+    }
+    else
+    {
+        // Exponential sampling
+        float transmittance = transmittanceTMax + theSample * (1.0 - transmittanceTMax);
+        t = -log(transmittance) / sigmaT;
+
+        // Adjust the pdf
+        pdf *= sigmaT * transmittance;
+    }
 
     return true;
 }
 
 // Function responsible for volume scattering
-void ComputeVolumeScattering(inout PathIntersection pathIntersection : SV_RayPayload, float3 inputSample, bool sampleLocalLights, float3 lightPosition)
+void ComputeVolumeScattering(inout PathIntersection pathIntersection : SV_RayPayload, float3 inputSample, bool sampleLocalLights)
 {
     // Reset the ray intersection color, which will store our final result
     pathIntersection.value = 0.0;
@@ -105,8 +114,8 @@ void ComputeVolumeScattering(inout PathIntersection pathIntersection : SV_RayPay
     // Compute the scattering position
     float3 scatteringPosition = WorldRayOrigin() + pathIntersection.t * WorldRayDirection();
 
-    // Create the list of active lights (a local light can be forced by providing its position)
-    LightList lightList = CreateLightList(scatteringPosition, sampleLocalLights, lightPosition);
+    // Create the list of active lights
+    LightList lightList = CreateLightList(scatteringPosition, sampleLocalLights);
 
     // Bunch of variables common to material and light sampling
     float pdf;

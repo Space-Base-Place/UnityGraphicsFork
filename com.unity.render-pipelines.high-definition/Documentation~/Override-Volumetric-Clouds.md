@@ -1,7 +1,5 @@
 # Volumetric Clouds
 
-![](Images/volumetric-clouds-1.png)
-
 The **Volumetric Clouds** [Volume component override](Volume-Components.md) controls settings relevant to rendering volumetric clouds in the High Definition Render Pipeline (HDRP). Volumetric clouds are intractable clouds that can render shadows, and receive fog and volumetric light.
 
 To generate and render volumetric clouds, HDRP uses:
@@ -32,8 +30,6 @@ Using these three things, HDRP generates volumetric clouds in a two-step process
 
 **Note**: When editing Volumetric Cloud properties in the Editor, set **Temporal Accumulation Factor** to a lower value. This allows you to see changes instantly, rather than blended over time.
 
-![](Images/volumetric-clouds-2.png)
-
 [!include[](snippets/volume-override-api.md)]
 
 ## Cloud map and cloud lookup table
@@ -60,8 +56,6 @@ For the **Cloud LUT**, the color channels represent:
 When importing these two map Textures, disable **sRGB**. For best results, do not use any compression.
 
 **Note**: This cloud map is formatted differently to the cloud map that the [Cloud Layer](Override-Cloud-Layer.md) feature uses.
-
-![](Images/volumetric-clouds-3.png)
 
 ## Properties
 

@@ -264,7 +264,7 @@ namespace UnityEditor.VFX
                 var vfxResource = VisualEffectResource.GetResourceAtPath(path);
                 if (vfxResource != null)
                 {
-                    vfxResource.GetOrCreateGraph().UpdateSubAssets();
+                    var graph = vfxResource.GetOrCreateGraph();
                     vfxResource.WriteAsset(); // write asset as the AssetDatabase won't do it.
                 }
             }

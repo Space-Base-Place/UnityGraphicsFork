@@ -65,7 +65,6 @@ MonoBehaviour:
   m_RenderPipelineRayTracingResources: {fileID: 0}
   beforeTransparentCustomPostProcesses: []
   beforePostProcessCustomPostProcesses: []
-  afterPostProcessBlursCustomPostProcesses: []
   afterPostProcessCustomPostProcesses: []
   beforeTAACustomPostProcesses: []
   lightLayerName0: 
@@ -93,11 +92,7 @@ MonoBehaviour:
   DLSSProjectId: 000000
   useDLSSCustomProjectId: 0
   supportProbeVolumes: 0
-  supportRuntimeDebugDisplay: 1
-  apvScenesData:
+  apvScenesBounds:
     serializedBounds: []
     serializedHasVolumes: []
-    serializedProfiles: []
-    serializedBakeSettings: []
-    serializedBakingSets: []
-  m_Version: 3
+  m_Version: 2

@@ -111,7 +111,7 @@ namespace UnityEditor.Experimental.Rendering
 
         static void Drawer_VolumeContent(SerializedProbeVolume serialized, Editor owner)
         {
-            if (!ProbeReferenceVolume.instance.isInitialized || !ProbeReferenceVolume.instance.enabledBySRP)
+            if (!ProbeReferenceVolume.instance.isInitialized)
             {
                 var renderPipelineAsset = UnityEngine.Rendering.RenderPipelineManager.currentPipeline;
                 if (renderPipelineAsset != null && renderPipelineAsset.GetType().Name == "HDRenderPipeline")
