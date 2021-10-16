@@ -7,6 +7,7 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RealtimeLights.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/AmbientOcclusion.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/AtmosphericIllumination.hlsl"
 
 #if defined(LIGHTMAP_ON)
     #define DECLARE_LIGHTMAP_OR_SH(lmName, shName, index) float2 lmName : TEXCOORD##index
@@ -273,10 +274,14 @@ half4 UniversalFragmentPBR(InputData inputData, SurfaceData surfaceData)
     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
 
     LightingData lightingData = CreateLightingData(inputData, surfaceData);
-
+    
+#ifdef _USE_ATMOSPHERIC_GLOBAL_ILLUMINATION
+    lightingData.giColor = SampleAtmosphericIllumination(inputData.positionWS);
+#else
     lightingData.giColor = GlobalIllumination(brdfData, brdfDataClearCoat, surfaceData.clearCoatMask,
                                               inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
                                               inputData.normalWS, inputData.viewDirectionWS);
+#endif
 
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
     {
@@ -551,6 +556,7 @@ half3 LightingToon(BRDFData brdfData, Light light, half3 normalWS, half3 viewDir
                 //alternate rim lighting
             //tries to keep the rim only visible when facing the light to simulate subsurface effects
             //probably not worth the trouble
+            //can add on top using shadergraph now this is the default
         //half lightDot = 1 - dot(viewDirectionWS, lightDirectionWS);
         //half rim2 = rimDot * lightDot * 0.25; //rimdot and lightdot are range 0-2, normalize here
         //half rimRadiance2 = smoothstep(brdfData.roughness, brdfData.roughness + 0.01, rim2) * (1 - brdfData.roughness);
