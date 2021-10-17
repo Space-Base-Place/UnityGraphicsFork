@@ -1736,6 +1736,15 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             definition = KeywordDefinition.ShaderFeature,
             scope = KeywordScope.Global,
         };
+
+        public static readonly KeywordDescriptor AtmosphericIllumination = new KeywordDescriptor()
+        {
+            displayName = "Atmospheric Illumination",
+            referenceName = "_USE_ATMOSPHERIC_GLOBAL_ILLUMINATION",
+            type = KeywordType.Boolean,
+            definition = KeywordDefinition.ShaderFeature,
+            scope = KeywordScope.Global,
+        };
     }
     #endregion
 

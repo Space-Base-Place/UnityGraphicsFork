@@ -813,6 +813,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 { CoreKeywordDescriptors.DebugDisplay },
                 { CoreKeywordDescriptors.LightCookies },
                 { CoreKeywordDescriptors.ClusteredRendering },
+                { CoreKeywordDescriptors.AtmosphericIllumination }
             };
 
             public static readonly KeywordCollection GBuffer = new KeywordCollection
@@ -831,6 +832,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 { CoreKeywordDescriptors.LightLayers },
                 { CoreKeywordDescriptors.RenderPassEnabled },
                 { CoreKeywordDescriptors.DebugDisplay },
+                { CoreKeywordDescriptors.AtmosphericIllumination }
             };
         }
         #endregion

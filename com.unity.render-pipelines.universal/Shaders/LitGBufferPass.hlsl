@@ -210,7 +210,7 @@ FragmentOutput LitGBufferPassFragment(Varyings input)
     Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, inputData.shadowMask);
 
 #ifdef _USE_ATMOSPHERIC_GLOBAL_ILLUMINATION
-    half3 color = SampleAtmosphericIllumination(inputData.positionWS);
+    half3 color = SampleAtmosphericIllumination(inputData.positionWS) * brdfData.albedo;
 #else
     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, inputData.shadowMask);
     half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surfaceData.occlusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS);
