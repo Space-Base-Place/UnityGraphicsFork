@@ -47,6 +47,8 @@ namespace UnityEngine.Rendering.Universal
 
     public struct CameraData
     {
+        public TemporalAntiAliasingCameraData temporalAntiAliasingData;
+
         // Internal camera data as we are not yet sure how to expose View in stereo context.
         // We might change this API soon.
         Matrix4x4 m_ViewMatrix;
