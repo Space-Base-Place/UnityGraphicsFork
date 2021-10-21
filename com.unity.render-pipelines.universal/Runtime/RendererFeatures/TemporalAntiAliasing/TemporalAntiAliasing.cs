@@ -39,10 +39,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
             var cmd = CommandBufferPool.Get("TAACameraSettings");
 
-            var pixelWidth = cameraData.pixelWidth;
-            var pixelHeight = cameraData.pixelHeight;
-
-            temporalData.UpdateState(pixelWidth, pixelHeight);
+            temporalData.UpdateState(ref renderingData);
 
             var viewMatrix = cameraData.GetViewMatrix();
             var projMatrix = temporalData.GetJitteredProjectionMatrix();
@@ -147,7 +144,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             mpb.SetVector(ShaderIDs._TaaHistorySize, taaHistorySize);
             mpb.SetVector(ShaderIDs._TaaFilterWeights, data.taaFilterWeights);
             mpb.SetVector(ShaderIDs._TaaFilterWeights1, data.taaFilterWeights1);
-            mpb.SetVector(ShaderIDs._TaauParameters, data.taauParams);
+            //mpb.SetVector(ShaderIDs._TaauParameters, data.taauParams);
             mpb.SetVector(ShaderIDs._TaaScales, data.taaScales);
 
 
@@ -279,8 +276,8 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
 
             // we always clear history when size changes so this is redundant
-            int height = renderingData.cameraData.cameraTargetDescriptor.height;
-            int width = renderingData.cameraData.cameraTargetDescriptor.width;
+            int width = renderingData.cameraData.pixelWidth;
+            int height = renderingData.cameraData.pixelHeight;
             passData.previousScreenSize = new Vector4(width, height, 1.0f / width, 1.0f / height);
 
             /*            if (TAAU)
@@ -332,10 +329,10 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
                         Vector4 scales = new Vector4(historyRenderingViewport.x / prevHistory.rt.width, historyRenderingViewport.y / prevHistory.rt.height, mainRTScales.x, mainRTScales.y);
                         passData.taaScales = scales;
 
-                        passData.finalViewport = (TAAU || runsAfterUpscale) ? camera.finalViewport : new Rect(0, 0, RTHandles.rtHandleProperties.currentViewportSize.x, RTHandles.rtHandleProperties.currentViewportSize.y);*/
+                        passData.finalViewport = (TAAU || runsAfterUpscale) ? camera.finalViewport : new Rect(0, 0, RTHandles.rtHandleProperties.currentViewportSize.x, RTHandles.rtHandleProperties.currentViewportSize.y);
             var resScale = DynamicResolutionHandler.instance.GetCurrentScale();
             float stdDev = 0.4f;
-            passData.taauParams = new Vector4(1.0f / (stdDev * stdDev), 1.0f / resScale, 0.5f / resScale, resScale);
+            passData.taauParams = new Vector4(1.0f / (stdDev * stdDev), 1.0f / resScale, 0.5f / resScale, resScale);*/
             passData.taaScales = Vector4.one;
 
             //passData.stencilBuffer = stencilTexture;
@@ -437,10 +434,9 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             Camera = camera;
         }
 
-        public void UpdateState(float pixelWidth, float pixelHeight)
+        public void UpdateState(ref RenderingData renderingData)
         {
             unjitteredProjectionMatrix = Camera.nonJitteredProjectionMatrix;
-
             const int kMaxSampleCount = 8;
             if (++taaFrameIndex >= kMaxSampleCount)
                 taaFrameIndex = 0;
@@ -449,11 +445,15 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             indexRead = indexWrite;
             indexWrite = (++indexWrite) % 2;
 
+            float pixelWidth = renderingData.cameraData.pixelWidth;
+            float pixelHeight = renderingData.cameraData.pixelHeight;
 
             // The variance between 0 and the actual halton sequence values reveals noticeable
             // instability in Unity's shadow maps, so we avoid index 0.
             float jitterX = HaltonSequence.Get((taaFrameIndex & 1023) + 1, 2) - 0.5f;
             float jitterY = HaltonSequence.Get((taaFrameIndex & 1023) + 1, 3) - 0.5f;
+            //jitterX = indexRead;
+            //jitterY = 1;
             taaJitterStrength = new Vector4(jitterX, jitterY, jitterX / pixelWidth, jitterY / pixelHeight);
 
             Matrix4x4 proj;

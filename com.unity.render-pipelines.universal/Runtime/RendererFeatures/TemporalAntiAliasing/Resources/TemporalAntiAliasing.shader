@@ -245,14 +245,9 @@ SAMPLER(s_point_clamp_sampler);
 
             float2 uv = input.texcoord;
 
-            #ifdef TAA_UPSCALE
-            float2 outputPixInInput = input.texcoord * _InputSize.xy - _TaaJitterStrength.xy;
-
-            uv = _InputSize.zw * (0.5f + floor(outputPixInInput));
-            #endif
 
             // --------------- Get closest motion vector ---------------
-            float2 motionVector;
+            float2 motionVector = 0.0.xx;
 
             int2 samplePos = input.positionCS.xy;
 
@@ -260,9 +255,6 @@ SAMPLER(s_point_clamp_sampler);
             float2 closestOffset = 0;
 #else
 
-#ifdef TAA_UPSCALE
-            samplePos = outputPixInInput;
-#endif
             float2 closestOffset = GetClosestFragmentOffset(_DepthTexture, samplePos);
 #endif
             bool excludeTAABit = false;
@@ -273,15 +265,18 @@ SAMPLER(s_point_clamp_sampler);
 
             float lengthMV = 0;
 
-            DecodeMotionVector(SAMPLE_TEXTURE2D_X_LOD(_MotionVectorTexture, s_point_clamp_sampler, ClampAndScaleUVForPoint(uv + closestOffset * _InputSize.zw), 0), motionVector);
+            //outColor = SAMPLE_TEXTURE2D_X_LOD(_MotionVectorTexture, s_point_clamp_sampler, ClampAndScaleUVForPoint(uv + closestOffset * _InputSize.zw), 0);
+            //DecodeMotionVector(SAMPLE_TEXTURE2D_X_LOD(_MotionVectorTexture, s_point_clamp_sampler, ClampAndScaleUVForPoint(uv + closestOffset * _InputSize.zw), 0), motionVector);
             // --------------------------------------------------------
 
             // --------------- Get resampled history ---------------
             float2 prevUV = input.texcoord - motionVector;
 
             CTYPE history = GetFilteredHistory(_InputHistoryTexture, prevUV, _HistorySharpening, _TaaHistorySize, _RTHandleScaleForTAAHistory);
+
             bool offScreen = any(abs(prevUV * 2 - 1) >= (1.0f - (1.0 * _TaaHistorySize.zw)));
             history.xyz *= PerceptualWeight(history);
+
             // -----------------------------------------------------
 
             // --------------- Gather neigbourhood data ---------------
@@ -299,16 +294,13 @@ SAMPLER(s_point_clamp_sampler);
                 float4 filterParams = _TaaFilterWeights;
                 float4 filterParams1 = _TaaFilterWeights1;
                 float centralWeight = _CentralWeight;
-#ifdef TAA_UPSCALE
-                filterParams.x = _TAAUFilterRcpSigma2;
-                filterParams.y = _TAAUScale;
-                filterParams.zw = outputPixInInput - (floor(outputPixInInput) + 0.5f);
 
-#elif CENTRAL_FILTERING  == BLACKMAN_HARRIS
+#if CENTRAL_FILTERING  == BLACKMAN_HARRIS
                 // We need to swizzle weights as we use quad communication to access neighbours, so the order of neighbours is not always the same (this needs to go away when moving back to compute)
                 SwizzleFilterWeights(floor(input.positionCS.xy), filterParams, filterParams1);
 #endif
                 CTYPE filteredColor = FilterCentralColor(samples, filterParams, filterParams1, centralWeight);
+
                 // ------------------------------------------------------
 
                 if (offScreen)
@@ -330,6 +322,7 @@ SAMPLER(s_point_clamp_sampler);
 
                 history = GetClippedHistory(filteredColor, history, samples.minNeighbour, samples.maxNeighbour);
                 filteredColor = SharpenColor(samples, filteredColor, sharpenStrength);
+
                 // ------------------------------------------------------------------------------
 
                 // --------------- Compute blend factor for history ---------------
@@ -357,9 +350,6 @@ SAMPLER(s_point_clamp_sampler);
                 blendFactor = ModifyBlendWithMotionVectorRejection(_InputVelocityMagnitudeHistory, lengthMV, prevUV, blendFactor, _SpeedRejectionIntensity, _RTHandleScaleForTAAHistory);
 #endif
 
-#ifdef TAA_UPSCALE
-                blendFactor *= GetUpsampleConfidence(filterParams.zw, _TAAUBoxConfidenceThresh, _TAAUFilterRcpSigma2, _TAAUScale);
-#endif
                 blendFactor = max(blendFactor, 0.03);
 
                 CTYPE finalColor;
@@ -371,6 +361,7 @@ SAMPLER(s_point_clamp_sampler);
                 finalColor.xyz *= PerceptualInvWeight(finalColor);
 #endif
 
+
                 color.xyz = ConvertToOutputSpace(finalColor.xyz);
                 color.xyz = clamp(color.xyz, 0, CLAMP_MAX);
 #if defined(ENABLE_ALPHA)
@@ -381,7 +372,6 @@ SAMPLER(s_point_clamp_sampler);
 
             _OutputHistoryTexture[COORD_TEXTURE2D_X(input.positionCS.xy)] = color.CTYPE_SWIZZLE;
             outColor = color.CTYPE_SWIZZLE;
-            //outColor = motionVector.xyy;
 #if VELOCITY_REJECTION && !defined(POST_DOF)
             _OutputVelocityMagnitudeHistory[COORD_TEXTURE2D_X(input.positionCS.xy)] = lengthMV;
 #endif
