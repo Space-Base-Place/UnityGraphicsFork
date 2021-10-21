@@ -18,10 +18,11 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         }
         public Quality quality;
 
-        public float taaMotionVectorRejection;
-        public float taaAntiFlicker;
-        public float taaHistorySharpening;
-        public float taaBaseBlendFactor;
+        [Range(0, 2)] public float taaSharpenStrength;
+        [Range(0, 1)] public float taaHistorySharpening;
+        [Range(0, 1)] public float taaMotionVectorRejection;
+        [Range(0, 1)] public float taaAntiFlicker;
+        [Range(0, 1)] public float taaBaseBlendFactor;
         public bool taaAntiRinging;
     }
 
@@ -30,9 +31,10 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             var cameraData = renderingData.cameraData;
-            var temporalData = cameraData.temporalAntiAliasingData;
+            var camera = cameraData.camera;
+            var foundData = cameraDataDict.TryGetValue(camera, out TemporalAntiAliasingPassData temporalData);
 
-            if (temporalData == null) // Don't render in sceneview - no data
+            if (!foundData) // Don't render if no data
                 return;
 
             var cmd = CommandBufferPool.Get("TAACameraSettings");
@@ -40,9 +42,12 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             var pixelWidth = cameraData.pixelWidth;
             var pixelHeight = cameraData.pixelHeight;
 
-            var jitteredProjectionMatrix = temporalData.GetJitteredProjectionMatrix(pixelWidth, pixelHeight);
+            temporalData.UpdateState(pixelWidth, pixelHeight);
 
-            cmd.SetViewProjectionMatrices(cameraData.camera.worldToCameraMatrix, jitteredProjectionMatrix);
+            var viewMatrix = cameraData.GetViewMatrix();
+            var projMatrix = temporalData.GetJitteredProjectionMatrix();
+
+            cmd.SetViewProjectionMatrices(viewMatrix, projMatrix);
 
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
@@ -53,7 +58,6 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
     class TemporalAntiAliasingPass : ScriptableRenderPass
     {
         private Material temporalAAMaterial;
-        private TemporalAntiAliasingPassData data;
         private Settings settings;
 
         public static ObjectPool<MaterialPropertyBlock> MaterialPropertyBlockPool = new ObjectPool<MaterialPropertyBlock>((x) => x.Clear(), null);
@@ -76,9 +80,6 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
                 return;
 
             temporalAAMaterial = new Material(shader);
-
-            if (data == null)
-                data = new TemporalAntiAliasingPassData();
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
@@ -91,11 +92,14 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            if (renderingData.cameraData.isSceneViewCamera) // Don't render in scene view
-                return;
-
             if (temporalAAMaterial == null || temporalAAMaterial.shader == null)
                 return; // dont render if not initialised
+
+            var camera = renderingData.cameraData.camera;
+            var foundData = cameraDataDict.TryGetValue(camera, out TemporalAntiAliasingPassData data);
+
+            if (!foundData) // Don't render if no data
+                return;
 
             PrepareTAAPassData(settings, data, ref renderingData);
 
@@ -106,7 +110,8 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
             var cmd = CommandBufferPool.Get("Temporal Anti-Aliasing");
 
-            cmd.SetGlobalTexture(ShaderIDs._InputTexture, renderTarget);
+            cmd.Blit(renderTarget, renderSource);
+            cmd.SetGlobalTexture(ShaderIDs._InputTexture, renderSource);
 
             if (data.resetPostProcessingHistory)
             {
@@ -133,6 +138,10 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
             var taaHistorySize = data.previousScreenSize;
 
+            var taaFrameInfo = new Vector4(settings.taaSharpenStrength, 0, 0, 1);
+            mpb.SetVector(ShaderIDs._TaaFrameInfo, taaFrameInfo);
+            mpb.SetVector(ShaderIDs._TaaJitterStrength, data.taaJitterStrength);
+
             mpb.SetVector(ShaderIDs._TaaPostParameters, data.taaParameters);
             mpb.SetVector(ShaderIDs._TaaPostParameters1, data.taaParameters1);
             mpb.SetVector(ShaderIDs._TaaHistorySize, taaHistorySize);
@@ -142,7 +151,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             mpb.SetVector(ShaderIDs._TaaScales, data.taaScales);
 
 
-            CoreUtils.SetRenderTarget(cmd, renderSource);
+            CoreUtils.SetRenderTarget(cmd, renderTarget);
 
 
             cmd.SetRandomWriteTarget(1, data.nextHistory);
@@ -153,7 +162,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
             //cmd.SetViewport(data.finalViewport);
             cmd.DrawProcedural(Matrix4x4.identity, data.temporalAAMaterial, taaPass, MeshTopology.Triangles, 3, 1, mpb);
-            cmd.DrawProcedural(Matrix4x4.identity, data.temporalAAMaterial, excludeTaaPass, MeshTopology.Triangles, 3, 1, mpb);
+            //cmd.DrawProcedural(Matrix4x4.identity, data.temporalAAMaterial, excludeTaaPass, MeshTopology.Triangles, 3, 1, mpb);
 
             cmd.ClearRandomWriteTargets();
 
@@ -162,73 +171,15 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             CommandBufferPool.Release(cmd);
         }
 
-
-
-
-
-        static readonly Vector2Int[] TAASampleOffsets = new Vector2Int[]
-        {
-            new Vector2Int(0, 0),
-            new Vector2Int(0, 1),
-            new Vector2Int(1, 0),
-            new Vector2Int(-1, 0),
-            new Vector2Int(0, -1),
-            new Vector2Int(-1, 1),
-            new Vector2Int(1, -1),
-            new Vector2Int(1, 1),
-            new Vector2Int(-1, -1)
-        };
-
-        static class ShaderIDs
-        {
-            public static readonly int _InputTexture = Shader.PropertyToID("_InputTexture");
-            public static readonly int _DepthTexture = Shader.PropertyToID("_DepthTexture");
-            public static readonly int _InputHistoryTexture = Shader.PropertyToID("_InputHistoryTexture");
-            public static readonly int _OutputHistoryTexture = Shader.PropertyToID("_OutputHistoryTexture");
-            public static readonly int _InputVelocityMagnitudeHistory = Shader.PropertyToID("_InputVelocityMagnitudeHistory");
-            public static readonly int _OutputVelocityMagnitudeHistory = Shader.PropertyToID("_OutputVelocityMagnitudeHistory");
-
-            public static readonly int _TaaFrameInfo = Shader.PropertyToID("_TaaFrameInfo");
-            public static readonly int _TaaJitterStrength = Shader.PropertyToID("_TaaJitterStrength");
-            public static readonly int _TaaPostParameters = Shader.PropertyToID("_TaaPostParameters");
-            public static readonly int _TaaPostParameters1 = Shader.PropertyToID("_TaaPostParameters1");
-            public static readonly int _TaaHistorySize = Shader.PropertyToID("_TaaHistorySize");
-            public static readonly int _TaaFilterWeights = Shader.PropertyToID("_TaaFilterWeights");
-            public static readonly int _TaaFilterWeights1 = Shader.PropertyToID("_TaaFilterWeights1");
-            public static readonly int _TaauParameters = Shader.PropertyToID("_TaauParameters");
-            public static readonly int _TaaScales = Shader.PropertyToID("_TaaScales");
-
-            public static readonly int _StencilMask = Shader.PropertyToID("_StencilMask");
-            public static readonly int _StencilRef = Shader.PropertyToID("_StencilRef");
-        }
-
-        /// <summary>
-        /// Draws a full screen triangle.
-        /// </summary>
-        /// <param name="commandBuffer">CommandBuffer used for rendering commands.</param>
-        /// <param name="material">Material used on the full screen triangle.</param>
-        /// <param name="properties">Optional material property block for the provided material.</param>
-        /// <param name="shaderPassId">Index of the material pass.</param>
-        public static void DrawFullScreen(CommandBuffer commandBuffer, Material material, RenderTargetIdentifier colorBuffer, MaterialPropertyBlock properties = null, int shaderPassId = 0)
-        {
-            commandBuffer.SetRenderTarget(colorBuffer);
-            commandBuffer.DrawProcedural(Matrix4x4.identity, material, shaderPassId, MeshTopology.Triangles, 3, 1, properties);
-        }
-
         private void PrepareTAAPassData(Settings settings, TemporalAntiAliasingPassData passData, ref RenderingData renderingData)
         {
             var cameraData = renderingData.cameraData;
             var camera = renderingData.cameraData.camera;
-            var tAAcameraData = renderingData.cameraData.temporalAntiAliasingData;
 
 
             var descriptor = new RenderTextureDescriptor(camera.scaledPixelWidth, camera.scaledPixelHeight, RenderTextureFormat.DefaultHDR, 16);
 
-            passData.resetPostProcessingHistory = tAAcameraData.EnsureBuffers(ref descriptor);
-            passData.prevHistory = tAAcameraData.prevHistory;
-            passData.nextHistory = tAAcameraData.nextHistory;
-            passData.prevMVLen = tAAcameraData.prevMVLen;
-            passData.nextMVLen = tAAcameraData.nextMVLen;
+            passData.resetPostProcessingHistory = passData.EnsureBuffers(ref descriptor);
 
             float minAntiflicker = 0.0f;
             float maxAntiflicker = 3.5f;
@@ -256,8 +207,8 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             float totalWeight = 0;
             for (int i = 0; i < 9; ++i)
             {
-                float x = TAASampleOffsets[i].x - tAAcameraData.taaJitter.x;
-                float y = TAASampleOffsets[i].y - tAAcameraData.taaJitter.y;
+                float x = TAASampleOffsets[i].x - passData.taaJitterStrength.x;
+                float y = TAASampleOffsets[i].y - passData.taaJitterStrength.y;
                 float d = (x * x + y * y);
 
                 taaSampleWeights[i] = Mathf.Exp((-0.5f / (0.22f)) * d);
@@ -393,9 +344,57 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
 
 
+        static readonly Vector2Int[] TAASampleOffsets = new Vector2Int[]
+        {
+            new Vector2Int(0, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, -1),
+            new Vector2Int(-1, 1),
+            new Vector2Int(1, -1),
+            new Vector2Int(1, 1),
+            new Vector2Int(-1, -1)
+        };
 
+        static class ShaderIDs
+        {
+            public static readonly int _InputTexture = Shader.PropertyToID("_InputTexture");
+            public static readonly int _DepthTexture = Shader.PropertyToID("_DepthTexture");
+            public static readonly int _InputHistoryTexture = Shader.PropertyToID("_InputHistoryTexture");
+            public static readonly int _OutputHistoryTexture = Shader.PropertyToID("_OutputHistoryTexture");
+            public static readonly int _InputVelocityMagnitudeHistory = Shader.PropertyToID("_InputVelocityMagnitudeHistory");
+            public static readonly int _OutputVelocityMagnitudeHistory = Shader.PropertyToID("_OutputVelocityMagnitudeHistory");
+
+            public static readonly int _TaaFrameInfo = Shader.PropertyToID("_TaaFrameInfo");
+            public static readonly int _TaaJitterStrength = Shader.PropertyToID("_TaaJitterStrength");
+            public static readonly int _TaaPostParameters = Shader.PropertyToID("_TaaPostParameters");
+            public static readonly int _TaaPostParameters1 = Shader.PropertyToID("_TaaPostParameters1");
+            public static readonly int _TaaHistorySize = Shader.PropertyToID("_TaaHistorySize");
+            public static readonly int _TaaFilterWeights = Shader.PropertyToID("_TaaFilterWeights");
+            public static readonly int _TaaFilterWeights1 = Shader.PropertyToID("_TaaFilterWeights1");
+            public static readonly int _TaauParameters = Shader.PropertyToID("_TaauParameters");
+            public static readonly int _TaaScales = Shader.PropertyToID("_TaaScales");
+
+            public static readonly int _StencilMask = Shader.PropertyToID("_StencilMask");
+            public static readonly int _StencilRef = Shader.PropertyToID("_StencilRef");
+        }
+
+        /// <summary>
+        /// Draws a full screen triangle.
+        /// </summary>
+        /// <param name="commandBuffer">CommandBuffer used for rendering commands.</param>
+        /// <param name="material">Material used on the full screen triangle.</param>
+        /// <param name="properties">Optional material property block for the provided material.</param>
+        /// <param name="shaderPassId">Index of the material pass.</param>
+        public static void DrawFullScreen(CommandBuffer commandBuffer, Material material, RenderTargetIdentifier colorBuffer, MaterialPropertyBlock properties = null, int shaderPassId = 0)
+        {
+            commandBuffer.SetRenderTarget(colorBuffer);
+            commandBuffer.DrawProcedural(Matrix4x4.identity, material, shaderPassId, MeshTopology.Triangles, 3, 1, properties);
+        }
 
     }
+
 
     internal class TemporalAntiAliasingPassData
     {
@@ -416,7 +415,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
         // Addional public fields
         public Camera Camera;
-        public Vector4 taaJitter;
+        public Vector4 taaJitterStrength;
 
         public RenderTexture prevHistory => historyBuffer[indexRead];
         public RenderTexture nextHistory => historyBuffer[indexWrite];
@@ -440,7 +439,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
         public void UpdateState(float pixelWidth, float pixelHeight)
         {
-            unjitteredProjectionMatrix = Camera.projectionMatrix;
+            unjitteredProjectionMatrix = Camera.nonJitteredProjectionMatrix;
 
             const int kMaxSampleCount = 8;
             if (++taaFrameIndex >= kMaxSampleCount)
@@ -455,7 +454,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             // instability in Unity's shadow maps, so we avoid index 0.
             float jitterX = HaltonSequence.Get((taaFrameIndex & 1023) + 1, 2) - 0.5f;
             float jitterY = HaltonSequence.Get((taaFrameIndex & 1023) + 1, 3) - 0.5f;
-            taaJitter = new Vector4(jitterX, jitterY, jitterX / pixelWidth, jitterY / pixelHeight);
+            taaJitterStrength = new Vector4(jitterX, jitterY, jitterX / pixelWidth, jitterY / pixelHeight);
 
             Matrix4x4 proj;
 
@@ -464,7 +463,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
                 float vertical = Camera.orthographicSize;
                 float horizontal = vertical * Camera.aspect;
 
-                var offset = taaJitter;
+                var offset = taaJitterStrength;
                 offset.x *= horizontal / (0.5f * pixelWidth);
                 offset.y *= vertical / (0.5f * pixelHeight);
 
@@ -507,7 +506,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 #if UNITY_2021_2_OR_NEWER
             if (UnityEngine.FrameDebugger.enabled)
             {
-                taaJitter = Vector4.zero;
+                taaJitterStrength = Vector4.zero;
                 return unjitteredProjectionMatrix;
             }
 #endif
@@ -634,6 +633,8 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
     /// <inheritdoc/>
     public override void Create()
     {
+        name = "Temporal Anti-Aliasing";
+
         cameraSettingsPass = new TAACameraSettingsPass();
         temporalAntiAliasingPass = new TemporalAntiAliasingPass();
 
@@ -647,11 +648,16 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         if (!renderingData.cameraData.isSceneViewCamera)
         {
             var camera = renderingData.cameraData.camera;
-            var cameraData = new TemporalAntiAliasingPassData(camera);
-            cameraDataDict.Add(camera, cameraData);
+            bool found = cameraDataDict.TryGetValue(camera, out TemporalAntiAliasingPassData data);
+            if (!found)
+            {
+                data = new TemporalAntiAliasingPassData(camera);
+                cameraDataDict.Add(camera, data);
+            }
 
             renderer.EnqueuePass(cameraSettingsPass);
             temporalAntiAliasingPass.Setup(settings);
+            temporalAntiAliasingPass.ConfigureInput(ScriptableRenderPassInput.Motion);
             renderer.EnqueuePass(temporalAntiAliasingPass);
         }
     }

@@ -238,17 +238,6 @@ namespace UnityEngine.Rendering.Universal
     [URPHelpURL("universal-additional-camera-data")]
     public class UniversalAdditionalCameraData : MonoBehaviour, ISerializationCallbackReceiver, IAdditionalData
     {
-        public TemporalAntiAliasingCameraData TemporalAntiAliasingData
-        {
-            get
-            {
-                if (temporalData == null)
-                    temporalData = gameObject.AddComponent<TemporalAntiAliasingCameraData>();
-                return temporalData;
-            }
-        }
-        private TemporalAntiAliasingCameraData temporalData;
-
         const string k_GizmoPath = "Packages/com.unity.render-pipelines.universal/Editor/Gizmos/";
         const string k_BaseCameraGizmoPath = k_GizmoPath + "Camera_Base.png";
         const string k_OverlayCameraGizmoPath = k_GizmoPath + "Camera_Base.png";

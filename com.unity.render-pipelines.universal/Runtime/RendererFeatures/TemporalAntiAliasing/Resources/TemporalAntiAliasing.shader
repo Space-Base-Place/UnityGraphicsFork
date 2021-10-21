@@ -110,11 +110,13 @@ Shader "Hidden/TemporalAA"
 // Modifications from HDRP version
 /////////////////////////////////////
 
+    #define CTYPE float3
+    #define CTYPE_SWIZZLE xyz
 // Extra helper functions from HDRP
 #include "HDRPFunctions.hlsl"
 // VR unsupported. not going to bother bringing across these functions.
 #define RW_TEXTURE2D_X    RW_TEXTURE2D
-#define COORD_TEXTURE2D_X(float2 pixelCoord)      uint3(pixelCoord, 0)
+#define COORD_TEXTURE2D_X(pixelCoord)      pixelCoord
 // These are global in HDRP. will need to set from pass
 float4 _TaaFrameInfo;
 float4 _TaaJitterStrength;
@@ -138,7 +140,7 @@ SAMPLER(s_point_clamp_sampler);
 //////////////////////////////////////
 
 
-        TEXTURE2D_X(_DepthTexture);
+        //TEXTURE2D_X(_DepthTexture);
         TEXTURE2D_X(_InputTexture);
         TEXTURE2D_X(_InputHistoryTexture);
         #ifdef SHADER_API_PSSL
@@ -172,8 +174,8 @@ SAMPLER(s_point_clamp_sampler);
         #define _TAAUScale _TaauParameters.y
         #define _TAAUBoxConfidenceThresh _TaauParameters.z
         #define _TAAURenderScale _TaauParameters.w
-        #define _InputSize _ScreenSize
-
+        //#define _InputSize _ScreenSize
+        #define _InputSize _ScreenParams
 
         float4 _TaaScales;
         // NOTE: We need to define custom scales instead of using the default ones for several reasons.
@@ -183,7 +185,7 @@ SAMPLER(s_point_clamp_sampler);
         //    To fix said artifacts we recompute manually the scales as we need them.
         #define _RTHandleScaleForTAAHistory _TaaScales.xy
         #define _RTHandleScaleForTAA _TaaScales.zw
-#define _RTHandleScale _TaaScales.xy;
+#define _RTHandleScale _TaaScales;
 
 #if VELOCITY_REJECTION
         TEXTURE2D_X(_InputVelocityMagnitudeHistory);
@@ -379,6 +381,7 @@ SAMPLER(s_point_clamp_sampler);
 
             _OutputHistoryTexture[COORD_TEXTURE2D_X(input.positionCS.xy)] = color.CTYPE_SWIZZLE;
             outColor = color.CTYPE_SWIZZLE;
+            //outColor = motionVector.xyy;
 #if VELOCITY_REJECTION && !defined(POST_DOF)
             _OutputVelocityMagnitudeHistory[COORD_TEXTURE2D_X(input.positionCS.xy)] = lengthMV;
 #endif
@@ -392,7 +395,7 @@ SAMPLER(s_point_clamp_sampler);
             float2 jitter = _TaaJitterStrength.zw;
             float2 uv = input.texcoord - jitter;
 
-            outColor = Fetch4(_InputTexture, uv, 0.0, _RTHandleScale.xy).CTYPE_SWIZZLE;
+            outColor = Fetch4(_InputTexture, uv, 0.0, _TaaScales.xy).CTYPE_SWIZZLE;
         }
 
         void FragCopyHistory(Varyings input, out CTYPE outColor : SV_Target0)
