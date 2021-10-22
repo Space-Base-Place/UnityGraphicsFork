@@ -243,7 +243,7 @@ SAMPLER(s_point_clamp_sampler);
             float sharpenStrength = _TaaFrameInfo.x;
             float2 jitter = _TaaJitterStrength.zw;
 
-            float2 uv = input.texcoord;
+            float2 uv = input.texcoord - jitter;
 
 
             // --------------- Get closest motion vector ---------------
@@ -265,12 +265,14 @@ SAMPLER(s_point_clamp_sampler);
 
             float lengthMV = 0;
 
-            //outColor = SAMPLE_TEXTURE2D_X_LOD(_MotionVectorTexture, s_point_clamp_sampler, ClampAndScaleUVForPoint(uv + closestOffset * _InputSize.zw), 0);
-            //DecodeMotionVector(SAMPLE_TEXTURE2D_X_LOD(_MotionVectorTexture, s_point_clamp_sampler, ClampAndScaleUVForPoint(uv + closestOffset * _InputSize.zw), 0), motionVector);
+            //DecodeMotionVector(SAMPLE_TEXTURE2D_X(_MotionVectorTexture, s_point_clamp_sampler, min(uv + closestOffset * _InputSize.zw, 1.0)), motionVector);
+            motionVector = SAMPLE_TEXTURE2D_X(_MotionVectorTexture, s_point_clamp_sampler, uv);
+//outColor = float3(closestOffset, 0);
+//outColor = SAMPLE_TEXTURE2D_X(_DepthTexture, s_point_clamp_sampler, uv) * 10;
             // --------------------------------------------------------
 
             // --------------- Get resampled history ---------------
-            float2 prevUV = input.texcoord - motionVector;
+            float2 prevUV = input.texcoord - motionVector - jitter;
 
             CTYPE history = GetFilteredHistory(_InputHistoryTexture, prevUV, _HistorySharpening, _TaaHistorySize, _RTHandleScaleForTAAHistory);
 

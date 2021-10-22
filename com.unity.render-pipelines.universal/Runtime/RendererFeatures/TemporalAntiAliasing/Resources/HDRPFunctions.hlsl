@@ -1,19 +1,19 @@
 // Functions imported from across the HDRP to support TAA
 
 // com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderVariablesGlobal.cs.hlsl
-float4 _RTHandleScale;
-float4 _RTHandleScaleHistory;
-float4 _RTHandlePostProcessScale;
-float4 _RTHandlePostProcessScaleHistory;
+//float4 _RTHandleScale;
+//float4 _RTHandleScaleHistory;
+//float4 _RTHandlePostProcessScale;
+//float4 _RTHandlePostProcessScaleHistory;
 
 
 
 // com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderVariables.hlsl
 
-float2 ClampAndScaleUVForPoint(float2 UV)
-{
-    return min(UV, 1.0f) * _RTHandleScale.xy;
-}
+//float2 ClampAndScaleUVForPoint(float2 UV)
+//{
+//    return min(UV, 1.0f) * _RTHandleScale.xy;
+//}
 
 
 
