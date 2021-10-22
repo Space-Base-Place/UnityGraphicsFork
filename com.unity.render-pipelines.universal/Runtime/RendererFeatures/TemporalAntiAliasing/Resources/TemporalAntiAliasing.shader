@@ -249,13 +249,14 @@ SAMPLER(s_point_clamp_sampler);
             // --------------- Get closest motion vector ---------------
             float2 motionVector = 0.0.xx;
 
-            int2 samplePos = input.positionCS.xy;
+            //int2 samplePos = input.positionCS.xy;
+            int2 samplePos = uv * _ScreenParams.xy;
 
 #if ORTHOGRAPHIC
             float2 closestOffset = 0;
 #else
 
-            float2 closestOffset = GetClosestFragmentOffset(_DepthTexture, samplePos);
+            float2 closestOffset = GetClosestFragmentUV(uv);
 #endif
             bool excludeTAABit = false;
 #if DIRECT_STENCIL_SAMPLE
@@ -265,10 +266,10 @@ SAMPLER(s_point_clamp_sampler);
 
             float lengthMV = 0;
 
-            //DecodeMotionVector(SAMPLE_TEXTURE2D_X(_MotionVectorTexture, s_point_clamp_sampler, min(uv + closestOffset * _InputSize.zw, 1.0)), motionVector);
-            motionVector = SAMPLE_TEXTURE2D_X(_MotionVectorTexture, s_point_clamp_sampler, uv);
-//outColor = float3(closestOffset, 0);
-//outColor = SAMPLE_TEXTURE2D_X(_DepthTexture, s_point_clamp_sampler, uv) * 10;
+            DecodeMotionVector(SAMPLE_TEXTURE2D_X(_MotionVectorTexture, s_point_clamp_sampler, min(uv + closestOffset, 1.0)), motionVector);
+            //motionVector = SAMPLE_TEXTURE2D_X(_MotionVectorTexture, s_point_clamp_sampler, min(uv + closestOffset, 1.0));
+            //motionVector = SAMPLE_TEXTURE2D_X(_MotionVectorTexture, s_point_clamp_sampler, uv + closestOffset);
+//outColor = float3(motionVector, 0) * 100;
             // --------------------------------------------------------
 
             // --------------- Get resampled history ---------------

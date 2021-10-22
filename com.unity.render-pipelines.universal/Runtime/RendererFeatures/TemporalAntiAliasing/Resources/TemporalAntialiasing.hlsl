@@ -301,23 +301,24 @@ float2 GetClosestFragmentOffset(TEXTURE2D_X(DepthTexture), int2 positionSS)
 }
 
 // Used since some compute might want to call this and we cannot use Quad reads in that case.
-float2 GetClosestFragmentCompute(float2 positionSS)
+// Note AC changed this to work in 0.0-1.0 UV space instead of int2 pixel space
+float2 GetClosestFragmentUV(float2 uv)
 {
-    float center = SampleSceneDepth(positionSS);
-    float nw = SampleSceneDepth(positionSS + int2(-1, -1));
-    float ne = SampleSceneDepth(positionSS + int2(1, -1));
-    float sw = SampleSceneDepth(positionSS + int2(-1, 1));
-    float se = SampleSceneDepth(positionSS + int2(1, 1));
+    float center = SampleSceneDepth(uv);
+    float nw = SampleSceneDepth(uv + float2(-1, -1) * _ScreenSize.zw);
+    float ne = SampleSceneDepth(uv + float2( 1, -1) * _ScreenSize.zw);
+    float sw = SampleSceneDepth(uv + float2(-1,  1) * _ScreenSize.zw);
+    float se = SampleSceneDepth(uv + float2( 1,  1) * _ScreenSize.zw);
 
     float4 neighborhood = float4(nw, ne, sw, se);
 
     float3 closest = float3(0.0, 0.0, center);
     closest = lerp(closest, float3(-1, -1, neighborhood.x), COMPARE_DEPTH(neighborhood.x, closest.z));
-    closest = lerp(closest, float3(1, -1, neighborhood.y), COMPARE_DEPTH(neighborhood.y, closest.z));
-    closest = lerp(closest, float3(-1, 1, neighborhood.z), COMPARE_DEPTH(neighborhood.z, closest.z));
-    closest = lerp(closest, float3(1, 1, neighborhood.w), COMPARE_DEPTH(neighborhood.w, closest.z));
+    closest = lerp(closest, float3( 1, -1, neighborhood.y), COMPARE_DEPTH(neighborhood.y, closest.z));
+    closest = lerp(closest, float3(-1,  1, neighborhood.z), COMPARE_DEPTH(neighborhood.z, closest.z));
+    closest = lerp(closest, float3( 1,  1, neighborhood.w), COMPARE_DEPTH(neighborhood.w, closest.z));
 
-    return positionSS + closest.xy;
+    return closest.xy * _ScreenSize.zw;
 }
 
 
