@@ -23,11 +23,19 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         [Range(0, 1)] public float taaMotionVectorRejection;
         [Range(0, 1)] public float taaAntiFlicker;
         [Range(0, 1)] public float taaBaseBlendFactor;
+        [Range(0, 1)] public float taaJitterAmount;
         public bool taaAntiRinging;
     }
 
     class TAACameraSettingsPass : ScriptableRenderPass
     {
+        Settings settings;
+
+        public void Setup(Settings settings)
+        {
+            this.settings = settings;
+        }
+
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             var cameraData = renderingData.cameraData;
@@ -39,7 +47,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
             var cmd = CommandBufferPool.Get("TAACameraSettings");
 
-            temporalData.UpdateState(ref renderingData);
+            temporalData.UpdateState(settings.taaJitterAmount, ref renderingData);
 
             var viewMatrix = cameraData.GetViewMatrix();
             var projMatrix = temporalData.GetJitteredProjectionMatrix();
@@ -113,25 +121,22 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             if (data.resetPostProcessingHistory)
             {
                 var historyMpb = MaterialPropertyBlockPool.Get();
-                //historyMpb.SetTexture(ShaderIDs._InputTexture, renderSource);
                 historyMpb.SetVector(ShaderIDs._TaaScales, data.taaScales);
 
                 DrawFullScreen(cmd, data.temporalAAMaterial, data.prevHistory, historyMpb, copyHistoryPass);
                 DrawFullScreen(cmd, data.temporalAAMaterial, data.nextHistory, historyMpb, copyHistoryPass);
+
+                MaterialPropertyBlockPool.Release(historyMpb);
             }
 
             var mpb = MaterialPropertyBlockPool.Get();
             mpb.SetInt(ShaderIDs._StencilMask, (int)StencilUsage.ExcludeFromTAA);
             mpb.SetInt(ShaderIDs._StencilRef, (int)StencilUsage.ExcludeFromTAA);
-            //mpb.SetTexture(ShaderIDs._CameraMotionVectorsTexture, data.motionVecTexture);
-            //mpb.SetTexture(ShaderIDs._InputTexture, source);
             mpb.SetTexture(ShaderIDs._InputHistoryTexture, data.prevHistory);
             if (data.prevMVLen != null && data.motionVectorRejection)
             {
                 mpb.SetTexture(ShaderIDs._InputVelocityMagnitudeHistory, data.prevMVLen);
             }
-
-            //mpb.SetTexture(HDShaderIDs._DepthTexture, data.depthMipChain);
 
             var taaHistorySize = data.previousScreenSize;
 
@@ -140,16 +145,11 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             mpb.SetVector(ShaderIDs._TaaJitterStrength, data.taaJitterStrength);
 
             mpb.SetVector(ShaderIDs._TaaPostParameters, data.taaParameters);
-            mpb.SetVector(ShaderIDs._TaaPostParameters1, data.taaParameters1);
             mpb.SetVector(ShaderIDs._TaaHistorySize, taaHistorySize);
             mpb.SetVector(ShaderIDs._TaaFilterWeights, data.taaFilterWeights);
-            mpb.SetVector(ShaderIDs._TaaFilterWeights1, data.taaFilterWeights1);
-            //mpb.SetVector(ShaderIDs._TaauParameters, data.taauParams);
-            mpb.SetVector(ShaderIDs._TaaScales, data.taaScales);
 
 
             CoreUtils.SetRenderTarget(cmd, renderTarget);
-
 
             cmd.SetRandomWriteTarget(1, data.nextHistory);
             if (data.nextMVLen != null && data.motionVectorRejection)
@@ -157,11 +157,11 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
                 cmd.SetRandomWriteTarget(2, data.nextMVLen);
             }
 
-            //cmd.SetViewport(data.finalViewport);
             cmd.DrawProcedural(Matrix4x4.identity, data.temporalAAMaterial, taaPass, MeshTopology.Triangles, 3, 1, mpb);
             //cmd.DrawProcedural(Matrix4x4.identity, data.temporalAAMaterial, excludeTaaPass, MeshTopology.Triangles, 3, 1, mpb);
 
             cmd.ClearRandomWriteTargets();
+            MaterialPropertyBlockPool.Release(mpb);
 
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
@@ -185,8 +185,6 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             // The anti flicker becomes much more aggressive on higher values
             float temporalContrastForMaxAntiFlicker = 0.7f - Mathf.Lerp(0.0f, 0.3f, Mathf.SmoothStep(0.5f, 1.0f, settings.taaAntiFlicker));
 
-            //bool TAAU = camera.IsTAAUEnabled(); no support for taa upscaling
-
             float antiFlickerLerpFactor = settings.taaAntiFlicker;
             float historySharpening = settings.taaHistorySharpening;
 
@@ -200,32 +198,48 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
             passData.taaParameters = new Vector4(historySharpening, antiFlicker, motionRejectionMultiplier, temporalContrastForMaxAntiFlicker);
 
-            // Precompute weights used for the Blackman-Harris filter.
-            float totalWeight = 0;
-            for (int i = 0; i < 9; ++i)
-            {
-                float x = TAASampleOffsets[i].x - passData.taaJitterStrength.x;
-                float y = TAASampleOffsets[i].y - passData.taaJitterStrength.y;
-                float d = (x * x + y * y);
+            /*            this more accurate version of the filter could be upgraded seperately from the rest of the logic
+             *            // Precompute weights used for the Blackman-Harris filter.
+                        float totalWeight = 0;
+                        for (int i = 0; i < 9; ++i)
+                        {
+                            float x = TAASampleOffsets[i].x - passData.taaJitterStrength.x;
+                            float y = TAASampleOffsets[i].y - passData.taaJitterStrength.y;
+                            float d = (x * x + y * y);
 
-                taaSampleWeights[i] = Mathf.Exp((-0.5f / (0.22f)) * d);
-                totalWeight += taaSampleWeights[i];
+                            taaSampleWeights[i] = Mathf.Exp((-0.5f / (0.22f)) * d);
+                            totalWeight += taaSampleWeights[i];
+                        }
+
+                        for (int i = 0; i < 9; ++i)
+                        {
+                            taaSampleWeights[i] /= totalWeight;
+                        }
+                        // dont use post dof override
+                        //const float postDofMin = 0.4f;
+                        //const float scale = (TAABaseBlendFactorMax - postDofMin) / (TAABaseBlendFactorMax - TAABaseBlendFactorMin);
+                        //const float offset = postDofMin - TAABaseBlendFactorMin * scale;
+                        float taaBaseBlendFactor = settings.taaBaseBlendFactor;
+
+                        passData.taaFilterWeights = new Vector4(taaSampleWeights[1], taaSampleWeights[2], taaSampleWeights[3], taaSampleWeights[4]);
+                        passData.taaFilterWeights1 = new Vector4(taaSampleWeights[5], taaSampleWeights[6], taaSampleWeights[7], taaSampleWeights[8]);
+             */
+
+            // Precompute weights used for the Blackman-Harris filter. TODO: Note that these are slightly wrong as they don't take into account the jitter size. This needs to be fixed at some point.
+            float crossWeights = Mathf.Exp(-2.29f * 2);
+            float plusWeights = Mathf.Exp(-2.29f);
+            float centerWeight = 1;
+
+            float totalWeight = centerWeight + (4 * plusWeights);
+            if (settings.quality == Settings.Quality.High)
+            {
+                totalWeight += crossWeights * 4;
             }
 
-            for (int i = 0; i < 9; ++i)
-            {
-                taaSampleWeights[i] /= totalWeight;
-            }
+            // Weights will be x: central, y: plus neighbours, z: cross neighbours, w: total
+            passData.taaFilterWeights = new Vector4(centerWeight / totalWeight, plusWeights / totalWeight, crossWeights / totalWeight, totalWeight);
 
-            // dont use post dof override
-            //const float postDofMin = 0.4f;
-            //const float scale = (TAABaseBlendFactorMax - postDofMin) / (TAABaseBlendFactorMax - TAABaseBlendFactorMin);
-            //const float offset = postDofMin - TAABaseBlendFactorMin * scale;
-            float taaBaseBlendFactor = settings.taaBaseBlendFactor;
 
-            passData.taaParameters1 = new Vector4(cameraData.isSceneViewCamera ? 0.2f : 1.0f - taaBaseBlendFactor, taaSampleWeights[0], (int)StencilUsage.ExcludeFromTAA, 0);
-            passData.taaFilterWeights = new Vector4(taaSampleWeights[1], taaSampleWeights[2], taaSampleWeights[3], taaSampleWeights[4]);
-            passData.taaFilterWeights1 = new Vector4(taaSampleWeights[5], taaSampleWeights[6], taaSampleWeights[7], taaSampleWeights[8]);
 
             passData.temporalAAMaterial = temporalAAMaterial;
             passData.temporalAAMaterial.shaderKeywords = null;
@@ -268,74 +282,12 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
                     break;
             }
 
-
-
-
-            //GrabTemporalAntialiasingHistoryTextures(tAAcameraData, out RTHandle prevHistory, out RTHandle nextHistory);
-
-
-
             // we always clear history when size changes so this is redundant
             int width = renderingData.cameraData.pixelWidth;
             int height = renderingData.cameraData.pixelHeight;
             passData.previousScreenSize = new Vector4(width, height, 1.0f / width, 1.0f / height);
 
-            /*            if (TAAU)
-                            passData.previousScreenSize = new Vector4(camera.finalViewport.width, camera.finalViewport.height, 1.0f / camera.finalViewport.width, 1.0f / camera.finalViewport.height);
-
-                        passData.source = builder.ReadTexture(sourceTexture);
-                        passData.depthBuffer = builder.ReadTexture(depthBuffer);
-                        passData.motionVecTexture = builder.ReadTexture(motionVectors);
-                        passData.depthMipChain = builder.ReadTexture(depthBufferMipChain);
-                        passData.prevHistory = builder.ReadTexture(renderGraph.ImportTexture(prevHistory));
-                        if (passData.resetPostProcessingHistory)
-                        {
-                            passData.prevHistory = builder.WriteTexture(passData.prevHistory);
-                        }
-                        passData.nextHistory = builder.WriteTexture(renderGraph.ImportTexture(nextHistory));
-
-                        // Note: In case we run TAA for a second time (post-dof), we can use the same velocity history (and not write the output)
-                        RTHandle prevMVLen, nextMVLen;
-                        GrabVelocityMagnitudeHistoryTextures(camera, historyScale, out prevMVLen, out nextMVLen);
-
-                        passData.prevMVLen = builder.ReadTexture(renderGraph.ImportTexture(prevMVLen));
-                        passData.nextMVLen = (!postDoF) ? builder.WriteTexture(renderGraph.ImportTexture(nextMVLen)) : TextureHandle.nullHandle;
-
-                        TextureHandle dest;
-                        if (TAAU && DynamicResolutionHandler.instance.HardwareDynamicResIsEnabled())
-                        {
-                            dest = GetPostprocessUpsampledOutputHandle(renderGraph, outputName);
-                        }
-                        else
-                        {
-                            dest = GetPostprocessOutputHandle(renderGraph, outputName);
-                        }
-                        passData.destination = builder.WriteTexture(dest);
-
-                        bool needToUseCurrFrameSizeForHistory = camera.resetPostProcessingHistory || TAAU != camera.previousFrameWasTAAUpsampled;
-                        bool runsAfterUpscale = (resGroup == ResolutionGroup.AfterDynamicResUpscale);
-
-                        passData.prevFinalViewport = (camera.prevFinalViewport.width < 0 || needToUseCurrFrameSizeForHistory) ? camera.finalViewport : camera.prevFinalViewport;
-                        var mainRTScales = RTHandles.CalculateRatioAgainstMaxSize(camera.actualWidth, camera.actualHeight);
-
-                        var historyRenderingViewport = (TAAU || runsAfterUpscale) ? new Vector2(passData.prevFinalViewport.width, passData.prevFinalViewport.height) :
-                            (needToUseCurrFrameSizeForHistory ? RTHandles.rtHandleProperties.currentViewportSize : camera.historyRTHandleProperties.previousViewportSize);
-
-                        if (runsAfterUpscale)
-                        {
-                            // We are already upsampled here.
-                            mainRTScales = RTHandles.CalculateRatioAgainstMaxSize((int)camera.finalViewport.width, (int)camera.finalViewport.height);
-                        }
-                        Vector4 scales = new Vector4(historyRenderingViewport.x / prevHistory.rt.width, historyRenderingViewport.y / prevHistory.rt.height, mainRTScales.x, mainRTScales.y);
-                        passData.taaScales = scales;
-
-                        passData.finalViewport = (TAAU || runsAfterUpscale) ? camera.finalViewport : new Rect(0, 0, RTHandles.rtHandleProperties.currentViewportSize.x, RTHandles.rtHandleProperties.currentViewportSize.y);
-            var resScale = DynamicResolutionHandler.instance.GetCurrentScale();
-            float stdDev = 0.4f;
-            passData.taauParams = new Vector4(1.0f / (stdDev * stdDev), 1.0f / resScale, 0.5f / resScale, resScale);*/
             passData.taaScales = Vector4.one;
-
-            //passData.stencilBuffer = stencilTexture;
         }
 
 
@@ -434,7 +386,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             Camera = camera;
         }
 
-        public void UpdateState(ref RenderingData renderingData)
+        public void UpdateState(float jitterAmount, ref RenderingData renderingData)
         {
             unjitteredProjectionMatrix = Camera.nonJitteredProjectionMatrix;
             const int kMaxSampleCount = 8;
@@ -452,8 +404,10 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             // instability in Unity's shadow maps, so we avoid index 0.
             float jitterX = HaltonSequence.Get((taaFrameIndex & 1023) + 1, 2) - 0.5f;
             float jitterY = HaltonSequence.Get((taaFrameIndex & 1023) + 1, 3) - 0.5f;
-            //jitterX = indexRead;
-            //jitterY = 1;
+
+            jitterX *= jitterAmount;
+            jitterY *= jitterAmount;
+
             taaJitterStrength = new Vector4(jitterX, jitterY, jitterX / pixelWidth, jitterY / pixelHeight);
 
             Matrix4x4 proj;
@@ -655,9 +609,11 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
                 cameraDataDict.Add(camera, data);
             }
 
-            renderer.EnqueuePass(cameraSettingsPass);
+            cameraSettingsPass.Setup(settings);
             temporalAntiAliasingPass.Setup(settings);
             temporalAntiAliasingPass.ConfigureInput(ScriptableRenderPassInput.Motion);
+
+            renderer.EnqueuePass(cameraSettingsPass);
             renderer.EnqueuePass(temporalAntiAliasingPass);
         }
     }
