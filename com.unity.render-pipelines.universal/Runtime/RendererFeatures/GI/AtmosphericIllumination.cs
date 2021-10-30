@@ -77,9 +77,7 @@ public class AtmosphericIllumination : ScriptableRendererFeature
             var camera = renderingData.cameraData.camera;
             var atmosphere = FindClosestAtmosphere(camera);
 
-            var shouldRender = atmosphere != null;
-
-            if (!shouldRender)
+            if (atmosphere == null || atmosphere.Data == null) // don't render if no data
                 return;
 
             var currentAtmosphere = new CurrentAtmosphere(atmosphere);

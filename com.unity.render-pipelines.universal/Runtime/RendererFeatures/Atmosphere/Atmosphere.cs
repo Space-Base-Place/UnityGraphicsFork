@@ -11,7 +11,7 @@ public class Atmosphere : MonoBehaviour
 
     private void Update()
     {
-        Data.UpdatePlanetCentre(transform.position);
+        Data?.UpdatePlanetCentre(transform.position);
     }
 
 
