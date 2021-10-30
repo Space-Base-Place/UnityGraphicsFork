@@ -1,0 +1,65 @@
+﻿#pragma kernel CSMain
+
+RWTexture3D<float4> Result;
+int textureSize;
+
+half3 mainLightDirection;
+half3 mainLightColor;
+half3 sunsetColor;
+
+struct Light
+{
+    float3 positionWS;
+    float3 color;
+};
+
+StructuredBuffer<Light> lightBuffer;
+int numLights;
+
+float4 params;
+float surfaceRadius01;
+float sunsetZoneWidth;
+float textureInflation;
+
+float globalGIPower;
+
+half3 CalculateLightComponent(float3 position01, float3 lightDirection, float3 lightColor, float3 sunsetColor)
+{
+    float NdotL = -dot(position01, lightDirection);
+    float intensity = smoothstep(-sunsetZoneWidth, 0, NdotL);
+    float sunsetZone = 1 - smoothstep(0, sunsetZoneWidth, abs(NdotL));
+    return lerp(lightColor, sunsetColor, sunsetZone) * intensity;
+}
+
+[numthreads(4,4,4)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float3 centerWS = params.xyz;
+    //float oneOverAtmosphereRadiusInflated = params.w;
+    
+    float3 uvw = id / (float) textureSize;
+    float3 position01 = uvw * 2 - 1;
+    
+    // Main Light
+    half3 lightSum = CalculateLightComponent(position01, mainLightDirection, mainLightColor, sunsetColor);
+
+    // Other Lights
+    for (int i = 0; i < numLights; i++)
+    {
+        float3 lightDirection = normalize(centerWS - lightBuffer[i].positionWS);
+        float3 lightColor = lightBuffer[i].color;
+        lightSum += CalculateLightComponent(position01, lightDirection, lightColor, 0.0.xxx);
+    }
+    
+    // Depth & Falloff
+    float dist01 = length(position01) * textureInflation;
+    float atmosphereDepth01 = 1 - surfaceRadius01;
+    float undergroundFalloff = smoothstep(-0.05, 0.05, dist01 - surfaceRadius01);
+    float atmosphereFalloff = 1 - saturate((dist01 - surfaceRadius01) / atmosphereDepth01);
+    float falloffPower = undergroundFalloff * atmosphereFalloff;
+    
+    half3 finalColor = lightSum * falloffPower * globalGIPower;
+
+    //Result[id] = half4(lightSum, 1);
+    Result[id] = half4(finalColor, 1);
+}

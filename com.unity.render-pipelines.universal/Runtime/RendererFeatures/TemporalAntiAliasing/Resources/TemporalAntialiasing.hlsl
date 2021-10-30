@@ -264,8 +264,7 @@ float3 ConvertToOutputSpace(float3 color)
 // ---------------------------------------------------
 
 // Front most neighbourhood velocity ([Karis 2014])
-float2 GetClosestFragment(TEXTURE2D_X( DepthTexture),
-int2 positionSS)
+float2 GetClosestFragment(TEXTURE2D_X(DepthTexture), int2 positionSS)
 {
 float center = LOAD_TEXTURE2D_X_LOD(DepthTexture, positionSS, 0).r;
 
@@ -282,11 +281,9 @@ float s1 = LOAD_TEXTURE2D_X_LOD(DepthTexture, positionSS + offset1, 0).r;
 float s0 = QuadReadAcrossDiagonal(center, positionSS);
 
 float3 closest = float3(0.0, 0.0, center);
-    closest = COMPARE_DEPTH(s0, closest.z) ? float3(fastOffset, s0) :
-closest;
+    closest = COMPARE_DEPTH(s0, closest.z) ? float3(fastOffset, s0) : closest;
     closest = COMPARE_DEPTH(s3, closest.z) ? float3(offset3, s3) : closest;
-    closest = COMPARE_DEPTH(s2, closest.z) ? float3(offset2, s2) :
-closest;
+    closest = COMPARE_DEPTH(s2, closest.z) ? float3(offset2, s2) : closest;
     closest = COMPARE_DEPTH(s1, closest.z) ? float3(offset1, s1) : closest;
 
     return positionSS + closest.

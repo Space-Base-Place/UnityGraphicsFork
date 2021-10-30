@@ -121,26 +121,37 @@ SAMPLER(s_point_clamp_sampler);
         #define _RTHandleScaleHistory float4(1,1,1,1)
         #define _RTHandleScale float4(1,1,1,1)
 
+float4 _TaaObjectIDParameters;
+#define _CameraVelocity _TaaObjectIDParameters.x
+#define _ObjectIDRejection _TaaObjectIDParameters.y
+
 // Obviously modified path
 #include "TemporalAntialiasing.hlsl"
 
 
+
 //////////////////////////////////////
 
+        TEXTURE2D_X(_CurrentObjectIDTexture);
+        TEXTURE2D_X(_PreviousObjectIDTexture);
 
         //TEXTURE2D_X(_DepthTexture);
         TEXTURE2D_X(_InputTexture);
         TEXTURE2D_X(_InputHistoryTexture);
         #ifdef SHADER_API_PSSL
         RW_TEXTURE2D_X(CTYPE, _OutputHistoryTexture) : register(u0);
+        RW_TEXTURE2D_X(CTYPE, _OutputObjectIDTexture) : register(u2);
         #else
         RW_TEXTURE2D_X(CTYPE, _OutputHistoryTexture) : register(u1);
+        RW_TEXTURE2D_X(CTYPE, _OutputObjectIDTexture) : register(u3);
         #endif
 
         #define _HistorySharpening _TaaPostParameters.x
         #define _AntiFlickerIntensity _TaaPostParameters.y
         #define _SpeedRejectionIntensity _TaaPostParameters.z
         #define _ContrastForMaxAntiFlicker _TaaPostParameters.w
+        
+
 
 #if VELOCITY_REJECTION
         TEXTURE2D_X(_InputVelocityMagnitudeHistory);
@@ -188,7 +199,7 @@ SAMPLER(s_point_clamp_sampler);
             float2 jitter = _TaaJitterStrength.zw;
 
             float2 uv = input.texcoord - jitter;
-
+//outColor = SAMPLE_TEXTURE2D_X_LOD(_InputTexture, s_point_clamp_sampler, input.texcoord, 0).xyz;
             // --------------- Get closest motion vector ---------------
             float2 motionVector;
 
@@ -202,7 +213,7 @@ SAMPLER(s_point_clamp_sampler);
             // --------------------------------------------------------
 
             // --------------- Get resampled history ---------------
-            float2 prevUV = input.texcoord - motionVector - jitter;
+            float2 prevUV = input.texcoord - motionVector;
 
             CTYPE history = GetFilteredHistory(_InputHistoryTexture, prevUV, _HistorySharpening, _TaaHistorySize);
             bool offScreen = any(abs(prevUV * 2 - 1) >= (1.0f - (1.0 * _TaaHistorySize.zw)));
@@ -255,6 +266,17 @@ SAMPLER(s_point_clamp_sampler);
             filteredColor.xyz = lerp(unjitteredColor.xyz, filteredColor.xyz, filteredColor.w);
             blendFactor = color.w > 0 ? blendFactor : 1;
 #endif
+
+            // ------------------- Object ID Rejection ---------------------------
+            float objectID = LOAD_TEXTURE2D_X(_CurrentObjectIDTexture, closest).r;
+            float prevObjectID = Fetch4(_PreviousObjectIDTexture, prevUV, 0.0, _RTHandleScale.xy).r;
+            bool differentObject = objectID != prevObjectID;
+
+//outColor = differentObject ? float3(1,0,0) : 0.0.xxx;
+            blendFactor = differentObject ? lerp(blendFactor,1, saturate(_CameraVelocity * _ObjectIDRejection * 10)) : blendFactor;
+//outColor = _CameraVelocity.xxx;
+
+            _OutputObjectIDTexture[COORD_TEXTURE2D_X(input.positionCS.xy)] = objectID;
             // ---------------------------------------------------------------
 
             // --------------- Blend to final value and output ---------------
@@ -290,6 +312,9 @@ SAMPLER(s_point_clamp_sampler);
 #endif
             // -------------------------------------------------------------
         }
+
+
+
 
         void FragExcludedTAA(Varyings input, out CTYPE outColor : SV_Target0)
         {
