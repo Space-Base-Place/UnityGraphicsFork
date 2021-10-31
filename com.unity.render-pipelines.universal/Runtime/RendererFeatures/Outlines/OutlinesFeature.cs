@@ -70,7 +70,6 @@ public class OutlinesFeature : ScriptableRendererFeature
         {
             if (material == null)
             {
-                Debug.LogError("Material is null");
                 return;
             }
 

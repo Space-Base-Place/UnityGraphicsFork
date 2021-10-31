@@ -216,7 +216,13 @@ FragmentOutput LitGBufferPassFragment(Varyings input)
     half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surfaceData.occlusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS);
 #endif
 
-    return BRDFDataToGbuffer(brdfData, inputData, surfaceData.smoothness, surfaceData.emission + color, surfaceData.occlusion);
+#if _USE_GBUFFER_OBJECTID
+    half objectID = _ObjectID;
+#else
+    half objectID = 0;
+#endif
+
+    return BRDFDataToGbuffer(brdfData, inputData, surfaceData.smoothness, surfaceData.emission + color, surfaceData.occlusion, objectID);
 }
 
 #endif

@@ -451,8 +451,8 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         cameraSettingsPass.renderPassEvent = RenderPassEvent.BeforeRenderingGbuffer - 1;
 
         // TODO: remove this pass and include object IDs in GBuffer pass
-        objectIDPass = new ObjectIDPass();
-        objectIDPass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        //objectIDPass = new ObjectIDPass();
+        //objectIDPass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
 
         temporalAntiAliasingPass = new TemporalAntiAliasingPass();
         temporalAntiAliasingPass.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
@@ -474,8 +474,8 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             cameraSettingsPass.Setup(settings, true);
             renderer.EnqueuePass(cameraSettingsPass);
 
-            objectIDPass.Setup(settings);
-            renderer.EnqueuePass(objectIDPass);
+            //objectIDPass.Setup(settings);
+            //renderer.EnqueuePass(objectIDPass);
 
             temporalAntiAliasingPass.Setup(settings);
             temporalAntiAliasingPass.ConfigureInput(ScriptableRenderPassInput.Motion);

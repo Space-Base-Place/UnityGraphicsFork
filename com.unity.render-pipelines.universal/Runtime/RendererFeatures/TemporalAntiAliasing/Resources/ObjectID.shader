@@ -40,7 +40,7 @@ Shader "Hidden/ObjectID"
 
         float ObjectIDFragment(Varyings input) : SV_TARGET0
         {
-//return 1;
+return 0.1;
            return input.objectID;
         }
 
@@ -55,7 +55,7 @@ Shader "Hidden/ObjectID"
             Name "ObjectID"
             //Tags{"LightMode" = "ObjectID"}
 
-            ZWrite Off ZTest LEqual Blend Off Cull Off
+            ZWrite Off ZTest Always Blend Off Cull Off
 
             HLSLPROGRAM
                 #pragma vertex ObjectIDVertex

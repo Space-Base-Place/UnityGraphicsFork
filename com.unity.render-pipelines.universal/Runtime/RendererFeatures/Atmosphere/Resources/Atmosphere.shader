@@ -1,4 +1,4 @@
-﻿Shader "Hidden/Atmosphere"
+Shader "Hidden/Atmosphere"
 {
 	Properties
 	{
@@ -42,11 +42,10 @@
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#include "Atmosphere.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/Runtime/RendererFeatures/Atmosphere/Resources/Atmosphere.hlsl"
 
 			ENDHLSL
 		}
 	}
 
-	CustomEditor "AtmosphereEditor"
 }

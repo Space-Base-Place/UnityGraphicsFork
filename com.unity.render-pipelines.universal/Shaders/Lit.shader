@@ -233,6 +233,7 @@ Shader "Universal Render Pipeline/Lit"
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_LAYERS
             #pragma multi_compile_fragment _ _RENDER_PASS_ENABLED
+            #pragma multi_compile_fragment _ _USE_GBUFFER_OBJECTID
 
             // -------------------------------------
             // Unity defined keywords

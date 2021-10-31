@@ -250,7 +250,8 @@ namespace UnityEngine.Rendering.Universal.Internal
             "_GBuffer3",
             "_GBuffer4",
             "_GBuffer5",
-            "_GBuffer6"
+            "_GBuffer6",
+            "_GBuffer7"
         };
 
         static readonly string[] k_TileDeferredPassNames = new string[]
@@ -311,8 +312,9 @@ namespace UnityEngine.Rendering.Universal.Internal
         internal int GbufferDepthIndex { get { return UseRenderPass ? GBufferLightingIndex + 1 : -1; } }
         internal int GBufferShadowMask { get { return UseShadowMask ? GBufferLightingIndex + (UseRenderPass ? 1 : 0) + 1 : -1; } }
         internal int GBufferRenderingLayers { get { return UseRenderingLayers ? GBufferLightingIndex + (UseRenderPass ? 1 : 0) + (UseShadowMask ? 1 : 0) + 1 : -1; } }
+        internal int GBufferObjectIDIndex { get { return UseObjectId ? GBufferLightingIndex + (UseRenderPass ? 1 : 0) + (UseShadowMask ? 1 : 0) + (UseRenderingLayers ? 1 : 0) + 1 : -1; } }
         // Color buffer count (not including dephStencil).
-        internal int GBufferSliceCount { get { return 4 + (UseRenderPass ? 1 : 0) + (UseShadowMask ? 1 : 0) + (UseRenderingLayers ? 1 : 0); } }
+        internal int GBufferSliceCount { get { return 4 + (UseRenderPass ? 1 : 0) + (UseShadowMask ? 1 : 0) + (UseRenderingLayers ? 1 : 0) + (UseObjectId ? 1 : 0); } }
 
         internal GraphicsFormat GetGBufferFormat(int index)
         {
@@ -330,6 +332,8 @@ namespace UnityEngine.Rendering.Universal.Internal
                 return GraphicsFormat.R8G8B8A8_UNorm;
             else if (index == GBufferRenderingLayers) // Optional: rendering layers is outputed when light layers are enabled (subset of rendering layers)
                 return GraphicsFormat.R8_UNorm;
+            else if (index == GBufferObjectIDIndex)
+                return GraphicsFormat.R16_UNorm;
             else
                 return GraphicsFormat.None;
         }
@@ -344,6 +348,8 @@ namespace UnityEngine.Rendering.Universal.Internal
         internal bool HasDepthPrepass { get; set; }
         //
         internal bool HasNormalPrepass { get; set; }
+        // AC TODO: integrate TAA into the pipeline so this can be disabled when TAA disabled
+        internal bool UseObjectId = true;
         // This is an overlay camera being rendered.
         internal bool IsOverlay { get; set; }
         // Not all platforms support R8G8B8A8_SNorm, so we need to check for the support and force accurate GBuffer normals and relevant shader variants
@@ -583,6 +589,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                     CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.MixedLightingSubtractive, isSubtractive); // Backward compatibility
                     // This should be moved to a more global scope when framebuffer fetch is introduced to more passes
                     CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.RenderPassEnabled, this.UseRenderPass && renderingData.cameraData.cameraType == CameraType.Game);
+                    CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.UseGBufferObjectIds, this.UseObjectId);
                 }
 
                 context.ExecuteCommandBuffer(cmd);

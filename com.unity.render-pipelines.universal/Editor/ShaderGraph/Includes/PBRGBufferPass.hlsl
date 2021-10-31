@@ -117,5 +117,11 @@ FragmentOutput frag(PackedVaryings packedInput)
     half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surfaceDescription.Occlusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS);
 #endif
 
-    return BRDFDataToGbuffer(brdfData, inputData, surfaceDescription.Smoothness, surfaceDescription.Emission + color, surfaceDescription.Occlusion);
+#if _USE_GBUFFER_OBJECTID
+    half objectID = _ObjectID;
+#else
+    half objectID = 0;
+#endif
+
+    return BRDFDataToGbuffer(brdfData, inputData, surfaceDescription.Smoothness, surfaceDescription.Emission + color, surfaceDescription.Occlusion, objectID);
 }

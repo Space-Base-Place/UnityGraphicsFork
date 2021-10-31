@@ -16,6 +16,8 @@ Shader "Hidden/TemporalAA"
         #pragma multi_compile_local _ ANTI_RINGING
         #pragma multi_compile_local LOW_QUALITY MEDIUM_QUALITY HIGH_QUALITY POST_DOF
 
+        #pragma multi_compile_fragment _ _USE_GBUFFER_OBJECTID
+
         #pragma editor_sync_compilation
 
         #pragma only_renderers d3d11 playstation xboxone xboxseries vulkan metal switch
@@ -24,6 +26,7 @@ Shader "Hidden/TemporalAA"
         #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
 // removed HDRP includes
         //#include "Packages/com.unity.render-pipelines.high-definition/Runtime/Material/Builtin/BuiltinData.hlsl"
         //#include "Packages/com.unity.render-pipelines.high-definition/Runtime/ShaderLibrary/ShaderVariables.hlsl"
@@ -132,7 +135,13 @@ float4 _TaaObjectIDParameters;
 
 //////////////////////////////////////
 
-        TEXTURE2D_X(_CurrentObjectIDTexture);
+#if _USE_GBUFFER_OBJECTID
+    #define CURRENT_OBJECT_ID GBUFFER_OBJECTID_TEX
+#else
+    #define CURRENT_OBJECT_ID _CurrentObjectIDTexture
+#endif
+
+        TEXTURE2D_X(CURRENT_OBJECT_ID);
         TEXTURE2D_X(_PreviousObjectIDTexture);
 
         //TEXTURE2D_X(_DepthTexture);
@@ -268,14 +277,18 @@ float4 _TaaObjectIDParameters;
 #endif
 
             // ------------------- Object ID Rejection ---------------------------
-            float objectID = LOAD_TEXTURE2D_X(_CurrentObjectIDTexture, closest).r;
-            float prevObjectID = Fetch4(_PreviousObjectIDTexture, prevUV, 0.0, _RTHandleScale.xy).r;
+            float objectID = LOAD_TEXTURE2D_X(CURRENT_OBJECT_ID, closest).r;
+            //float prevObjectID = LOAD_TEXTURE2D_X(_PreviousObjectIDTexture, closest).r;
+
+            float prevObjectID = SAMPLE_TEXTURE2D_X_LOD(_PreviousObjectIDTexture, s_linear_clamp_sampler, input.texcoord - motionVector, 0);
             bool differentObject = objectID != prevObjectID;
 
-//outColor = differentObject ? float3(1,0,0) : 0.0.xxx;
             blendFactor = differentObject ? lerp(blendFactor,1, saturate(_CameraVelocity * _ObjectIDRejection * 10)) : blendFactor;
-//outColor = _CameraVelocity.xxx;
-
+//outColor = differentObject ? float3(1,0,0) : 0.0.xxx;
+//outColor = objectID;
+//outColor = Fetch4(_InputTexture, prevUV, 0.0, _RTHandleScale.xy).r;
+//outColor = float3(abs(filteredColor.x - history.x) < 0.001 ? 1 : 0, 0, 0);
+//outColor = float3(motionVector, 0);
             _OutputObjectIDTexture[COORD_TEXTURE2D_X(input.positionCS.xy)] = objectID;
             // ---------------------------------------------------------------
 
