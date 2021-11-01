@@ -85,7 +85,7 @@ namespace UnityEngine.Rendering.Universal.Internal
 
             // We must explicitely specify we don't want any clear to avoid unwanted side-effects.
             // ScriptableRenderer will implicitely force a clear the first time the camera color/depth targets are bound.
-            ConfigureClear(ClearFlag.None, Color.black);
+            ConfigureClear(ClearFlag.Color, Color.black);
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)

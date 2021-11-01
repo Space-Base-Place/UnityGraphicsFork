@@ -1745,6 +1745,16 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
             definition = KeywordDefinition.ShaderFeature,
             scope = KeywordScope.Global,
         };
+
+        public static readonly KeywordDescriptor GBufferObjectID = new KeywordDescriptor()
+        {
+            displayName = "GBuffer ObjectID",
+            referenceName = "_USE_GBUFFER_OBJECTID",
+            type = KeywordType.Boolean,
+            definition = KeywordDefinition.MultiCompile,
+            scope = KeywordScope.Global,
+            stages = KeywordShaderStage.Fragment
+        };
     }
     #endregion
 

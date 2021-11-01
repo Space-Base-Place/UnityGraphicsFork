@@ -127,7 +127,7 @@ SAMPLER(s_point_clamp_sampler);
 float4 _TaaObjectIDParameters;
 #define _CameraVelocity _TaaObjectIDParameters.x
 #define _ObjectIDRejection _TaaObjectIDParameters.y
-
+#define _BaseBlendFactor   _TaaObjectIDParameters.z
 // Obviously modified path
 #include "TemporalAntialiasing.hlsl"
 
@@ -261,7 +261,7 @@ float4 _TaaObjectIDParameters;
             // ------------------------------------------------------------------------------
 
             // --------------- Compute blend factor for history ---------------
-            float blendFactor = GetBlendFactor(colorLuma, historyLuma, GetLuma(samples.minNeighbour), GetLuma(samples.maxNeighbour));
+            float blendFactor = GetBlendFactor(colorLuma, historyLuma, GetLuma(samples.minNeighbour), GetLuma(samples.maxNeighbour), _BaseBlendFactor);
             // --------------------------------------------------------
 
             // ------------------- Alpha handling ---------------------------
@@ -284,8 +284,8 @@ float4 _TaaObjectIDParameters;
             bool differentObject = objectID != prevObjectID;
 
             blendFactor = differentObject ? lerp(blendFactor,1, saturate(_CameraVelocity * _ObjectIDRejection * 10)) : blendFactor;
-//outColor = differentObject ? float3(1,0,0) : 0.0.xxx;
 //outColor = objectID;
+//outColor = differentObject ? float3(1,0,0) : 0.0.xxx;
 //outColor = Fetch4(_InputTexture, prevUV, 0.0, _RTHandleScale.xy).r;
 //outColor = float3(abs(filteredColor.x - history.x) < 0.001 ? 1 : 0, 0, 0);
 //outColor = float3(motionVector, 0);

@@ -832,7 +832,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
                 { CoreKeywordDescriptors.LightLayers },
                 { CoreKeywordDescriptors.RenderPassEnabled },
                 { CoreKeywordDescriptors.DebugDisplay },
-                { CoreKeywordDescriptors.AtmosphericIllumination }
+                { CoreKeywordDescriptors.AtmosphericIllumination },
+                { CoreKeywordDescriptors.GBufferObjectID }
             };
         }
         #endregion

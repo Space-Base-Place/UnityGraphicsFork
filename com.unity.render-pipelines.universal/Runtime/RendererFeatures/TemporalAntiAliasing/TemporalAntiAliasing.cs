@@ -5,7 +5,7 @@ using UnityEngine.Rendering.Universal;
 
 public class TemporalAntiAliasing : ScriptableRendererFeature
 {
-    #region SUB CLASSES
+    #region PASSES
 
     [System.Serializable]
     public class Settings
@@ -26,8 +26,6 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         [Range(0, 1)] public float taaJitterAmount;
         [Range(0, 1)] public float taaObjectIdRejection;
         public bool taaAntiRinging;
-
-        public LayerMask objectIdLayers;
     }
 
     class TAACameraSettingsPass : ScriptableRenderPass
@@ -87,76 +85,6 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             CommandBufferPool.Release(cmd);
         }
 
-    }
-
-    class ObjectIDPass : ScriptableRenderPass
-    {
-        Material material;
-        LayerMask layerMask;
-
-
-        public void Setup(Settings settings)
-        {
-            profilingSampler = new ProfilingSampler("ObjectID");
-
-            layerMask = settings.objectIdLayers;
-
-            var shader = Shader.Find("Hidden/ObjectID");
-
-            if (shader == null)
-                return;
-
-            material = new Material(shader);
-        }
-
-
-        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-            if (material == null)
-            {
-                Debug.LogError("Material is null");
-                return;
-            }
-
-            var camera = renderingData.cameraData.camera;
-
-            if (currentData == null) // Don't render if no data
-                return;
-
-            var cmd = CommandBufferPool.Get();
-
-            using (new ProfilingScope(cmd, profilingSampler))
-            {
-                var objectIDDescriptor = new RenderTextureDescriptor(camera.scaledPixelWidth, camera.scaledPixelHeight, RenderTextureFormat.R16, 0);
-                cmd.GetTemporaryRT(ShaderIDs._CurrentObjectIDTexture, objectIDDescriptor);
-
-                cmd.SetRenderTarget(ShaderIDs._CurrentObjectIDTexture, renderingData.cameraData.renderer.cameraDepthTarget);
-                cmd.ClearRenderTarget(false, true, Color.clear);
-
-                context.ExecuteCommandBuffer(cmd);
-                cmd.Clear();
-
-                var sortingSettings = new SortingSettings(camera);
-                var drawingSettings = CreateDrawingSettings(new ShaderTagId("UniversalForward"), ref renderingData, renderingData.cameraData.defaultOpaqueSortFlags);
-                drawingSettings.overrideMaterial = material;
-                drawingSettings.overrideMaterialPassIndex = 0;
-                
-
-                var filteringSettings = new FilteringSettings(RenderQueueRange.all, layerMask);
-
-                context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref filteringSettings);
-
-            }
-
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
-            CommandBufferPool.Release(cmd);
-        }
-
-        public override void OnCameraCleanup(CommandBuffer cmd)
-        {
-            cmd.ReleaseTemporaryRT(ShaderIDs._CurrentObjectIDTexture);
-        }
     }
 
     class TemporalAntiAliasingPass : ScriptableRenderPass
@@ -247,7 +175,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             mpb.SetVector(ShaderIDs._TaaFilterWeights, currentData.taaFilterWeights);
 
             // Object ID
-            var taaObjectIdParams = new Vector4(currentData.cameraVelocity, settings.taaObjectIdRejection, 0, 0);
+            var taaObjectIdParams = new Vector4(currentData.cameraVelocity, settings.taaObjectIdRejection, settings.taaBaseBlendFactor, 0);
             mpb.SetVector(ShaderIDs._TaaObjectIDParameters, taaObjectIdParams);
             cmd.SetGlobalTexture(ShaderIDs._CurrentObjectIDTexture, ShaderIDs._CurrentObjectIDTexture);
             mpb.SetTexture(ShaderIDs._PreviousObjectIDTexture, currentData.prevObjectID);
@@ -436,7 +364,6 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
     [SerializeField] private Settings settings = new Settings();
 
     TAACameraSettingsPass cameraSettingsPass;
-    ObjectIDPass objectIDPass;
     TemporalAntiAliasingPass temporalAntiAliasingPass;
 
     internal static Dictionary<Camera, TemporalAntiAliasingPassData> cameraDataDict = new Dictionary<Camera, TemporalAntiAliasingPassData>();
@@ -449,10 +376,6 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
         cameraSettingsPass = new TAACameraSettingsPass();
         cameraSettingsPass.renderPassEvent = RenderPassEvent.BeforeRenderingGbuffer - 1;
-
-        // TODO: remove this pass and include object IDs in GBuffer pass
-        //objectIDPass = new ObjectIDPass();
-        //objectIDPass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
 
         temporalAntiAliasingPass = new TemporalAntiAliasingPass();
         temporalAntiAliasingPass.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
@@ -474,13 +397,10 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             cameraSettingsPass.Setup(settings, true);
             renderer.EnqueuePass(cameraSettingsPass);
 
-            //objectIDPass.Setup(settings);
-            //renderer.EnqueuePass(objectIDPass);
 
             temporalAntiAliasingPass.Setup(settings);
             temporalAntiAliasingPass.ConfigureInput(ScriptableRenderPassInput.Motion);
             renderer.EnqueuePass(temporalAntiAliasingPass);
-
         }
     }
 

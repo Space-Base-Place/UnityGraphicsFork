@@ -5,8 +5,6 @@ using UnityEngine;
 [Tooltip("Generates a 16-bit pseudo-unique object ID for use with TAA")]
 public class ObjectID : MonoBehaviour
 {
-    private static int index = 32000;
-
     public int objectID { get; private set; }
     public float normalizedID { get; private set; }
     public Vector4 colorID { get; private set; }
@@ -14,7 +12,8 @@ public class ObjectID : MonoBehaviour
 
     private void Start()
     {
-        objectID = Random.Range(0, 65535);// GetNextIndex();
+        objectID = Mathf.Abs(GetInstanceID() % 65535);
+        Debug.Log($"{GetInstanceID()}, {objectID}");
         normalizedID = objectID / 65535f;
         colorID = new Vector4(0,0,0, normalizedID);
 
@@ -34,12 +33,6 @@ public class ObjectID : MonoBehaviour
                 material.SetFloat("_ObjectID", normalizedID);
             }
         }
-    }
-
-    private int GetNextIndex()
-    {
-        index = index++ % 65535;
-        return index;
     }
 
     public void UpdateMeshUV7()

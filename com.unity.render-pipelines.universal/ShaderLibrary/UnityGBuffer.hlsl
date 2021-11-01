@@ -48,6 +48,7 @@
 #endif //#if _RENDER_PASS_ENABLED
 
 //This skips the above spiderweb of if statements and always keeps the ObjectID target last
+//I understand the irony of making my own spiderweb
 #if _USE_GBUFFER_OBJECTID
     #if _RENDER_PASS_ENABLED && OUTPUT_SHADOWMASK && defined(_LIGHT_LAYERS)
         #define GBUFFER_OPTIONAL_SLOT_4 GBuffer7

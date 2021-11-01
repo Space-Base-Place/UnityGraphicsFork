@@ -638,10 +638,10 @@ CTYPE FilterCentralColor(NeighbourhoodSamples samples, float4 filterWeights)
 // Blend factor calculation
 // ---------------------------------------------------
 
-float HistoryContrast(float historyLuma, float minNeighbourLuma, float maxNeighbourLuma)
+float HistoryContrast(float historyLuma, float minNeighbourLuma, float maxNeighbourLuma, float baseBlendFactor)
 {
     float lumaContrast = max(maxNeighbourLuma - minNeighbourLuma, 0) / historyLuma;
-    float blendFactor = 0.125;
+    float blendFactor = baseBlendFactor;
     return saturate(blendFactor * rcp(1.0 + lumaContrast));
 }
 
@@ -651,11 +651,11 @@ float DistanceToClamp(float historyLuma, float minNeighbourLuma, float maxNeighb
     return saturate((0.125 * distToClamp) / (distToClamp + maxNeighbourLuma - minNeighbourLuma));
 }
 
-float GetBlendFactor(float colorLuma, float historyLuma, float minNeighbourLuma, float maxNeighbourLuma)
+float GetBlendFactor(float colorLuma, float historyLuma, float minNeighbourLuma, float maxNeighbourLuma, float baseBlendFactor)
 {
     // TODO: Investigate factoring in the speed in this computation.
 
-    return HistoryContrast(historyLuma, minNeighbourLuma, maxNeighbourLuma);
+    return HistoryContrast(historyLuma, minNeighbourLuma, maxNeighbourLuma, baseBlendFactor);
 }
 
 // ---------------------------------------------------
