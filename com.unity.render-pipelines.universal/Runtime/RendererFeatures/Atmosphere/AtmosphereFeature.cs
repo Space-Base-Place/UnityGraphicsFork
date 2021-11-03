@@ -5,20 +5,19 @@ using UnityEngine.Rendering.Universal;
 public class AtmosphereFeature : ScriptableRendererFeature
 {
     [System.Serializable]
-    public class AtmosphereSettings
+    public class Settings
     {
         
 
         [Range(0, 1)] public float noiseOffset = 1;
         [Range(0, 1)] public float shadowStrength = 0.5f;
-        public float ditherStrength = 1;
+        [Range(0, 1)] public float ditherStrength = 1;
         public float ditherScale = 1;
         public int numInScatteringPoints = 10;
         public int numOpticalDepthPoints = 10;
-        public int bakedTextureSize = 128;
     }
 
-    public AtmosphereSettings settings = new AtmosphereSettings();
+    public Settings settings = new Settings();
 
 
 
@@ -28,6 +27,12 @@ public class AtmosphereFeature : ScriptableRendererFeature
         private RenderTargetIdentifier renderTarget;
         int temporaryRTId = Shader.PropertyToID("_TempRT");
 
+        private Settings settings;
+
+        public void Setup(Settings settings)
+        {
+            this.settings = settings;
+        }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -41,9 +46,22 @@ public class AtmosphereFeature : ScriptableRendererFeature
         {
             CommandBuffer cmd = CommandBufferPool.Get("Atmosphere");
 
+            bool isSceneCam = renderingData.cameraData.isSceneViewCamera;
+
             foreach (var atmosphere in Atmosphere.allAtmospheres)
             {
-                var material = atmosphere.Data.material;
+                var material = atmosphere.Data.Material;
+
+                var ditherStrength = isSceneCam ? 0 : settings.ditherStrength;
+                var numInScatteringPoints = isSceneCam ? 50 : settings.numInScatteringPoints;
+                var noiseOffset = isSceneCam ? 0 : settings.noiseOffset;
+
+                material.SetFloat("ditherStrength", ditherStrength);
+                material.SetInt("numInScatteringPoints", numInScatteringPoints);
+                material.SetFloat("_RayOffset", noiseOffset);
+                material.SetFloat("ditherScale", settings.ditherScale);
+                material.SetFloat("_ShadowStrength", settings.shadowStrength);
+
                 cmd.Blit(renderTarget, renderSource);
                 Blit(cmd, renderSource, renderTarget, material);
             }
@@ -69,11 +87,9 @@ public class AtmosphereFeature : ScriptableRendererFeature
     {
         name = "Atmosphere";
 
-        blueNoiseTex = Resources.Load<Texture2D>("HDR_L_0");
-        if (blueNoiseTex == null) Debug.LogError("Can't find noise texture");
 
         m_AtmospherePass = new AtmospherePass();
-
+        m_AtmospherePass.Setup(settings);
         ApplyAtmosphereSettings();
 
         // Configures where the render pass should be injected.
@@ -94,44 +110,11 @@ public class AtmosphereFeature : ScriptableRendererFeature
     {
         foreach (var atmosphere in Atmosphere.allAtmospheres)
         {
-            var atmosphereData = atmosphere.Data;
-            atmosphereData._BlueNoise = blueNoiseTex;
-            atmosphereData.ditherStrength = settings.ditherStrength;
-            atmosphereData.ditherScale = settings.ditherScale;
-            atmosphereData.numInScatteringPoints = settings.numInScatteringPoints;
-            atmosphereData.numOpticalDepthPoints = settings.numOpticalDepthPoints;
-            atmosphereData.textureSize = settings.bakedTextureSize;
-            atmosphereData.noiseOffset = settings.noiseOffset;
-            atmosphereData.shadowStrength = settings.shadowStrength;
-
-            atmosphereData.Setup();
+            atmosphere.Data.Setup();
         }
     }
 
 
-    /////////////////////////////
-    /// Bake Optical Depth
-    /////////////////////////////
-    public static void BakeOpticalDepth(Material material)
-    {
-        int textureSize = Mathf.NextPowerOfTwo(material.GetInt("textureSize"));
 
-        var _BakedOpticalDepth = new RenderTexture(textureSize, textureSize, 0)
-        {
-            filterMode = FilterMode.Bilinear,
-            enableRandomWrite = true
-        };
-        _BakedOpticalDepth.Create();
-
-        var computeShader = Resources.Load<ComputeShader>("AtmosphereTexture");
-        computeShader.SetInt("textureSize", textureSize);
-        computeShader.SetInt("numOutScatteringSteps", material.GetInt("numOpticalDepthPoints"));
-        computeShader.SetFloat("atmosphereRadius", material.GetFloat("inscatteringScale") + 1);
-        computeShader.SetFloat("densityFalloff", material.GetFloat("densityFalloff"));
-        computeShader.SetTexture(0, "Result", _BakedOpticalDepth);
-        computeShader.Dispatch(0, textureSize, textureSize, 1);
-
-        material.SetTexture("_BakedOpticalDepth", _BakedOpticalDepth);
-    }
 }
 
