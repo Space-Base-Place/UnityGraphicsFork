@@ -9,7 +9,7 @@ using Sirenix.OdinInspector;
 public class AtmosphereData : ScriptableObject
 {
     [Header("Size")]
-    public Vector3 planetCentre;
+    [HideInInspector] public Vector3 planetCentre;
     [Min(0)] public float atmosphereRadius = 300;
     [Min(0)] public float oceanRadius = 150;
     [Min(0)] public float planetRadius = 180;

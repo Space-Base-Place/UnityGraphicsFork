@@ -1,4 +1,4 @@
-﻿#pragma kernel CSMain
+#pragma kernel CSMain
 
 RWTexture3D<float4> Result;
 int textureSize;
@@ -54,7 +54,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     // Depth & Falloff
     float dist01 = length(position01) * textureInflation;
     float atmosphereDepth01 = 1 - surfaceRadius01;
-    float undergroundFalloff = smoothstep(-0.05, 0.05, dist01 - surfaceRadius01);
+    float undergroundFalloff = smoothstep(-0.8, 0.00, dist01 - surfaceRadius01);
     float atmosphereFalloff = 1 - saturate((dist01 - surfaceRadius01) / atmosphereDepth01);
     float falloffPower = undergroundFalloff * atmosphereFalloff;
     

@@ -376,29 +376,27 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
         cameraSettingsPass = new TAACameraSettingsPass();
         cameraSettingsPass.renderPassEvent = RenderPassEvent.BeforeRenderingGbuffer - 1;
+        cameraSettingsPass.Setup(settings, true);
 
         temporalAntiAliasingPass = new TemporalAntiAliasingPass();
         temporalAntiAliasingPass.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+        temporalAntiAliasingPass.Setup(settings);
     }
 
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        if (!renderingData.cameraData.isSceneViewCamera)
+        if (!renderingData.cameraData.isSceneViewCamera && !renderingData.cameraData.isPreviewCamera)
         {
             var camera = renderingData.cameraData.camera;
-            bool found = cameraDataDict.TryGetValue(camera, out TemporalAntiAliasingPassData data);
-            if (!found)
+            
+            if (!cameraDataDict.ContainsKey(camera))
             {
-                data = new TemporalAntiAliasingPassData(camera);
-                cameraDataDict.Add(camera, data);
+                cameraDataDict.Add(camera, new TemporalAntiAliasingPassData(camera));
             }
 
-            cameraSettingsPass.Setup(settings, true);
             renderer.EnqueuePass(cameraSettingsPass);
 
-
-            temporalAntiAliasingPass.Setup(settings);
             temporalAntiAliasingPass.ConfigureInput(ScriptableRenderPassInput.Motion);
             renderer.EnqueuePass(temporalAntiAliasingPass);
         }

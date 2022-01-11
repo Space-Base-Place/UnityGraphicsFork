@@ -148,6 +148,9 @@ public class OutlinesFeature : ScriptableRendererFeature
     // This method is called when setting up the renderer once per-camera.
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
+        if (renderingData.cameraData.cameraType == CameraType.Preview)
+            return;
+
         renderer.EnqueuePass(outlinesPass);
         
         //copyDepthPass.Setup(m_DepthCopy, m_CameraDepthAttachment);

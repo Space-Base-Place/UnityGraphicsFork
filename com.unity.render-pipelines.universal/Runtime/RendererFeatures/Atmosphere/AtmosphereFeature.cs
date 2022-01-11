@@ -7,7 +7,7 @@ public class AtmosphereFeature : ScriptableRendererFeature
     [System.Serializable]
     public class Settings
     {
-        
+        public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
 
         [Range(0, 1)] public float noiseOffset = 1;
         [Range(0, 1)] public float shadowStrength = 0.5f;
@@ -50,6 +50,12 @@ public class AtmosphereFeature : ScriptableRendererFeature
 
             foreach (var atmosphere in Atmosphere.allAtmospheres)
             {
+                if (atmosphere.Data == null)
+                    continue;
+
+                if (atmosphere.Data.Material == null)
+                    atmosphere.Data.Setup();
+
                 var material = atmosphere.Data.Material;
 
                 var ditherStrength = isSceneCam ? 0 : settings.ditherStrength;
@@ -93,13 +99,16 @@ public class AtmosphereFeature : ScriptableRendererFeature
         ApplyAtmosphereSettings();
 
         // Configures where the render pass should be injected.
-        m_AtmospherePass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        m_AtmospherePass.renderPassEvent = settings.renderPassEvent;
     }
 
     // Here you can inject one or multiple render passes in the renderer.
     // This method is called when setting up the renderer once per-camera.
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
+        if (renderingData.cameraData.cameraType == CameraType.Preview)
+            return;
+
         renderer.EnqueuePass(m_AtmospherePass);
     }
 

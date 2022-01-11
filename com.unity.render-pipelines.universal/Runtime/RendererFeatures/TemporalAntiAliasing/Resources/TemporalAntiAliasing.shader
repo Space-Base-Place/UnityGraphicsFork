@@ -280,13 +280,13 @@ float4 _TaaObjectIDParameters;
             float objectID = LOAD_TEXTURE2D_X(CURRENT_OBJECT_ID, closest).r;
             //float prevObjectID = LOAD_TEXTURE2D_X(_PreviousObjectIDTexture, closest).r;
 
-            float prevObjectID = SAMPLE_TEXTURE2D_X_LOD(_PreviousObjectIDTexture, s_linear_clamp_sampler, input.texcoord - motionVector, 0);
+            float prevObjectID = SAMPLE_TEXTURE2D_X_LOD(_PreviousObjectIDTexture, s_linear_clamp_sampler, prevUV, 0);
             bool differentObject = objectID != prevObjectID;
 
             blendFactor = differentObject ? lerp(blendFactor,1, saturate(_CameraVelocity * _ObjectIDRejection * 10)) : blendFactor;
 //outColor = objectID;
 //outColor = differentObject ? float3(1,0,0) : 0.0.xxx;
-//outColor = Fetch4(_InputTexture, prevUV, 0.0, _RTHandleScale.xy).r;
+//outColor = Fetch4(_InputHistoryTexture, prevUV, 0.0, _RTHandleScale.xy).r;
 //outColor = float3(abs(filteredColor.x - history.x) < 0.001 ? 1 : 0, 0, 0);
 //outColor = float3(motionVector, 0);
             _OutputObjectIDTexture[COORD_TEXTURE2D_X(input.positionCS.xy)] = objectID;

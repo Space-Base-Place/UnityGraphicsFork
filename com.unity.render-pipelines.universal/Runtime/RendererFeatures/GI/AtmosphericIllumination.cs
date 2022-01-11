@@ -67,10 +67,11 @@ public class AtmosphericIllumination : ScriptableRendererFeature
             threadgroupSize = (int)math.ceil(textureSize / (float)threadGroupX);
 
 
-            lightBuffer = new ComputeBuffer(AtmosphericIlluminationConstants.MaxGIAffectors, AtmosphericIlluminationConstants.lightStride);
-            planetShineLights = new PlanetShineLight[AtmosphericIlluminationConstants.MaxGIAffectors];
+            if (lightBuffer == null)
+                lightBuffer = new ComputeBuffer(AtmosphericIlluminationConstants.MaxGIAffectors, AtmosphericIlluminationConstants.lightStride);
+            if (planetShineLights == null)
+                planetShineLights = new PlanetShineLight[AtmosphericIlluminationConstants.MaxGIAffectors];
         }
-
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
@@ -79,6 +80,7 @@ public class AtmosphericIllumination : ScriptableRendererFeature
 
             if (atmosphere == null || atmosphere.Data == null) // don't render if no data
                 return;
+
 
             var currentAtmosphere = new CurrentAtmosphere(atmosphere);
 
@@ -166,8 +168,6 @@ public class AtmosphericIllumination : ScriptableRendererFeature
             }
             return closestAtmosphere;
         }
-
-
     }
 
     AtmosphericIlluminationPrepass m_ScriptablePass;
@@ -175,7 +175,8 @@ public class AtmosphericIllumination : ScriptableRendererFeature
     /// <inheritdoc/>
     public override void Create()
     {
-        m_ScriptablePass = new AtmosphericIlluminationPrepass();
+        if (m_ScriptablePass == null)
+            m_ScriptablePass = new AtmosphericIlluminationPrepass();
 
         // Configures where the render pass should be injected.
         m_ScriptablePass.renderPassEvent = RenderPassEvent.BeforeRendering;
@@ -194,6 +195,7 @@ public class AtmosphericIllumination : ScriptableRendererFeature
     {
         if (disposing)
             m_ScriptablePass.Dispose();
+        m_ScriptablePass = null;
     }
 
     public static class AtmosphericIlluminationConstants

@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,11 +8,12 @@ public class Atmosphere : MonoBehaviour
 {
     public static List<Atmosphere> allAtmospheres = new List<Atmosphere>();
 
-    public AtmosphereData Data;
+    [InlineEditor] public AtmosphereData Data;
 
     private void Update()
     {
-        Data?.UpdatePlanetCentre(transform.position);
+        if (Data != null)
+            Data.UpdatePlanetCentre(transform.position);
     }
 
 
