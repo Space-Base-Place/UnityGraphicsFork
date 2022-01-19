@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
@@ -20,43 +21,76 @@ public class AtmosphereData : ScriptableObject
     [Min(0)] public float densityFalloff = 5;
     [Min(0)] public float scatteringStrength = 50;
 
+    const int textureSize = 128;
+    const int numOpticalDepthPoints = 10;
+
 
     public Material Material { get => material; }
     private Material material;
+    private Texture2D blueNoiseTex;
     RenderTexture bakedOpticalDepth;
 
     private void OnValidate()
     {
-        Setup();
+        Clear();
+        SetupIfRequired();
     }
 
-    public void Setup()
+    public void SetupIfRequired()
     {
         if (material == null)
         {
             var shader = Shader.Find("Hidden/Atmosphere");
 
             if (shader == null)
+            {
+                Debug.LogError("Can't find atmosphere shader!", this);
                 return;
+            }
 
-            material = new Material(shader);
+            material = CoreUtils.CreateEngineMaterial(shader);
+
+            material.SetFloat("atmosphereRadius", atmosphereRadius);
+            material.SetFloat("oceanRadius", oceanRadius);
+            material.SetFloat("planetRadius", planetRadius);
+
+            material.SetVector("scatteringCoefficients", PreComputeScattering(scatteringWavelengths));
+            material.SetFloat("intensity", intensity);
+            material.SetFloat("densityFalloff", densityFalloff);
+            //material.SetFloat("scatteringStrength", scatteringStrength);
+
+            // Dither Texture
+            var blueNoiseTex = Resources.Load<Texture2D>("HDR_L_0");
+
+            if (blueNoiseTex == null)
+                Debug.LogError("Can't find noise texture");
+
+            material.SetTexture("_BlueNoise", blueNoiseTex);
+
+            // Bake Optical Depth
+            bakedOpticalDepth = new RenderTexture(textureSize, textureSize, 0)
+            {
+                graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat,
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                autoGenerateMips = false,
+                enableRandomWrite = true
+            };
+            bakedOpticalDepth.Create();
+
+            material.SetTexture("_BakedOpticalDepth", bakedOpticalDepth);
+
+            BakeOpticalDepth();
         }
+    }
 
-        var blueNoiseTex = Resources.Load<Texture2D>("HDR_L_0");
-        if (blueNoiseTex == null) Debug.LogError("Can't find noise texture");
+    public void Clear()
+    {
+        material = null;
 
-        material.SetTexture("_BlueNoise", blueNoiseTex);
-
-        material.SetFloat("atmosphereRadius", atmosphereRadius);
-        material.SetFloat("oceanRadius", oceanRadius);
-        material.SetFloat("planetRadius", planetRadius);
-
-        material.SetVector("scatteringCoefficients", PreComputeScattering(scatteringWavelengths));
-        material.SetFloat("intensity", intensity);
-        material.SetFloat("densityFalloff", densityFalloff);
-        material.SetFloat("scatteringStrength", scatteringStrength);
-
-        BakeOpticalDepth();
+        if (bakedOpticalDepth != null)
+            bakedOpticalDepth.Release();
+        bakedOpticalDepth = null;
     }
 
     public Vector3 PreComputeScattering(Vector3 wavelengths)
@@ -69,25 +103,12 @@ public class AtmosphereData : ScriptableObject
 
     public void BakeOpticalDepth()
     {
-        const int textureSize = 128;
-        const int numOpticalDepthPoints = 10;
-
-        bakedOpticalDepth = new RenderTexture(textureSize, textureSize, 0)
-        {
-            filterMode = FilterMode.Bilinear,
-            enableRandomWrite = true
-        };
-        bakedOpticalDepth.Create();
-
-
         var computeShader = Resources.Load<ComputeShader>("AtmosphereTexture");
         computeShader.SetInt("textureSize", textureSize);
         computeShader.SetInt("numOutScatteringSteps", numOpticalDepthPoints);
         computeShader.SetFloat("densityFalloff", densityFalloff);
         computeShader.SetTexture(0, "Result", bakedOpticalDepth);
         computeShader.Dispatch(0, textureSize, textureSize, 1);
-
-        material.SetTexture("_BakedOpticalDepth", bakedOpticalDepth);
     }
 
     public void UpdatePlanetCentre(Vector3 newCentre)

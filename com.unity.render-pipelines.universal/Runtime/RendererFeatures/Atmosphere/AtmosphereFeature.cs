@@ -29,10 +29,12 @@ public class AtmosphereFeature : ScriptableRendererFeature
 
         private Settings settings;
 
-        public void Setup(Settings settings)
+        public AtmospherePass(Settings settings) : base()
         {
             this.settings = settings;
+            base.profilingSampler = new("AtmospherePass");
         }
+
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
@@ -53,16 +55,16 @@ public class AtmosphereFeature : ScriptableRendererFeature
                 if (atmosphere.Data == null)
                     continue;
 
-                if (atmosphere.Data.Material == null)
-                    atmosphere.Data.Setup();
+                atmosphere.Data.SetupIfRequired();
 
                 var material = atmosphere.Data.Material;
 
-                var ditherStrength = isSceneCam ? 0 : settings.ditherStrength;
+                // dither not required due to stochastic sampling
+                //var ditherStrength = isSceneCam ? 0 : settings.ditherStrength;
                 var numInScatteringPoints = isSceneCam ? 50 : settings.numInScatteringPoints;
                 var noiseOffset = isSceneCam ? 0 : settings.noiseOffset;
 
-                material.SetFloat("ditherStrength", ditherStrength);
+                //material.SetFloat("ditherStrength", settings.ditherStrength);
                 material.SetInt("numInScatteringPoints", numInScatteringPoints);
                 material.SetFloat("_RayOffset", noiseOffset);
                 material.SetFloat("ditherScale", settings.ditherScale);
@@ -84,7 +86,7 @@ public class AtmosphereFeature : ScriptableRendererFeature
         }
     }
 
-    AtmospherePass m_AtmospherePass;
+    AtmospherePass atmospherePass;
 
     Texture2D blueNoiseTex;
 
@@ -93,13 +95,15 @@ public class AtmosphereFeature : ScriptableRendererFeature
     {
         name = "Atmosphere";
 
+        atmospherePass = new(settings);
 
-        m_AtmospherePass = new AtmospherePass();
-        m_AtmospherePass.Setup(settings);
-        ApplyAtmosphereSettings();
+        foreach (var atmosphere in Atmosphere.allAtmospheres)
+        {
+            atmosphere.Data.Clear();
+        }
 
         // Configures where the render pass should be injected.
-        m_AtmospherePass.renderPassEvent = settings.renderPassEvent;
+        atmospherePass.renderPassEvent = settings.renderPassEvent;
     }
 
     // Here you can inject one or multiple render passes in the renderer.
@@ -109,20 +113,8 @@ public class AtmosphereFeature : ScriptableRendererFeature
         if (renderingData.cameraData.cameraType == CameraType.Preview)
             return;
 
-        renderer.EnqueuePass(m_AtmospherePass);
+        renderer.EnqueuePass(atmospherePass);
     }
-
-    /// <summary>
-    /// This is required on serialization to pass settings from the feature to all atmosphere objects
-    /// </summary>
-    public void ApplyAtmosphereSettings()
-    {
-        foreach (var atmosphere in Atmosphere.allAtmospheres)
-        {
-            atmosphere.Data.Setup();
-        }
-    }
-
 
 
 }

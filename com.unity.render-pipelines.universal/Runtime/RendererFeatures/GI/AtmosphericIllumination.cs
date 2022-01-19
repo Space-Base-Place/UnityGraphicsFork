@@ -14,11 +14,12 @@ public class AtmosphericIllumination : ScriptableRendererFeature
         [Range(0, 1)] public float sunsetZoneWidth;
         public Color skyColor;
         public Color sunsetColor;
+        public Color baseColor;
         [Range(0, 2)] public float globalGIPower;
     }
 
 
-    public Settings settings = new Settings();
+    public Settings settings = new();
 
 
     class AtmosphericIlluminationPrepass : ScriptableRenderPass
@@ -34,43 +35,70 @@ public class AtmosphericIllumination : ScriptableRendererFeature
 
         private PlanetShineLight[] planetShineLights;
 
+        int kernelMain;
+        int kernelClear;
 
-        public void Setup(Settings settings)
+        public AtmosphericIlluminationPrepass(Settings settings) : base()
         {
+            base.profilingSampler = new("AtmosphericIllumination");
             this.settings = settings;
-
             textureSize = Mathf.NextPowerOfTwo(settings.textureSize);
+        }
 
+        public void InitializeResourcesIfRequired()
+        {
             // Initialise Render Texture
+            if (renderTexture == null || !renderTexture.IsCreated())
+            {
+                renderTexture = new RenderTexture(textureSize, textureSize, 0)
+                {
+                    enableRandomWrite = true,
+                    dimension = TextureDimension.Tex3D,
+                    volumeDepth = textureSize
+                };
+                renderTexture.Create();
+            }
 
-            renderTexture = new RenderTexture(textureSize, textureSize, 0);
-            renderTexture.enableRandomWrite = true;
-            renderTexture.dimension = TextureDimension.Tex3D;
-            renderTexture.volumeDepth = textureSize;
-            renderTexture.Create();
-        
+
             // Initialise Compute Shader
+            if (computeShader == null)
+            {
+                computeShader = Resources.Load<ComputeShader>("GITexture");
 
-            computeShader = Resources.Load<ComputeShader>("GITexture");
+                kernelMain = computeShader.FindKernel("CSMain");
+                kernelClear = computeShader.FindKernel("Clear");
 
-            computeShader.SetTexture(0, "Result", renderTexture);
-            computeShader.SetInt("textureSize", textureSize);
-            computeShader.SetFloat("sunsetZoneWidth", settings.sunsetZoneWidth);
-            computeShader.SetFloat("globalGIPower", settings.globalGIPower);
-            computeShader.SetFloat("textureInflation", AtmosphericIlluminationConstants.TextureInflation);
+                computeShader.SetTexture(kernelMain, "Result", renderTexture);
+                computeShader.SetTexture(kernelClear, "Result", renderTexture);
 
-            computeShader.GetKernelThreadGroupSizes(0, out uint threadGroupX, out uint threadGroupY, out uint threadGroupZ);
+                computeShader.SetInt("textureSize", textureSize);
+                computeShader.SetFloat("sunsetZoneWidth", settings.sunsetZoneWidth);
+                computeShader.SetFloat("globalGIPower", settings.globalGIPower);
+                computeShader.SetFloat("textureInflation", AtmosphericIlluminationConstants.TextureInflation);
 
-            if (threadGroupX != threadGroupY || threadGroupY != threadGroupZ)
-                Debug.LogError("Invalid threadgroup size");
+                computeShader.GetKernelThreadGroupSizes(0, out uint threadGroupX, out uint threadGroupY, out uint threadGroupZ);
 
-            threadgroupSize = (int)math.ceil(textureSize / (float)threadGroupX);
+
+                if (threadGroupX != threadGroupY || threadGroupY != threadGroupZ)
+                    Debug.LogError("Invalid threadgroup size");
+
+                threadgroupSize = (int)math.ceil(textureSize / (float)threadGroupX);
+
+                ClearRenderTexture();
+            }
 
 
             if (lightBuffer == null)
                 lightBuffer = new ComputeBuffer(AtmosphericIlluminationConstants.MaxGIAffectors, AtmosphericIlluminationConstants.lightStride);
+
             if (planetShineLights == null)
                 planetShineLights = new PlanetShineLight[AtmosphericIlluminationConstants.MaxGIAffectors];
+
+        }
+
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+        {
+            InitializeResourcesIfRequired();
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -115,7 +143,7 @@ public class AtmosphericIllumination : ScriptableRendererFeature
             }
 
             lightBuffer.SetData(planetShineLights);
-            computeShader.SetBuffer(0, "lightBuffer", lightBuffer);
+            computeShader.SetBuffer(kernelMain, "lightBuffer", lightBuffer);
             computeShader.SetInt("numLights", numLights);
         }
 
@@ -140,15 +168,27 @@ public class AtmosphericIllumination : ScriptableRendererFeature
             computeShader.SetVector("mainLightDirection", mainLightDirection);
             computeShader.SetVector("mainLightColor", settings.skyColor);
             computeShader.SetVector("sunsetColor", settings.sunsetColor);
+            computeShader.SetVector("baseColor", settings.baseColor);
 
-            computeShader.Dispatch(0, threadgroupSize, threadgroupSize, threadgroupSize);
+            computeShader.Dispatch(kernelMain, threadgroupSize, threadgroupSize, threadgroupSize);
+
+            //Debug.Log($"Dispatching compute for {data.name}, threadgroup {threadgroupSize}, mainlight {mainLightDirection}, {settings.skyColor}, params {currentAtmosphere.Params}");
+
+        }
+
+        private void ClearRenderTexture()
+        {      
+            computeShader.Dispatch(kernelClear, threadgroupSize, threadgroupSize, threadgroupSize);
         }
 
         public void Dispose()
         {
             if (renderTexture != null)
                 renderTexture.Release();
+            renderTexture = null;
+
             lightBuffer?.Dispose();
+            lightBuffer = null;
         }
 
         private Atmosphere FindClosestAtmosphere(Camera camera)
@@ -170,32 +210,34 @@ public class AtmosphericIllumination : ScriptableRendererFeature
         }
     }
 
-    AtmosphericIlluminationPrepass m_ScriptablePass;
+    AtmosphericIlluminationPrepass atmosphericIlluminationPrepass;
 
     /// <inheritdoc/>
     public override void Create()
     {
-        if (m_ScriptablePass == null)
-            m_ScriptablePass = new AtmosphericIlluminationPrepass();
+        if (atmosphericIlluminationPrepass != null)
+            atmosphericIlluminationPrepass.Dispose();
+
+        atmosphericIlluminationPrepass = new(settings);
 
         // Configures where the render pass should be injected.
-        m_ScriptablePass.renderPassEvent = RenderPassEvent.BeforeRendering;
+        atmosphericIlluminationPrepass.renderPassEvent = RenderPassEvent.BeforeRendering;
 
-        m_ScriptablePass.Setup(settings);
     }
 
     // Here you can inject one or multiple render passes in the renderer.
-    // This method is called when setting up the renderer once per-camera.
+    // This method is called every frame when setting up the renderer once per-camera.
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        renderer.EnqueuePass(m_ScriptablePass);
+        if (renderingData.cameraData.cameraType != CameraType.Preview)
+            renderer.EnqueuePass(atmosphericIlluminationPrepass);
     }
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
-            m_ScriptablePass.Dispose();
-        m_ScriptablePass = null;
+        if (disposing && atmosphericIlluminationPrepass != null)
+            atmosphericIlluminationPrepass.Dispose();
+        atmosphericIlluminationPrepass = null;
     }
 
     public static class AtmosphericIlluminationConstants

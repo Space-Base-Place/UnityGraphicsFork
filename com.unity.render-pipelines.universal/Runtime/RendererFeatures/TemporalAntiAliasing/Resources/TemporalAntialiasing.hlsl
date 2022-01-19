@@ -6,7 +6,15 @@
 // Legacy defines, DON'T USE IN NEW PASSES THAT USE TEMPORAL AA
 #define RADIUS              0.75
 
-#if !defined(CTYPE)
+//#if !defined(CTYPE)
+//#define CTYPE float3
+//#define CTYPE_SWIZZLE xyz
+//#endif
+
+#ifdef ENABLE_ALPHA
+#define CTYPE float4
+#define CTYPE_SWIZZLE xyzw
+#else
 #define CTYPE float3
 #define CTYPE_SWIZZLE xyz
 #endif

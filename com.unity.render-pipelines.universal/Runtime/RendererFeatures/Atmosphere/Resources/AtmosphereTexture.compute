@@ -15,7 +15,7 @@ float densityAtPoint(float2 densitySamplePoint) {
 
 	float heightAboveSurface = length(densitySamplePoint - planetCentre) - planetRadius;
 	float height01 = heightAboveSurface / (atmosphereRadius - planetRadius);
-	float localDensity = exp(-height01 * densityFalloff) * (1 - height01);
+    float localDensity = exp(-height01 * densityFalloff) * (1 - height01);
 	return localDensity;
 }
 
@@ -28,7 +28,7 @@ float opticalDepth(float2 rayOrigin, float2 rayDir, float rayLength) {
 
 	for (int i = 0; i < numOpticalDepthPoints; i ++) {
 		float localDensity = densityAtPoint(densitySamplePoint);
-		opticalDepth += localDensity * stepSize;
+        opticalDepth += localDensity;// * stepSize;
 		densitySamplePoint += rayDir * stepSize;
 	}
 	return opticalDepth;
@@ -72,17 +72,13 @@ void CSMain (uint2 id : SV_DispatchThreadID)
 
 	float2 uv = id / (float)textureSize;
 	float height01 = uv.y;
-	float angle = uv.x * PI;
-	//angle = (1-cos(angle))/2;
-	float2 dir = float2(sin(angle), cos(angle));
 	float y = -2 * uv.x + 1;
 	float x = sin(acos(y));
-	dir = float2(x,y);
+	float2 dir = float2(x,y);
 	
 	float2 inPoint = float2(0, lerp(planetRadius, atmosphereRadius, height01));
 	float dstThroughAtmosphere = raySphere(0, atmosphereRadius, float3(inPoint,0), float3(dir,0)).y;
-	float2 outPoint = inPoint + dir * raySphere(0, atmosphereRadius, float3(inPoint,0), float3(dir,0)).y;
-	//float outScattering = calculateOutScattering(inPoint, outPoint);
+    float2 outPoint = inPoint + dir * dstThroughAtmosphere;
 	float outScattering = opticalDepth(inPoint + dir * 0.0001, dir, dstThroughAtmosphere-0.0002);
 
 	Result[id.xy] = outScattering;
