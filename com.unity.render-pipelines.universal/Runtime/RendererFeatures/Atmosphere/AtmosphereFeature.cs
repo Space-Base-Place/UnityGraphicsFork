@@ -15,6 +15,7 @@ public class AtmosphereFeature : ScriptableRendererFeature
         public float ditherScale = 1;
         public int numInScatteringPoints = 10;
         public int numOpticalDepthPoints = 10;
+        public bool fixedRayLength = false;
     }
 
     public Settings settings = new Settings();
@@ -61,7 +62,7 @@ public class AtmosphereFeature : ScriptableRendererFeature
 
                 // dither not required due to stochastic sampling
                 //var ditherStrength = isSceneCam ? 0 : settings.ditherStrength;
-                var numInScatteringPoints = isSceneCam ? 50 : settings.numInScatteringPoints;
+                var numInScatteringPoints = settings.numInScatteringPoints * (isSceneCam ?  2 : 1);
                 var noiseOffset = isSceneCam ? 0 : settings.noiseOffset;
 
                 //material.SetFloat("ditherStrength", settings.ditherStrength);
@@ -99,6 +100,7 @@ public class AtmosphereFeature : ScriptableRendererFeature
 
         foreach (var atmosphere in Atmosphere.allAtmospheres)
         {
+            atmosphere.Data.fixedRayLength = settings.fixedRayLength;
             atmosphere.Data.Clear();
         }
 

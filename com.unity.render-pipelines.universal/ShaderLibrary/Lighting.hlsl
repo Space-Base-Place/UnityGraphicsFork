@@ -281,6 +281,8 @@ half4 UniversalFragmentPBR(InputData inputData, SurfaceData surfaceData)
     lightingData.giColor = GlobalIllumination(brdfData, brdfDataClearCoat, surfaceData.clearCoatMask,
                                               inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
                                               inputData.normalWS, inputData.viewDirectionWS);
+    lightingData.giColor = 1.0.xxxx;
+
 #endif
 
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
@@ -290,7 +292,7 @@ half4 UniversalFragmentPBR(InputData inputData, SurfaceData surfaceData)
                                                               inputData.normalWS, inputData.viewDirectionWS,
                                                               surfaceData.clearCoatMask, specularHighlightsOff);
     }
-
+    
     #if defined(_ADDITIONAL_LIGHTS)
     uint pixelLightCount = GetAdditionalLightsCount();
 

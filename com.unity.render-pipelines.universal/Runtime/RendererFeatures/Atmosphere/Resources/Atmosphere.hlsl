@@ -120,6 +120,7 @@ float opticalDepth(float3 rayOrigin, float3 rayDir, float rayLength)
     float3 densitySamplePoint = rayOrigin;
     float stepSize = rayLength / (numOpticalDepthPoints - 1);
     float opticalDepth = 0;
+    float normalizedStepSize = stepSize / atmosphereRadius;
 
     for (int i = 0; i < numOpticalDepthPoints; i++)
     {
@@ -127,7 +128,11 @@ float opticalDepth(float3 rayOrigin, float3 rayDir, float rayLength)
         opticalDepth += localDensity;// * stepSize; ignoring stepSize makes this agnostic to planet radius
         densitySamplePoint += rayDir * stepSize;
     }
-    return opticalDepth;
+#ifdef FIXED_RAY_LENGTH
+	return opticalDepth / numOpticalDepthPoints;
+#else
+    return opticalDepth * normalizedStepSize * 100;
+#endif
 }
 
 
@@ -169,6 +174,13 @@ float3 calculateLight(float3 rayOrigin, float3 rayDir, float rayLength, float3 o
     float3 inScatterPoint = rayOrigin + randomOffset;
     float3 inScatteredLight = 0;
     float viewRayOpticalDepth = 0;
+
+#ifdef FIXED_RAY_LENGTH
+    float normalizedStepSize = 1 / numInScatteringPoints;
+#else
+    float normalizedStepSize = stepSize / atmosphereRadius * 100;
+#endif
+
     
     float3 dirToSun = _MainLightPosition.xyz;
 
@@ -177,7 +189,7 @@ float3 calculateLight(float3 rayOrigin, float3 rayDir, float rayLength, float3 o
         float sunRayLength = raySphere(planetCentre, atmosphereRadius, inScatterPoint, dirToSun).y;
         float sunRayOpticalDepth = opticalDepthBaked(inScatterPoint, dirToSun);
         float localDensity = densityAtPoint(inScatterPoint);
-        viewRayOpticalDepth += localDensity;
+        viewRayOpticalDepth += localDensity * normalizedStepSize;
         float3 transmittance = exp(-(sunRayOpticalDepth + viewRayOpticalDepth) * scatteringCoefficients.xyz);
         float shadow = lerp(1, shadowAtPoint(inScatterPoint), _ShadowStrength);
         

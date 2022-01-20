@@ -22,8 +22,10 @@ public class AtmosphereData : ScriptableObject
     [Min(0)] public float scatteringStrength = 50;
 
     const int textureSize = 128;
-    const int numOpticalDepthPoints = 10;
+    //const int numOpticalDepthPoints = 10;
 
+    [HideInInspector]
+    public bool fixedRayLength;
 
     public Material Material { get => material; }
     private Material material;
@@ -49,6 +51,9 @@ public class AtmosphereData : ScriptableObject
             }
 
             material = CoreUtils.CreateEngineMaterial(shader);
+
+            LocalKeyword localKeyword = new(shader, "FIXED_RAY_LENGTH");
+            material.SetKeyword(localKeyword, fixedRayLength);
 
             material.SetFloat("atmosphereRadius", atmosphereRadius);
             material.SetFloat("oceanRadius", oceanRadius);
@@ -103,11 +108,16 @@ public class AtmosphereData : ScriptableObject
 
     public void BakeOpticalDepth()
     {
+        
         var computeShader = Resources.Load<ComputeShader>("AtmosphereTexture");
         computeShader.SetInt("textureSize", textureSize);
-        computeShader.SetInt("numOutScatteringSteps", numOpticalDepthPoints);
+        //computeShader.SetInt("numOutScatteringSteps", numOpticalDepthPoints);
         computeShader.SetFloat("densityFalloff", densityFalloff);
         computeShader.SetTexture(0, "Result", bakedOpticalDepth);
+
+        LocalKeyword localKeyword = new(computeShader, "FIXED_RAY_LENGTH");
+        computeShader.SetKeyword(localKeyword, fixedRayLength);
+
         computeShader.Dispatch(0, textureSize, textureSize, 1);
     }
 
