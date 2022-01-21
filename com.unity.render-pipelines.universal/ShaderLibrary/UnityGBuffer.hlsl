@@ -78,6 +78,9 @@ struct FragmentOutput
     #ifdef GBUFFER_OPTIONAL_SLOT_3
     half4 GBuffer6 : SV_Target6;
     #endif
+    #ifdef GBUFFER_OPTIONAL_SLOT_4
+    half4 Gbuffer7 : SV_Target7;
+    #endif
 };
 
 float PackMaterialFlags(uint materialFlags)
@@ -150,6 +153,16 @@ FragmentOutput SurfaceDataToGbuffer(SurfaceData surfaceData, InputData inputData
     return output;
 }
 
+FragmentOutput SurfaceDataToGbuffer(SurfaceData surfaceData, InputData inputData, half3 globalIllumination, int lightingMode, half objectId)
+{
+    FragmentOutput output = SurfaceDataToGbuffer(surfaceData, inputData, globalIllumination, lightingMode);
+
+#if _USE_GBUFFER_OBJECTID
+    output.GBUFFER_OBJECTID = half4(objectId, 0, 0, 0);
+#endif
+
+    return output;
+}
 // This decodes the Gbuffer into a SurfaceData struct
 SurfaceData SurfaceDataFromGbuffer(half4 gbuffer0, half4 gbuffer1, half4 gbuffer2, int lightingMode)
 {
@@ -224,6 +237,16 @@ FragmentOutput BRDFDataToGbuffer(BRDFData brdfData, InputData inputData, half sm
     return output;
 }
 
+FragmentOutput BRDFDataToGbuffer(BRDFData brdfData, InputData inputData, half smoothness, half3 globalIllumination, half occlusion, half objectId)
+{
+    FragmentOutput output = BRDFDataToGbuffer(brdfData, inputData, smoothness, globalIllumination, occlusion);
+
+#if _USE_GBUFFER_OBJECTID
+    output.GBUFFER_OBJECTID = half4(objectId, 0, 0, 0);
+#endif
+
+    return output;
+}
 // This decodes the Gbuffer into a SurfaceData struct
 BRDFData BRDFDataFromGbuffer(half4 gbuffer0, half4 gbuffer1, half4 gbuffer2)
 {

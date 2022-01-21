@@ -8,6 +8,9 @@ namespace UnityEngine.Rendering.Universal.Internal
         bool m_IsFirstFrame;
         int m_LastFrameActive;
         Matrix4x4 m_viewProjectionMatrix;
+        Matrix4x4 m_unjitteredViewProjectionMatrix;
+        Matrix4x4 m_unjitteredProjectionMatrix;
+        Matrix4x4 m_projectionMatrix;
         Matrix4x4 m_PreviousViewProjectionMatrix;
 
 #if ENABLE_VR && ENABLE_XR_MODULE
@@ -47,6 +50,23 @@ namespace UnityEngine.Rendering.Universal.Internal
             set => m_viewProjectionMatrix = value;
         }
 
+        internal Matrix4x4 unjitteredViewProjectionMatrix
+        {
+            get => m_unjitteredViewProjectionMatrix;
+            set => m_unjitteredViewProjectionMatrix = value;
+        }
+
+        internal Matrix4x4 unjitteredProjectionMatrix
+        {
+            get => m_unjitteredProjectionMatrix;
+            set => m_unjitteredProjectionMatrix = value;
+        }
+
+        internal Matrix4x4 jitteredProjectionMatrix
+        {
+            get => m_projectionMatrix;
+            set => m_projectionMatrix = value;
+        }
         internal Matrix4x4 previousViewProjectionMatrix
         {
             get => m_PreviousViewProjectionMatrix;

@@ -1,0 +1,92 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
+
+[Tooltip("Generates a 16-bit pseudo-unique object ID for use with TAA")]
+public class ObjectID : MonoBehaviour
+{
+#if ODIN_INSPECTOR
+    [HorizontalGroup]
+    [InlineButton("Randomize", ShowIf = "objectID")]
+    [DisableIf("@!fixedID")]
+#endif
+    [SerializeField] public int objectID;
+
+#if ODIN_INSPECTOR
+    [HorizontalGroup]
+    [LabelWidth(10)]
+    [ToggleLeft]
+#endif
+    [Tooltip("Forces all instances of this object to use the same ID")]
+    [SerializeField] private bool fixedID = false;
+
+    public float normalizedID { get; private set; }
+    public Vector4 colorID { get; private set; }
+
+
+    private void Start()
+    {
+        if (!fixedID)
+            objectID = Mathf.Abs(GetInstanceID() % 65535);
+
+        normalizedID = objectID / 65535f;
+        colorID = new Vector4(0,0,0, normalizedID);
+
+        UpdateMaterials();
+    }
+
+    private void Randomize()
+    {
+        objectID = Random.Range(0, 65535);
+    }
+
+    public void UpdateMaterials()
+    {
+        var renderers = transform.GetComponentsInChildren<Renderer>(true);
+
+        List<Material> materials = new List<Material>();
+        foreach (var renderer in renderers)
+        {
+            renderer.GetMaterials(materials);
+            foreach (var material in materials)
+            {
+                material.SetFloat("_ObjectID", normalizedID);
+            }
+        }
+    }
+
+    public void UpdateMeshUV7()
+    {
+        List<Vector4> IDuvs = new List<Vector4>();
+
+        var meshFilters = transform.GetComponentsInChildren<MeshFilter>(true);
+
+        foreach (var meshFilter in meshFilters)
+        {
+            IDuvs.Clear();
+            var mesh = meshFilter.mesh;
+            int count = mesh.vertexCount;
+            for (int i = 0; i < count; i++)
+                IDuvs.Add(colorID);
+
+            mesh.SetUVs(7, IDuvs);
+        }
+
+        var skinnedMeshRenderers = transform.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+
+        foreach (var skinnedMeshRenderer in skinnedMeshRenderers)
+        {
+            IDuvs.Clear();
+            var mesh = Instantiate(skinnedMeshRenderer.sharedMesh);
+            int count = mesh.vertexCount;
+            for (int i = 0; i < count; i++)
+                IDuvs.Add(colorID);
+
+            mesh.SetUVs(7, IDuvs);
+            skinnedMeshRenderer.sharedMesh = mesh;
+        }
+    }
+}

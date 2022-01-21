@@ -119,9 +119,15 @@ namespace UnityEngine.Rendering.Universal.Internal
 
         void DrawCameraMotionVectors(ScriptableRenderContext context, CommandBuffer cmd, Camera camera)
         {
+            // Reset projection matricies to unjittered
+            RenderingUtils.SetViewAndProjectionMatrices(cmd, camera.worldToCameraMatrix, m_MotionData.unjitteredProjectionMatrix, true);
+
             // Draw fullscreen quad
             cmd.DrawProcedural(Matrix4x4.identity, m_CameraMaterial, 0, MeshTopology.Triangles, 3, 1);
             ExecuteCommand(context, cmd);
+
+            // Set back to jittered for the rest of the rendering
+            RenderingUtils.SetViewAndProjectionMatrices(cmd, camera.worldToCameraMatrix, m_MotionData.jitteredProjectionMatrix, true);
         }
 
         void DrawObjectMotionVectors(ScriptableRenderContext context, ref RenderingData renderingData, Camera camera)

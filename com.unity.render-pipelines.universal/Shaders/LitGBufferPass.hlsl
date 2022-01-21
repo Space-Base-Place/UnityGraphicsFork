@@ -208,10 +208,21 @@ FragmentOutput LitGBufferPassFragment(Varyings input)
     InitializeBRDFData(surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.alpha, brdfData);
 
     Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, inputData.shadowMask);
+
+#ifdef _USE_ATMOSPHERIC_GLOBAL_ILLUMINATION
+    half3 color = SampleAtmosphericIllumination(inputData.positionWS) * brdfData.albedo;
+#else
     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, inputData.shadowMask);
     half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surfaceData.occlusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS);
+#endif
 
-    return BRDFDataToGbuffer(brdfData, inputData, surfaceData.smoothness, surfaceData.emission + color, surfaceData.occlusion);
+#if _USE_GBUFFER_OBJECTID
+    half objectID = _ObjectID;
+#else
+    half objectID = 0;
+#endif
+
+    return BRDFDataToGbuffer(brdfData, inputData, surfaceData.smoothness, surfaceData.emission + color, surfaceData.occlusion, objectID);
 }
 
 #endif

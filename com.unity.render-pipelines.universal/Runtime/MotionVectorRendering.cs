@@ -124,15 +124,21 @@ namespace UnityEngine.Rendering.Universal.Internal
                 var gpuView = camera.worldToCameraMatrix;
                 var gpuVP = gpuProj * gpuView;
 
+                var unjitteredProj = GL.GetGPUProjectionMatrix(camera.nonJitteredProjectionMatrix, true);
+                var unjitteredVP = unjitteredProj * gpuView;
+
                 // Last frame data
                 if (motionData.lastFrameActive != Time.frameCount)
                 {
-                    motionData.previousViewProjectionMatrix = motionData.isFirstFrame ? gpuVP : motionData.viewProjectionMatrix;
+                    motionData.previousViewProjectionMatrix = motionData.isFirstFrame ? unjitteredVP : motionData.unjitteredViewProjectionMatrix;
                     motionData.isFirstFrame = false;
                 }
 
                 // Current frame data
                 motionData.viewProjectionMatrix = gpuVP;
+                motionData.jitteredProjectionMatrix = gpuProj;
+                motionData.unjitteredViewProjectionMatrix = unjitteredVP;
+                motionData.unjitteredProjectionMatrix = unjitteredProj;
             }
 
             motionData.lastFrameActive = Time.frameCount;

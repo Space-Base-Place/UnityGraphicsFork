@@ -7,6 +7,7 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RealtimeLights.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/AmbientOcclusion.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/AtmosphericIllumination.hlsl"
 
 #if defined(LIGHTMAP_ON)
     #define DECLARE_LIGHTMAP_OR_SH(lmName, shName, index) float2 lmName : TEXCOORD##index
@@ -273,10 +274,14 @@ half4 UniversalFragmentPBR(InputData inputData, SurfaceData surfaceData)
     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI);
 
     LightingData lightingData = CreateLightingData(inputData, surfaceData);
-
+    
+#ifdef _USE_ATMOSPHERIC_GLOBAL_ILLUMINATION
+    lightingData.giColor = SampleAtmosphericIllumination(inputData.positionWS) * brdfData.albedo;
+#else
     lightingData.giColor = GlobalIllumination(brdfData, brdfDataClearCoat, surfaceData.clearCoatMask,
                                               inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,
                                               inputData.normalWS, inputData.viewDirectionWS);
+#endif
 
     if (IsMatchingLightLayer(mainLight.layerMask, meshRenderingLayers))
     {
@@ -467,5 +472,103 @@ half4 UniversalFragmentBakedLit(InputData inputData, half3 color, half alpha, ha
 
     return UniversalFragmentBakedLit(inputData, surfaceData);
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// Toon
+////////////////////////////////////////////////////////////////////////////////
+
+// Computes the scalar specular term for Minimalist CookTorrance BRDF
+// NOTE: needs to be multiplied with reflectance f0, i.e. specular color to complete
+half DirectToonSpecular(BRDFData brdfData, half3 normalWS, half3 lightDirectionWS, half3 viewDirectionWS)
+{
+    float3 lightDirectionWSFloat3 = float3(lightDirectionWS);
+    float3 halfDir = SafeNormalize(lightDirectionWSFloat3 + float3(viewDirectionWS));
+
+    float NoH = saturate(dot(float3(normalWS), halfDir));
+    half LoH = half(saturate(dot(lightDirectionWSFloat3, halfDir)));
+
+    // GGX Distribution multiplied by combined approximation of Visibility and Fresnel
+    // BRDFspec = (D * V * F) / 4.0
+    // D = roughness^2 / ( NoH^2 * (roughness^2 - 1) + 1 )^2
+    // V * F = 1.0 / ( LoH^2 * (roughness + 0.5) )
+    // See "Optimizing PBR for Mobile" from Siggraph 2015 moving mobile graphics course
+    // https://community.arm.com/events/1155
+
+    // Final BRDFspec = roughness^2 / ( NoH^2 * (roughness^2 - 1) + 1 )^2 * (LoH^2 * (roughness + 0.5) * 4.0)
+    // We further optimize a few light invariant terms
+    // brdfData.normalizationTerm = (roughness + 0.5) * 4.0 rewritten as roughness * 4.0 + 2.0 to a fit a MAD.
+    float d = NoH * NoH * brdfData.roughness2MinusOne + 1.00001f;
+    half d2 = half(d * d);
+
+    half LoH2 = LoH * LoH;
+    half specularTerm = brdfData.roughness2 / (d2 * max(half(0.1), LoH2) * brdfData.normalizationTerm);
+
+    				// Toon specular reflection.
+    half specularToon = smoothstep(0.1, 0.5, specularTerm) * (1 - brdfData.roughness);
+
+    
+    // On platforms where half actually means something, the denominator has a risk of overflow
+    // clamp below was added specifically to "fix" that, but dx compiler (we convert bytecode to metal/gles)
+    // sees that specularTerm have only non-negative terms, so it skips max(0,..) in clamp (leaving only min(100,...))
+#if defined (SHADER_API_MOBILE) || defined (SHADER_API_SWITCH)
+    specularTerm = specularTerm - HALF_MIN;
+    specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+#endif
+
+    return specularToon;
+}
+
+
+
+half3 LightingToon(BRDFData brdfData, Light light, half3 normalWS, half3 viewDirectionWS, bool specularHighlightsOff)
+{
+
+    half3 lightColor = light.color;
+    half3 lightDirectionWS = light.direction;
+    half lightAttenuation = light.distanceAttenuation * light.shadowAttenuation;
+    
+    half NdotL = saturate(dot(normalWS, lightDirectionWS));
+    half3 radiance = lightColor * smoothstep(0.0, 0.02, NdotL) * lightAttenuation; // linear fade light rings
+    //half3 radiance = lightColor * smoothstep(0.0, 0.02, (NdotL * light.distanceAttenuation)) * light.shadowAttenuation;  // sharp light rings
+    //half3 radiance = lightColor * smoothstep(0.0, 0.05, (NdotL * lightAttenuation)); // no shadows
+
+
+    				// Calculate rim lighting.
+    half rimDot = 1 - dot(viewDirectionWS, normalWS);
+	// We only want rim to appear on the lit side of the surface,
+	// so multiply it by NdotL, raised to a power to smoothly blend it.
+    half rimIntensity = rimDot * pow(NdotL, 0.1) * lightAttenuation;
+    half rimRadiance = smoothstep(0.7, 0.71, rimIntensity) * (1 - brdfData.roughness);
+
+    
+    half3 brdf = brdfData.albedo;
+    //half3 subsurface = (0, 0, 0);
+    
+#ifndef _SPECULARHIGHLIGHTS_OFF
+    [branch]
+    if (!specularHighlightsOff)
+    {
+        brdf += brdfData.specular * DirectToonSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
+    }
+    //else
+    //{
+                //alternate rim lighting
+            //tries to keep the rim only visible when facing the light to simulate subsurface effects
+            //probably not worth the trouble
+            //can add on top using shadergraph now this is the default
+        //half lightDot = 1 - dot(viewDirectionWS, lightDirectionWS);
+        //half rim2 = rimDot * lightDot * 0.25; //rimdot and lightdot are range 0-2, normalize here
+        //half rimRadiance2 = smoothstep(brdfData.roughness, brdfData.roughness + 0.01, rim2) * (1 - brdfData.roughness);
+        //rimRadiance += rimRadiance2;
+        //return rimRadiance2;
+        //half3 subsurface = brdfData.specular * rimRadiance2;
+    //}
+#endif // _SPECULARHIGHLIGHTS_OFF
+
+    return brdf * (radiance + rimRadiance);
+}
+
+
 
 #endif
