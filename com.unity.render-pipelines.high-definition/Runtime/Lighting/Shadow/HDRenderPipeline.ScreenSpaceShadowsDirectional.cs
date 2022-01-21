@@ -258,12 +258,12 @@ namespace UnityEngine.Rendering.HighDefinition
             TextureHandle rayCountTexture, TextureHandle screenSpaceShadowArray)
         {
             // Should we be executing anything really?
-            bool screenSpaceShadowRequired = m_CurrentSunLightAdditionalLightData != null && (m_CurrentSunShadowMapFlags & HDProcessedVisibleLightsBuilder.ShadowMapFlags.WillRenderScreenSpaceShadow) != 0;
+            bool screenSpaceShadowRequired = m_CurrentSunLightAdditionalLightData != null && m_CurrentSunLightAdditionalLightData.WillRenderScreenSpaceShadow();
 
             // Render directional screen space shadow if required
             if (screenSpaceShadowRequired)
             {
-                bool rayTracedDirectionalRequired = (m_CurrentSunShadowMapFlags & HDProcessedVisibleLightsBuilder.ShadowMapFlags.WillRenderRayTracedShadow) != 0;
+                bool rayTracedDirectionalRequired = m_CurrentSunLightAdditionalLightData.WillRenderRayTracedShadow();
                 // If the shadow is flagged as ray traced, we need to evaluate it completely
                 if (rayTracedDirectionalRequired)
                     RenderRayTracedDirectionalScreenSpaceShadow(renderGraph, hdCamera, depthBuffer, normalBuffer, motionVectorsBuffer, historyValidityBuffer, rayCountTexture, screenSpaceShadowArray);

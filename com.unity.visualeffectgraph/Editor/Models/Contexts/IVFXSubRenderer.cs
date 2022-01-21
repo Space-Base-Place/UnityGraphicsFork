@@ -9,7 +9,7 @@ namespace UnityEditor.VFX
         bool hasShadowCasting { get; }
         bool hasMotionVector { get; }
         // TODO Add other per output rendering settings here
-        int vfxSystemSortPriority { get; set; }
+        int sortPriority { get; set; }
 
         // Allow to setup material generated during import
         void SetupMaterial(Material material);

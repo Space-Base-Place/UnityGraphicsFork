@@ -35,7 +35,7 @@ namespace UnityEngine.Rendering
         /// <returns>Enumeration of actions</returns>
         public static IEnumerator<Action<RenderTargetIdentifier, CommandBuffer>> GetCaptureActions(Camera camera)
         {
-            if (!actionDict.TryGetValue(camera, out var actions) || actions.Count == 0)
+            if (!actionDict.TryGetValue(camera, out var actions))
                 return null;
 
             return actions.GetEnumerator();

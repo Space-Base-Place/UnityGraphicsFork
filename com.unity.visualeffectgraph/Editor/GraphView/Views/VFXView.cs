@@ -109,66 +109,7 @@ namespace UnityEditor.VFX.UI
         }
     }
 
-    struct VFXViewSettings
-    {
-        private bool m_IsAttachedLocked;
-        private VisualEffect m_AttachedVisualEffect;
-
-        public void Load(bool force = false)
-        {
-            m_IsAttachedLocked = EditorPrefs.GetBool(nameof(m_IsAttachedLocked));
-            if (EditorApplication.isPlaying || force)
-            {
-                var attachedVisualEffectPath = EditorPrefs.GetString(nameof(m_AttachedVisualEffect));
-                if (!string.IsNullOrEmpty(attachedVisualEffectPath))
-                {
-                    var go = GameObject.Find(attachedVisualEffectPath);
-                    if (go != null)
-                    {
-                        m_AttachedVisualEffect = go.GetComponent<VisualEffect>();
-                    }
-                }
-            }
-        }
-
-        public VisualEffect AttachedVisualEffect
-        {
-            get => m_AttachedVisualEffect;
-            set
-            {
-                m_AttachedVisualEffect = value;
-                if (!EditorApplication.isPlaying)
-                {
-                    if (m_AttachedVisualEffect != null)
-                    {
-                        var go = m_AttachedVisualEffect.gameObject;
-                        var path = go.GetComponentsInParent<UnityEngine.Transform>()
-                            .Select(x => x.name)
-                            .Reverse()
-                            .ToArray();
-
-                        EditorPrefs.SetString(nameof(m_AttachedVisualEffect), "/" + string.Join('/', path));
-                    }
-                    else
-                    {
-                        EditorPrefs.SetString(nameof(m_AttachedVisualEffect), null);
-                    }
-                }
-            }
-        }
-
-        public bool AttachedLocked
-        {
-            get => m_IsAttachedLocked;
-            set
-            {
-                m_IsAttachedLocked = value;
-                EditorPrefs.SetBool(nameof(m_IsAttachedLocked), m_IsAttachedLocked);
-            }
-        }
-    }
-
-    class VFXView : GraphView, IControlledElement<VFXViewController>, IControllerListener, IDisposable
+    class VFXView : GraphView, IControlledElement<VFXViewController>, IControllerListener
     {
         private const int MaximumNameLengthInNotification = 128;
 
@@ -185,7 +126,7 @@ namespace UnityEditor.VFX.UI
 
         public HashSet<VFXEditableDataAnchor> allDataAnchors = new HashSet<VFXEditableDataAnchor>();
 
-        public bool locked => m_VFXSettings.AttachedLocked;
+        public bool locked { get; private set; }
 
         void IControllerListener.OnControllerEvent(ControllerEvent e)
         {
@@ -199,7 +140,6 @@ namespace UnityEditor.VFX.UI
             }
         }
 
-        VFXViewSettings m_VFXSettings;
         VisualElement m_NoAssetLabel;
         VisualElement m_LockedElement;
 
@@ -214,7 +154,7 @@ namespace UnityEditor.VFX.UI
         void DisconnectController()
         {
             if (controller.model && controller.graph)
-                controller.graph.SetCompilationMode(VFXViewPreference.forceEditionCompilation ? VFXCompilationMode.Edition : VFXCompilationMode.Runtime);
+                controller.graph.SetCompilationMode(VFXCompilationMode.Runtime);
 
 
             m_Controller.UnregisterHandler(this);
@@ -484,7 +424,6 @@ namespace UnityEditor.VFX.UI
 
         public VFXView()
         {
-            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             SetupZoom(0.125f, 8);
 
             this.AddManipulator(new ContentDragger());
@@ -634,10 +573,6 @@ namespace UnityEditor.VFX.UI
             Add(m_Toolbar);
             m_Toolbar.SetEnabled(false);
 
-            m_VFXSettings = new VFXViewSettings();
-            m_VFXSettings.Load();
-            m_LockToggle.value = m_VFXSettings.AttachedLocked;
-
             RegisterCallback<DragUpdatedEvent>(OnDragUpdated);
             RegisterCallback<DragPerformEvent>(OnDragPerform);
             RegisterCallback<ValidateCommandEvent>(ValidateCommand);
@@ -647,37 +582,15 @@ namespace UnityEditor.VFX.UI
             RegisterCallback<KeyDownEvent>(OnKeyDownEvent);
 
             graphViewChanged = VFXGraphViewChanged;
+
             elementResized = VFXElementResized;
-            canPasteSerializedData = VFXCanPaste;
 
             viewDataKey = "VFXView";
 
             RegisterCallback<GeometryChangedEvent>(OnFirstResize);
         }
 
-        public void Dispose()
-        {
-            UnregisterCallback<DragUpdatedEvent>(OnDragUpdated);
-            UnregisterCallback<DragPerformEvent>(OnDragPerform);
-            UnregisterCallback<ValidateCommandEvent>(ValidateCommand);
-            UnregisterCallback<ExecuteCommandEvent>(ExecuteCommand);
-            UnregisterCallback<AttachToPanelEvent>(OnEnterPanel);
-            UnregisterCallback<DetachFromPanelEvent>(OnLeavePanel);
-            UnregisterCallback<KeyDownEvent>(OnKeyDownEvent);
-            UnregisterCallback<GeometryChangedEvent>(OnFirstResize);
-            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-        }
-
-        void OnPlayModeStateChanged(PlayModeStateChange playModeState)
-        {
-            if (playModeState == PlayModeStateChange.EnteredEditMode)
-            {
-                m_VFXSettings.Load(true);
-                TryAttachTo(m_VFXSettings.AttachedVisualEffect);
-            }
-        }
-
-        void OnOpenAttachMenu()
+        private void OnOpenAttachMenu()
         {
             var attachPanel = ScriptableObject.CreateInstance<VFXAttachPanel>();
             var bounds = new Rect(ViewToScreenPosition(m_AttachDropDownButton.worldBound.position), m_AttachDropDownButton.worldBound.size);
@@ -875,7 +788,6 @@ namespace UnityEditor.VFX.UI
                 attached = m_ComponentBoard.Attach(selectedAsset);
             }
 
-            m_VFXSettings.AttachedVisualEffect = attached ? selectedAsset : null;
             UpdateToolbarButtons();
             return attached;
         }
@@ -931,7 +843,7 @@ namespace UnityEditor.VFX.UI
 
         void OnToggleLock(ChangeEvent<bool> evt)
         {
-            m_VFXSettings.AttachedLocked = !locked;
+            locked = !locked;
             if (!locked)
             {
                 AttachToSelection();
@@ -1149,11 +1061,6 @@ namespace UnityEditor.VFX.UI
                     Add(m_NoAssetLabel);
                     m_Toolbar.SetEnabled(false);
                 }
-            }
-
-            if (m_VFXSettings.AttachedVisualEffect != null)
-            {
-                TryAttachTo(m_VFXSettings.AttachedVisualEffect);
             }
         }
 
@@ -1655,18 +1562,7 @@ namespace UnityEditor.VFX.UI
             foreach (var graph in graphToSave)
             {
                 if (EditorUtility.IsDirty(graph) || UnityEngine.Object.ReferenceEquals(graph, controller.graph))
-                {
-                    graph.UpdateSubAssets();
-                    try
-                    {
-                        VFXGraph.compilingInEditMode = !m_IsRuntimeMode;
-                        graph.GetResource().WriteAsset();
-                    }
-                    finally
-                    {
-                        VFXGraph.compilingInEditMode = false;
-                    }
-                }
+                    graph.GetResource().WriteAsset();
             }
         }
 
@@ -2046,12 +1942,6 @@ namespace UnityEditor.VFX.UI
             (groupNode as VFXGroupNode).GroupNodeTitleChanged(title);
         }
 
-        private void AddRangeToSelection(List<ISelectable> selectables)
-        {
-            selectables.ForEach(base.AddToSelection);
-            UpdateGlobalSelection();
-        }
-
         public override void AddToSelection(ISelectable selectable)
         {
             base.AddToSelection(selectable);
@@ -2244,11 +2134,6 @@ namespace UnityEditor.VFX.UI
             }
         }
 
-        private bool VFXCanPaste(string data)
-        {
-            return VFXPaste.CanPaste(this, data);
-        }
-
         public void UnserializeAndPasteElements(string operationName, string data)
         {
             Profiler.BeginSample("VFXPaste.VFXPaste.UnserializeAndPasteElements");
@@ -2256,60 +2141,50 @@ namespace UnityEditor.VFX.UI
             Profiler.EndSample();
         }
 
-        private bool TryGetOverlappingContextAbove(VFXContextUI context, out VFXContextUI overlappingContext, out float distance)
-        {
-            var rect = context.GetPosition();
-            var posY = context.controller.model.position.y;
-
-            var overlappingContexts = new Dictionary<VFXContextUI, float>();
-            foreach (var ctx in GetAllContexts())
-            {
-                if (ctx == context)
-                {
-                    continue;
-                }
-
-                var ctxRect = ctx.GetPosition();
-                var ctxPosY = ctx.controller.model.position.y;
-
-                // Skip contexts that are side by side
-                if (rect.xMin - ctxRect.xMax > -5 || rect.xMax - ctxRect.xMin < 5)
-                {
-                    continue;
-                }
-
-                distance = posY - ctxPosY - ctxRect.height;
-                if (distance < 0 && posY > ctxRect.yMin)
-                {
-                    overlappingContexts[ctx] = -distance;
-                }
-            }
-
-            if (overlappingContexts.Any())
-            {
-                var keyPair = overlappingContexts.OrderByDescending(x => x.Value).First();
-                overlappingContext = keyPair.Key;
-                distance = keyPair.Value;
-                return true;
-            }
-
-            distance = 0f;
-            overlappingContext = null;
-            return false;
-        }
-
+        const float k_MarginBetweenContexts = 30;
         public void PushUnderContext(VFXContextUI context, float size)
         {
             if (size < 5) return;
 
-            foreach (var edge in edges.OfType<VFXFlowEdge>().SkipWhile(x => x.output.GetFirstAncestorOfType<VFXContextUI>() != context))
+            HashSet<VFXContextUI> contexts = new HashSet<VFXContextUI>();
+
+            contexts.Add(context);
+
+            var flowEdges = edges.ToList().OfType<VFXFlowEdge>().ToList();
+
+            int contextCount = 0;
+
+            while (contextCount < contexts.Count())
             {
-                context = edge.input.GetFirstAncestorOfType<VFXContextUI>();
-                if (TryGetOverlappingContextAbove(context, out var aboveContext, out var distance))
+                contextCount = contexts.Count();
+                foreach (var flowEdge in flowEdges)
                 {
-                    var rect = context.GetPosition();
-                    context.controller.position = new Vector2(rect.x, rect.y + distance);
+                    VFXContextUI topContext = flowEdge.output.GetFirstAncestorOfType<VFXContextUI>();
+                    VFXContextUI bottomContext = flowEdge.input.GetFirstAncestorOfType<VFXContextUI>();
+                    if (contexts.Contains(topContext) && !contexts.Contains(bottomContext))
+                    {
+                        float topContextBottom = topContext.layout.yMax;
+                        float newTopContextBottom = topContext.layout.yMax + size;
+                        if (topContext == context)
+                        {
+                            newTopContextBottom -= size;
+                            topContextBottom -= size;
+                        }
+                        float bottomContextTop = bottomContext.layout.yMin;
+
+                        if (topContextBottom < bottomContextTop && newTopContextBottom + k_MarginBetweenContexts > bottomContextTop)
+                        {
+                            contexts.Add(bottomContext);
+                        }
+                    }
                 }
+            }
+
+            contexts.Remove(context);
+
+            foreach (var c in contexts)
+            {
+                c.controller.position = c.GetPosition().min + new Vector2(0, size);
             }
         }
 
@@ -2358,7 +2233,10 @@ namespace UnityEditor.VFX.UI
             {
                 ClearSelection();
 
-                AddRangeToSelection(graphElements.Where(x => x is not VFXSystemBorder).OfType<ISelectable>().ToList());
+                foreach (var element in graphElements.ToList())
+                {
+                    AddToSelection(element);
+                }
                 e.StopPropagation();
             }
         }
@@ -2521,16 +2399,6 @@ namespace UnityEditor.VFX.UI
             {
                 evt.menu.AppendSeparator();
                 evt.menu.AppendAction("Duplicate %d", OnDuplicateBlackBoardCategory, e => canDeleteSelection ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled);
-            }
-
-            if (evt.target is GraphView || evt.target is Node)
-            {
-                var copyMenu = evt.menu.MenuItems().OfType<DropdownMenuAction>().SingleOrDefault(x => x.name == "Copy");
-                if (copyMenu != null)
-                {
-                    var index = evt.menu.MenuItems().IndexOf(copyMenu);
-                    evt.menu.InsertAction(index + 1, "Paste", (a) => { PasteCallback(); }, (a) => { return canPaste ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled; });
-                }
             }
         }
 

@@ -753,8 +753,7 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
             { RenderState.Cull(Cull.Front) },
             { RenderState.ZWrite(Uniforms.zWrite) },
             { RenderState.ZTest(Uniforms.zTestTransparent) },
-            { RenderState.ColorMask("ColorMask [_ColorMaskTransparentVelOne] 1") },
-            { RenderState.ColorMask("ColorMask [_ColorMaskTransparentVelTwo] 2") },
+            { RenderState.ColorMask("ColorMask [_ColorMaskTransparentVel] 1") },
         };
 
 
@@ -786,8 +785,7 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
             { RenderState.Cull(Uniforms.cullModeForward) },
             { RenderState.ZWrite(Uniforms.zWrite) },
             { RenderState.ZTest(Uniforms.zTestDepthEqualForOpaque) },
-            { RenderState.ColorMask("ColorMask [_ColorMaskTransparentVelOne] 1") },
-            { RenderState.ColorMask("ColorMask [_ColorMaskTransparentVelTwo] 2") },
+            { RenderState.ColorMask("ColorMask [_ColorMaskTransparentVel] 1") },
             { RenderState.Stencil(new StencilDescriptor()
             {
                 WriteMask = Uniforms.stencilWriteMask,
@@ -1024,7 +1022,6 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
         public const string kLightLoopDef = "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/LightLoop/LightLoopDef.hlsl";
         public const string kPunctualLightCommon = "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/PunctualLightCommon.hlsl";
         public const string kHDShadowLoop = "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/LightLoop/HDShadowLoop.hlsl";
-        public const string kHDRaytracingShadowLoop = "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/RayTracing/Shaders/HDRaytracingShadowLoop.hlsl";
         public const string kNormalSurfaceGradient = "Packages/com.unity.render-pipelines.core/ShaderLibrary/NormalSurfaceGradient.hlsl";
         public const string kLighting = "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/Lighting.hlsl";
         public const string kLightLoop = "Packages/com.unity.render-pipelines.high-definition/Runtime/Lighting/LightLoop/LightLoop.hlsl";
@@ -1131,8 +1128,8 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
             referenceName = "LIGHTMAP_ON",
             type = KeywordType.Boolean,
             definition = KeywordDefinition.MultiCompile,
-            scope = KeywordScope.Global
-            // Caution: 'Optimize Mesh Data' strip away attributes uv1/uv2 without the keyword set on the vertex stage. - so don't define stage frequency here.
+            scope = KeywordScope.Global,
+            stages = KeywordShaderStage.FragmentAndRaytracing
         };
 
         public static KeywordDescriptor DirectionalLightmapCombined = new KeywordDescriptor()
@@ -1142,7 +1139,7 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
             type = KeywordType.Boolean,
             definition = KeywordDefinition.MultiCompile,
             scope = KeywordScope.Global,
-            // Don't define shader stage frequency
+            stages = KeywordShaderStage.FragmentAndRaytracing
         };
 
         public static KeywordDescriptor DynamicLightmap = new KeywordDescriptor()
@@ -1152,7 +1149,6 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
             type = KeywordType.Boolean,
             definition = KeywordDefinition.MultiCompile,
             scope = KeywordScope.Global,
-            // Don't define shader stage frequency
         };
 
         public static KeywordDescriptor ShadowsShadowmask = new KeywordDescriptor()

@@ -89,8 +89,8 @@ namespace UnityEditor.VFX
         [VFXSetting, SerializeField, Tooltip("When enabled, transparent particles fade out when near the surface of objects writing into the depth buffer (e.g. when intersecting with solid objects in the level).")]
         protected bool useSoftParticle = false;
 
-        [VFXSetting(VFXSettingAttribute.VisibleFlags.None), FormerlySerializedAs("sortPriority"), SerializeField, Header("Rendering Options"), Tooltip("")]
-        protected int vfxSystemSortPriority = 0;
+        [VFXSetting(VFXSettingAttribute.VisibleFlags.None), SerializeField, Header("Rendering Options"), Tooltip("")]
+        protected int sortPriority = 0;
 
         [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), SerializeField, Tooltip("Specifies whether to use GPU sorting for transparent particles.")]
         protected SortMode sort = SortMode.Auto;
@@ -148,17 +148,17 @@ namespace UnityEditor.VFX
             }
         }
 
-        int IVFXSubRenderer.vfxSystemSortPriority
+        int IVFXSubRenderer.sortPriority
         {
             get
             {
-                return vfxSystemSortPriority;
+                return sortPriority;
             }
             set
             {
-                if (vfxSystemSortPriority != value)
+                if (sortPriority != value)
                 {
-                    vfxSystemSortPriority = value;
+                    sortPriority = value;
                     Invalidate(InvalidationCause.kSettingChanged);
                 }
             }
@@ -573,7 +573,7 @@ namespace UnityEditor.VFX
         {
             get
             {
-                yield return new VFXMapping("sortPriority", vfxSystemSortPriority);
+                yield return new VFXMapping("sortPriority", sortPriority);
                 if (HasIndirectDraw())
                 {
                     yield return new VFXMapping("indirectDraw", 1);
@@ -617,7 +617,7 @@ namespace UnityEditor.VFX
             base.GenerateErrors(manager);
             var dataParticle = GetData() as VFXDataParticle;
 
-            if (dataParticle != null && dataParticle.boundsMode != BoundsSettingMode.Manual)
+            if (dataParticle != null && dataParticle.boundsSettingMode != BoundsSettingMode.Manual)
             {
                 var modifiedBounds = children
                     .SelectMany(b =>

@@ -75,25 +75,13 @@ namespace UnityEditor.Rendering.HighDefinition
 
             int materialIdx = 0;
             int totalMaterials = distinctGuids.Count();
-
-            try
+            foreach (var asset in distinctGuids)
             {
-                AssetDatabase.StartAssetEditing();
-
-                foreach (var asset in distinctGuids)
-                {
-                    materialIdx++;
-                    var path = AssetDatabase.GUIDToAssetPath(asset);
-                    EditorUtility.DisplayProgressBar("Material Upgrader re-import", string.Format("({0} of {1}) {2}", materialIdx, totalMaterials, path), (float)materialIdx / (float)totalMaterials);
-                    AssetDatabase.ImportAsset(path);
-                }
+                materialIdx++;
+                var path = AssetDatabase.GUIDToAssetPath(asset);
+                EditorUtility.DisplayProgressBar("Material Upgrader re-import", string.Format("({0} of {1}) {2}", materialIdx, totalMaterials, path), (float)materialIdx / (float)totalMaterials);
+                AssetDatabase.ImportAsset(path);
             }
-            finally
-            {
-                // Ensure the AssetDatabase knows we're finished editing
-                AssetDatabase.StopAssetEditing();
-            }
-
             UnityEditor.EditorUtility.ClearProgressBar();
 
             MaterialPostprocessor.s_NeedsSavingAssets = true;
@@ -107,29 +95,17 @@ namespace UnityEditor.Rendering.HighDefinition
 
             int shaderIdx = 0;
             int totalShaders = distinctGuids.Count();
-
-            try
+            foreach (var asset in distinctGuids)
             {
-                AssetDatabase.StartAssetEditing();
+                shaderIdx++;
+                var path = AssetDatabase.GUIDToAssetPath(asset);
+                EditorUtility.DisplayProgressBar("HD ShaderGraph Upgrader re-import", string.Format("({0} of {1}) {2}", shaderIdx, totalShaders, path), (float)shaderIdx / (float)totalShaders);
 
-                foreach (var asset in distinctGuids)
+                if (CheckHDShaderGraphVersionsForUpgrade(path))
                 {
-                    shaderIdx++;
-                    var path = AssetDatabase.GUIDToAssetPath(asset);
-                    EditorUtility.DisplayProgressBar("HD ShaderGraph Upgrader re-import", string.Format("({0} of {1}) {2}", shaderIdx, totalShaders, path), (float)shaderIdx / (float)totalShaders);
-
-                    if (CheckHDShaderGraphVersionsForUpgrade(path))
-                    {
-                        AssetDatabase.ImportAsset(path);
-                    }
+                    AssetDatabase.ImportAsset(path);
                 }
             }
-            finally
-            {
-                // Ensure the AssetDatabase knows we're finished editing
-                AssetDatabase.StopAssetEditing();
-            }
-
             UnityEditor.EditorUtility.ClearProgressBar();
 
             MaterialPostprocessor.s_NeedsSavingAssets = true;
@@ -285,7 +261,6 @@ namespace UnityEditor.Rendering.HighDefinition
     {
         internal static List<string> s_CreatedAssets = new List<string>();
         internal static List<string> s_ImportedAssetThatNeedSaving = new List<string>();
-        internal static Dictionary<string, int> s_ImportedMaterialCounter = new Dictionary<string, int>();
         internal static bool s_NeedsSavingAssets = false;
 
         // Important: This should only be called by the RegisterUpgraderReimport(), ie the shadegraph/material version
@@ -374,14 +349,6 @@ namespace UnityEditor.Rendering.HighDefinition
                     // we would miss re-importing that dependency.
                     if (MaterialReimporter.CheckHDShaderGraphVersionsForUpgrade("", material.shader, ignoreNonHDRPShaderGraphs: false))
                     {
-                        s_ImportedMaterialCounter.TryGetValue(asset, out var importCounter);
-                        s_ImportedMaterialCounter[asset] = ++importCounter;
-
-                        // CheckHDShaderGraphVersionsForUpgrade always return true if a ShaderGraph don't have an HDMetaData attached
-                        // we need a check to avoid importing the same assets over and over again.
-                        if (importCounter > 2)
-                            continue;
-
                         var shaderPath = AssetDatabase.GetAssetPath(material.shader.GetInstanceID());
                         AssetDatabase.ImportAsset(shaderPath);
 

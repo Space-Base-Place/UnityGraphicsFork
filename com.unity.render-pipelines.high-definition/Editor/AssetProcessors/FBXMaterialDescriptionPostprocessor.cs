@@ -28,7 +28,8 @@ namespace UnityEditor.Rendering.HighDefinition
 
         public void OnPreprocessMaterialDescription(MaterialDescription description, Material material, AnimationClip[] clips)
         {
-            if (HDRenderPipeline.currentAsset == null)
+            var pipelineAsset = GraphicsSettings.currentRenderPipeline;
+            if (!pipelineAsset || pipelineAsset.GetType() != typeof(HDRenderPipelineAsset))
                 return;
 
             var lowerCaseExtension = Path.GetExtension(assetPath).ToLower();
@@ -110,17 +111,17 @@ namespace UnityEditor.Rendering.HighDefinition
 
             if (description.TryGetProperty("Bump", out textureProperty) && textureProperty.texture != null)
             {
-                SetMaterialTextureProperty("_NormalMap", material, textureProperty);
+                SetMaterialTextureProperty("_BumpMap", material, textureProperty);
 
                 if (description.TryGetProperty("BumpFactor", out floatProperty))
-                    material.SetFloat("_NormalScale", floatProperty);
+                    material.SetFloat("_BumpScale", floatProperty);
             }
             else if (description.TryGetProperty("NormalMap", out textureProperty) && textureProperty.texture != null)
             {
-                SetMaterialTextureProperty("_NormalMap", material, textureProperty);
+                SetMaterialTextureProperty("_BumpMap", material, textureProperty);
 
                 if (description.TryGetProperty("BumpFactor", out floatProperty))
-                    material.SetFloat("_NormalScale", floatProperty);
+                    material.SetFloat("_BumpScale", floatProperty);
             }
 
             if (description.TryGetProperty("EmissiveColor", out textureProperty))

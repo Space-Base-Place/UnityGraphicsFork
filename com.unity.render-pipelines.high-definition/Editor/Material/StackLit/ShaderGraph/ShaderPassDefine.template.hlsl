@@ -59,10 +59,7 @@ $SpecularOcclusionConeFixupMethod.BoostAndTilt:                     #define _BEN
 #define OUTPUT_SPLIT_LIGHTING
 #endif
 
-#if !( (SHADERPASS == SHADERPASS_FORWARD) || (SHADERPASS == SHADERPASS_LIGHT_TRANSPORT) \
-       || (SHADERPASS == SHADERPASS_RAYTRACING_INDIRECT) || (SHADERPASS == SHADERPASS == SHADERPASS_RAYTRACING_INDIRECT)\
-       || (SHADERPASS == SHADERPASS_PATH_TRACING) || (SHADERPASS == SHADERPASS_RAYTRACING_SUB_SURFACE) \
-       || (SHADERPASS == SHADERPASS_RAYTRACING_GBUFFER) )
+#if !( (SHADERPASS == SHADERPASS_FORWARD) || (SHADERPASS == SHADERPASS_LIGHT_TRANSPORT))
 // StackLit.hlsl hooks the callback from PostInitBuiltinData() via #define MODIFY_BAKED_DIFFUSE_LIGHTING
 // but in ShaderGraph, we don't evaluate/set all input ports when the values are not used by the pass.
 // (In the material with the inspector UI, unused values were still normally set for all passes, here we

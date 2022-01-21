@@ -222,8 +222,7 @@ namespace UnityEngine.Rendering.HighDefinition
                             data.intermediateColorBufferCopy, data.intermediateBufferUpscale);
                     });
 
-                // In the case of reflection probes, we don't expect any pass that will need the transmittance mask of the clouds so we return white.
-                return renderGraph.defaultResources.whiteTextureXR;
+                return passData.colorBuffer;
             }
         }
     }

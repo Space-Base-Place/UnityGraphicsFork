@@ -232,7 +232,7 @@ namespace UnityEditor.Rendering.HighDefinition
             }
             else
             {
-                EditorGUILayout.HelpBox("The probe volumes feature is disabled. The feature needs to be enabled in the HDRP Global Settings.", MessageType.Info, wide: true);
+                EditorGUILayout.HelpBox("The probe volumes feature is disabled. The feature needs to be enabled in the HDRP Global Settings.", MessageType.Warning, wide: true);
             }
         }
 
@@ -264,8 +264,7 @@ namespace UnityEditor.Rendering.HighDefinition
         static void Drawer_SectionReflection(SerializedHDRenderPipelineAsset serialized, Editor owner)
         {
             EditorGUILayout.PropertyField(serialized.renderPipelineSettings.supportSSR, Styles.supportSSRContent);
-            // Both support SSR and support transparent depth prepass are required for ssr transparent to be supported.
-            using (new EditorGUI.DisabledScope(!(serialized.renderPipelineSettings.supportSSR.boolValue && serialized.renderPipelineSettings.supportTransparentDepthPrepass.boolValue)))
+            using (new EditorGUI.DisabledScope(!serialized.renderPipelineSettings.supportSSR.boolValue))
             {
                 ++EditorGUI.indentLevel;
                 EditorGUILayout.PropertyField(serialized.renderPipelineSettings.supportSSRTransparent, Styles.supportSSRTransparentContent);
@@ -697,7 +696,6 @@ namespace UnityEditor.Rendering.HighDefinition
             EditorGUILayout.PropertyField(serialized.renderPipelineSettings.xrSettings.singlePass, Styles.XRSinglePass);
             EditorGUILayout.PropertyField(serialized.renderPipelineSettings.xrSettings.occlusionMesh, Styles.XROcclusionMesh);
             EditorGUILayout.PropertyField(serialized.renderPipelineSettings.xrSettings.cameraJitter, Styles.XRCameraJitter);
-            EditorGUILayout.PropertyField(serialized.renderPipelineSettings.xrSettings.allowMotionBlur, Styles.XRMotionBlur);
         }
 
         static void Drawer_SectionVTSettings(SerializedHDRenderPipelineAsset serialized, Editor owner)

@@ -353,11 +353,10 @@ namespace UnityEngine.Rendering.Universal.Internal
 
                 SetupShaderLightConstants(cmd, ref renderingData);
 
-                bool lightCountCheck = (renderingData.cameraData.renderer.stripAdditionalLightOffVariants && renderingData.lightData.supportsAdditionalLights) || additionalLightsCount > 0;
                 CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.AdditionalLightsVertex,
-                    lightCountCheck && additionalLightsPerVertex && !useClusteredRendering);
+                    additionalLightsCount > 0 && additionalLightsPerVertex && !useClusteredRendering);
                 CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.AdditionalLightsPixel,
-                    lightCountCheck && !additionalLightsPerVertex && !useClusteredRendering);
+                    additionalLightsCount > 0 && !additionalLightsPerVertex && !useClusteredRendering);
                 CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.ClusteredRendering,
                     useClusteredRendering);
 

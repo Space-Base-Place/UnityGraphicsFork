@@ -69,17 +69,13 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
                 AddProperty(blendModeText, () => systemData.blendMode, (newValue) => systemData.blendMode = newValue);
                 AddProperty(enableTransparentFogText, () => builtinData.transparencyFog, (newValue) => builtinData.transparencyFog = newValue);
                 AddProperty(transparentZTestText, () => systemData.zTest, (newValue) => systemData.zTest = newValue);
-                if (renderingPassValue != HDRenderQueue.RenderQueueType.LowTransparent)
-                    AddProperty(zWriteEnableText, () => systemData.transparentZWrite, (newValue) => systemData.transparentZWrite = newValue);
+                AddProperty(zWriteEnableText, () => systemData.transparentZWrite, (newValue) => systemData.transparentZWrite = newValue);
                 AddProperty(transparentCullModeText, () => systemData.transparentCullMode, (newValue) => systemData.transparentCullMode = newValue);
                 AddProperty(transparentSortPriorityText, () => systemData.sortPriority, (newValue) => systemData.sortPriority = HDRenderQueue.ClampsTransparentRangePriority(newValue));
                 AddProperty(transparentBackfaceEnableText, () => builtinData.backThenFrontRendering, (newValue) => builtinData.backThenFrontRendering = newValue);
-                if (renderingPassValue != HDRenderQueue.RenderQueueType.LowTransparent)
-                {
-                    AddProperty(transparentDepthPrepassEnableText, () => builtinData.transparentDepthPrepass, (newValue) => builtinData.transparentDepthPrepass = newValue);
-                    AddProperty(transparentDepthPostpassEnableText, () => builtinData.transparentDepthPostpass, (newValue) => builtinData.transparentDepthPostpass = newValue);
-                    AddProperty(transparentWritingMotionVecText, () => builtinData.transparentWritesMotionVec, (newValue) => builtinData.transparentWritesMotionVec = newValue);
-                }
+                AddProperty(transparentDepthPrepassEnableText, () => builtinData.transparentDepthPrepass, (newValue) => builtinData.transparentDepthPrepass = newValue);
+                AddProperty(transparentDepthPostpassEnableText, () => builtinData.transparentDepthPostpass, (newValue) => builtinData.transparentDepthPostpass = newValue);
+                AddProperty(transparentWritingMotionVecText, () => builtinData.transparentWritesMotionVec, (newValue) => builtinData.transparentWritesMotionVec = newValue);
 
                 if (lightingData != null)
                     AddProperty(enableBlendModePreserveSpecularLightingText, () => lightingData.blendPreserveSpecular, (newValue) => lightingData.blendPreserveSpecular = newValue);
@@ -114,7 +110,7 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
             {
                 AddProperty(supportDecalsText, () => lightingData.receiveDecals, (newValue) => lightingData.receiveDecals = newValue);
 
-                if (systemData.surfaceType == SurfaceType.Transparent && renderingPassValue != HDRenderQueue.RenderQueueType.LowTransparent)
+                if (systemData.surfaceType == SurfaceType.Transparent)
                     AddProperty(receivesSSRTransparentText, () => lightingData.receiveSSRTransparent, (newValue) => lightingData.receiveSSRTransparent = newValue);
                 else
                     AddProperty(receivesSSRText, () => lightingData.receiveSSR, (newValue) => lightingData.receiveSSR = newValue);

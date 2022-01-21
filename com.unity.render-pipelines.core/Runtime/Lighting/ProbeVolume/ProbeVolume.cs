@@ -1,3 +1,7 @@
+using System;
+using UnityEngine.Serialization;
+using UnityEditor.Experimental;
+using Unity.Collections;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
@@ -27,15 +31,12 @@ namespace UnityEngine.Experimental.Rendering
         public int lowestSubdivLevelOverride = 0;
         [HideInInspector]
         public int highestSubdivLevelOverride = -1;
-        [HideInInspector]
-        public bool overridesSubdivLevels = false;
 
         [SerializeField] internal bool mightNeedRebaking = false;
 
         [SerializeField] internal Matrix4x4 cachedTransform;
         [SerializeField] internal int cachedHashCode;
 
-#if UNITY_EDITOR
         /// <summary>
         /// Returns the extents of the volume.
         /// </summary>
@@ -45,6 +46,7 @@ namespace UnityEngine.Experimental.Rendering
             return size;
         }
 
+#if UNITY_EDITOR
         internal void UpdateGlobalVolume(Scene scene)
         {
             if (gameObject.scene != scene) return;
@@ -112,7 +114,6 @@ namespace UnityEngine.Experimental.Rendering
             unchecked
             {
                 hash = hash * 23 + size.GetHashCode();
-                hash = hash * 23 + overridesSubdivLevels.GetHashCode();
                 hash = hash * 23 + highestSubdivLevelOverride.GetHashCode();
                 hash = hash * 23 + lowestSubdivLevelOverride.GetHashCode();
                 hash = hash * 23 + geometryDistanceOffset.GetHashCode();
@@ -122,24 +123,24 @@ namespace UnityEngine.Experimental.Rendering
             return hash;
         }
 
+#endif
+
         internal float GetMinSubdivMultiplier()
         {
             float maxSubdiv = ProbeReferenceVolume.instance.GetMaxSubdivision() - 1;
-            return overridesSubdivLevels ? Mathf.Clamp(lowestSubdivLevelOverride / maxSubdiv, 0.0f, 1.0f) : 0.0f;
+            return Mathf.Max(0.0f, lowestSubdivLevelOverride / maxSubdiv);
         }
 
         internal float GetMaxSubdivMultiplier()
         {
             float maxSubdiv = ProbeReferenceVolume.instance.GetMaxSubdivision() - 1;
-            return overridesSubdivLevels ? Mathf.Clamp(highestSubdivLevelOverride / maxSubdiv, 0.0f, 1.0f) : 1.0f;
+            return Mathf.Max(0.0f, highestSubdivLevelOverride / maxSubdiv);
         }
 
         // Momentarily moving the gizmo rendering for bricks and cells to Probe Volume itself,
         // only the first probe volume in the scene will render them. The reason is that we dont have any
         // other non-hidden component related to APV.
         #region APVGizmo
-
-        static List<ProbeVolume> sProbeVolumeInstances = new();
 
         MeshGizmo brickGizmos;
         MeshGizmo cellGizmo;
@@ -152,19 +153,23 @@ namespace UnityEngine.Experimental.Rendering
             cellGizmo = null;
         }
 
-        void OnEnable()
+        void OnDestroy()
         {
-            sProbeVolumeInstances.Add(this);
+            DisposeGizmos();
         }
 
         void OnDisable()
         {
-            sProbeVolumeInstances.Remove(this);
             DisposeGizmos();
         }
+#if UNITY_EDITOR
 
         // Only the first PV of the available ones will draw gizmos.
-        bool IsResponsibleToDrawGizmo() => sProbeVolumeInstances.Count > 0 && sProbeVolumeInstances[0] == this;
+        bool IsResponsibleToDrawGizmo()
+        {
+            var pvList = GameObject.FindObjectsOfType<ProbeVolume>();
+            return this == pvList[0];
+        }
 
         internal bool ShouldCullCell(Vector3 cellPosition, Vector3 originWS = default(Vector3))
         {
@@ -197,6 +202,8 @@ namespace UnityEngine.Experimental.Rendering
             var profile = ProbeReferenceVolume.instance.sceneData.GetProfileForScene(gameObject.scene);
             if (profile == null)
                 return;
+
+            var debugDisplay = ProbeReferenceVolume.instance.debugDisplay;
 
             if (debugDisplay.drawBricks)
             {
@@ -297,8 +304,8 @@ namespace UnityEngine.Experimental.Rendering
                 cellGizmo.RenderWireframe(Gizmos.matrix, gizmoName: "Brick Gizmo Rendering");
             }
         }
-        #endregion
 
-#endif // UNITY_EDITOR
+#endif
+        #endregion
     }
 } // UnityEngine.Experimental.Rendering.HDPipeline

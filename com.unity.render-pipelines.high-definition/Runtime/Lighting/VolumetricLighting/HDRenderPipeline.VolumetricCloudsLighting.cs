@@ -107,7 +107,7 @@ namespace UnityEngine.Rendering.HighDefinition
             }
         }
 
-        static void OnComputeAmbientProbeDone(AsyncGPUReadbackRequest request)
+        public static void OnComputeAmbientProbeDone(AsyncGPUReadbackRequest request)
         {
             if (!request.hasError)
             {

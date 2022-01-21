@@ -17,7 +17,6 @@ namespace UnityEngine
     {
         const float k_ArcRadius = 5;
         const float k_AxisLength = 10;
-        internal const float k_MaxDistance = 10000f;
 
         [SerializeField, Min(0)]
         float m_Distance = 0f;
@@ -25,8 +24,6 @@ namespace UnityEngine
         UpDirection m_FrameSpace = UpDirection.World;
         [SerializeField]
         Transform m_AnchorPositionOverride;
-        [SerializeField]
-        Vector3 m_AnchorPositionOffset;
 
         [SerializeField]
         float m_Yaw;
@@ -77,7 +74,7 @@ namespace UnityEngine
         public float distance
         {
             get => m_Distance;
-            set => m_Distance = Mathf.Clamp(value, 0f, k_MaxDistance);
+            set => m_Distance = Mathf.Max(0, value);
         }
 
         /// <summary>
@@ -112,7 +109,7 @@ namespace UnityEngine
             get
             {
                 if (anchorPositionOverride != null)
-                    return anchorPositionOverride.position + anchorPositionOverride.TransformDirection(anchorPositionOffset);
+                    return anchorPositionOverride.position;
                 else
                     return transform.position + transform.forward * distance;
             }
@@ -133,15 +130,6 @@ namespace UnityEngine
         {
             get => m_AnchorPositionOverride;
             set => m_AnchorPositionOverride = value;
-        }
-
-        /// <summary>
-        /// Offset relative to the position of the anchor position override transform in object space.
-        /// </summary>
-        public Vector3 anchorPositionOffset
-        {
-            get => m_AnchorPositionOffset;
-            set => m_AnchorPositionOffset = value;
         }
 
         /// <summary>

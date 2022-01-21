@@ -225,7 +225,7 @@ namespace UnityEditor.Rendering.HighDefinition
             EditorGUI.showMixedValue = false;
 
             // Draw the mode, for Tube and Disc lights, there is only one choice, so we can disable the enum.
-            using (new EditorGUI.DisabledScope(updatedLightType == HDLightType.Area && (serialized.areaLightShape == AreaLightShape.Tube || serialized.areaLightShape == AreaLightShape.Disc)))
+            using (new EditorGUI.DisabledScope(serialized.areaLightShape == AreaLightShape.Tube || serialized.areaLightShape == AreaLightShape.Disc))
                 serialized.settings.DrawLightmapping();
 
             if (updatedLightType == HDLightType.Area)
@@ -1208,7 +1208,7 @@ namespace UnityEditor.Rendering.HighDefinition
                     EditorGUILayout.Slider(serialized.areaLightShadowCone, HDAdditionalLightData.k_MinAreaLightShadowCone, HDAdditionalLightData.k_MaxAreaLightShadowCone, s_Styles.areaLightShadowCone);
                 }
 
-                if (HDRenderPipeline.assetSupportsRayTracing && HDRenderPipeline.pipelineSupportsScreenSpaceShadows)
+                if (HDRenderPipeline.buildPipelineSupportsRayTracing && HDRenderPipeline.pipelineSupportsScreenSpaceShadows)
                 {
                     bool isPunctual = lightType == HDLightType.Point || (lightType == HDLightType.Spot && serialized.spotLightShape.GetEnumValue<SpotLightShape>() == SpotLightShape.Cone);
                     if (isPunctual || (lightType == HDLightType.Area && serialized.areaLightShape == AreaLightShape.Rectangle))
@@ -1243,7 +1243,7 @@ namespace UnityEditor.Rendering.HighDefinition
                 if (lightType == HDLightType.Directional && HDRenderPipeline.pipelineSupportsScreenSpaceShadows)
                 {
                     EditorGUILayout.PropertyField(serialized.useScreenSpaceShadows, s_Styles.useScreenSpaceShadows);
-                    if (HDRenderPipeline.assetSupportsRayTracing)
+                    if (HDRenderPipeline.buildPipelineSupportsRayTracing)
                     {
                         using (new EditorGUI.DisabledScope(!serialized.useScreenSpaceShadows.boolValue))
                         {
@@ -1377,7 +1377,7 @@ namespace UnityEditor.Rendering.HighDefinition
                 HDAdditionalLightData.ScalableSettings.UseContactShadow(hdrp),
                 hdrp.name
             );
-            if (HDRenderPipeline.assetSupportsRayTracing
+            if (HDRenderPipeline.buildPipelineSupportsRayTracing
                 && serialized.contactShadows.@override.boolValue)
             {
                 EditorGUI.indentLevel++;

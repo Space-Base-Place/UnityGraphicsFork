@@ -47,7 +47,7 @@ namespace UnityEngine.Rendering.HighDefinition
         internal static bool pipelineSupportsRayTracing => HDRenderPipeline.currentPipeline != null && HDRenderPipeline.currentPipeline.rayTracingSupported;
 
 #if UNITY_EDITOR
-        internal static bool assetSupportsRayTracing => HDRenderPipeline.currentPipeline != null && (HDRenderPipeline.currentPipeline.m_AssetSupportsRayTracing);
+        internal static bool buildPipelineSupportsRayTracing => HDRenderPipeline.currentPipeline != null && (HDRenderPipeline.currentPipeline.m_AssetSupportsRayTracing && HDRenderPipeline.buildTargetSupportsRayTracing);
 #endif
 
         internal static bool pipelineSupportsScreenSpaceShadows => GraphicsSettings.currentRenderPipeline is HDRenderPipelineAsset hdrpAsset ? hdrpAsset.currentPlatformRenderPipelineSettings.hdShadowInitParams.supportScreenSpaceShadows : false;
@@ -89,7 +89,7 @@ namespace UnityEngine.Rendering.HighDefinition
         /// </summary>
         /// <param name="rayValues">Specifes which ray count value should be returned.</param>
         /// <returns>The approximated ray count for a frame</returns>
-        public uint GetRaysPerFrame(RayCountValues rayValues) { return m_RayCountManager != null ? m_RayCountManager.GetRaysPerFrame(rayValues) : 0; }
+        public uint GetRaysPerFrame(RayCountValues rayValues) { return m_RayCountManager.GetRaysPerFrame(rayValues); }
 
         // Renderer Bake configuration can vary depends on if shadow mask is enabled or no
         PerObjectData m_CurrentRendererConfigurationBakedLighting = HDUtils.k_RendererConfigurationBakedLighting;
@@ -257,13 +257,6 @@ namespace UnityEngine.Rendering.HighDefinition
         /// <param name="asset">Source HDRenderPipelineAsset.</param>
         public HDRenderPipeline(HDRenderPipelineAsset asset)
         {
-            // We need to call this after the resource initialization as we attempt to use them in checking the supported API.
-            if (!CheckAPIValidity())
-            {
-                m_ValidAPI = false;
-                return;
-            }
-
 #if UNITY_EDITOR
             m_GlobalSettings = HDRenderPipelineGlobalSettings.Ensure();
 #else
@@ -303,7 +296,12 @@ namespace UnityEngine.Rendering.HighDefinition
             m_GlobalSettings.EnsureShadersCompiled();
 #endif
 
-            CheckResourcesValidity();
+            // We need to call this after the resource initialization as we attempt to use them in checking the supported API.
+            if (!CheckAPIValidity())
+            {
+                m_ValidAPI = false;
+                return;
+            }
 
 #if ENABLE_VIRTUALTEXTURES
             VirtualTexturingSettingsSRP settings = asset.virtualTexturingSettings;
@@ -321,12 +319,6 @@ namespace UnityEngine.Rendering.HighDefinition
             }
 
             VirtualTexturing.Streaming.SetGPUCacheSettings(gpuCacheSettings);
-
-            colorMaskTransparentVel = HDShaderIDs._ColorMaskTransparentVelTwo;
-            colorMaskAdditionalTarget = HDShaderIDs._ColorMaskTransparentVelOne;
-#else
-            colorMaskTransparentVel = HDShaderIDs._ColorMaskTransparentVelOne;
-            colorMaskAdditionalTarget = HDShaderIDs._ColorMaskTransparentVelTwo;
 #endif
 
             // Initial state of the RTHandle system.
@@ -447,8 +439,6 @@ namespace UnityEngine.Rendering.HighDefinition
             m_MotionVectorResolve = CoreUtils.CreateEngineMaterial(m_GlobalSettings.renderPipelineResources.shaders.resolveMotionVecPS);
 
             CustomPassUtils.Initialize();
-
-            LensFlareCommonSRP.Initialize();
         }
 
 #if UNITY_EDITOR
@@ -557,7 +547,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
             if (UnityEditor.PlayerSettings.colorSpace == ColorSpace.Gamma)
             {
-                Debug.LogError("High Definition Render Pipeline doesn't support Gamma mode, change to Linear mode (HDRP isn't set up properly. Go to Window > Rendering > HDRP Wizard to fix your settings).");
+                Debug.LogError("High Definition Render Pipeline doesn't support Gamma mode, change to Linear mode (HDRP isn't set up properly. Go to Windows > RenderPipeline > HDRP Wizard to fix your settings).");
             }
 #endif
 
@@ -583,17 +573,6 @@ namespace UnityEngine.Rendering.HighDefinition
             return true;
         }
 
-        bool CheckResourcesValidity()
-        {
-            if (!(defaultResources?.shaders.defaultPS?.isSupported ?? true))
-            {
-                HDUtils.DisplayMessageNotification("Unable to compile Default Material based on Lit.shader. Either there is a compile error in Lit.shader or the current platform / API isn't compatible.");
-                return false;
-            }
-
-            return true;
-        }
-
         // Note: If you add new platform in this function, think about adding support when building the player too in HDRPCustomBuildProcessor.cs
         bool IsSupportedPlatformAndDevice(out GraphicsDeviceType unsupportedGraphicDevice)
         {
@@ -602,6 +581,12 @@ namespace UnityEngine.Rendering.HighDefinition
             if (!SystemInfo.supportsComputeShaders)
             {
                 HDUtils.DisplayMessageNotification("Current platform / API don't support ComputeShaders which is a requirement.");
+                return false;
+            }
+
+            if (!(defaultResources?.shaders.defaultPS?.isSupported ?? true))
+            {
+                HDUtils.DisplayMessageNotification("Unable to compile Default Material based on Lit.shader. Either there is a compile error in Lit.shader or the current platform / API isn't compatible.");
                 return false;
             }
 
@@ -683,7 +668,6 @@ namespace UnityEngine.Rendering.HighDefinition
 
             base.Dispose(disposing);
 
-            HDLightRenderDatabase.instance.Cleanup();
             ReleaseScreenSpaceShadows();
 
             if (m_RayTracingSupported)
@@ -753,8 +737,6 @@ namespace UnityEngine.Rendering.HighDefinition
             CleanupPrepass();
             CoreUtils.Destroy(m_ColorResolveMaterial);
             CoreUtils.Destroy(m_MotionVectorResolve);
-
-            LensFlareCommonSRP.Dispose();
 
             CustomPassUtils.Cleanup();
 #if UNITY_EDITOR
@@ -845,8 +827,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 UpdateShaderVariablesRaytracingCB(hdCamera, cmd);
 
                 // This one is not in a constant buffer because it's only used as a parameter for some shader's render states. It's not actually used inside shader code.
-                cmd.SetGlobalInt(colorMaskTransparentVel, (int)ColorWriteMask.All);
-                cmd.SetGlobalInt(colorMaskAdditionalTarget, (int)ColorWriteMask.All);
+                cmd.SetGlobalInt(HDShaderIDs._ColorMaskTransparentVel, (int)ColorWriteMask.All);
             }
         }
 
@@ -1073,10 +1054,6 @@ namespace UnityEngine.Rendering.HighDefinition
 #endif
         {
 #if UNITY_EDITOR
-            // Build target can change in editor so we need to check if the target is supported
-            if (!HDUtils.IsSupportedBuildTarget(UnityEditor.EditorUserBuildSettings.activeBuildTarget))
-                return;
-
             if (!m_ResourcesInitialized)
                 return;
 #endif
@@ -2589,7 +2566,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         static bool NeedMotionVectorForTransparent(FrameSettings frameSettings)
         {
-            return frameSettings.IsEnabled(FrameSettingsField.TransparentsWriteMotionVector);
+            return frameSettings.IsEnabled(FrameSettingsField.MotionVectors);
         }
 
         /// <summary>

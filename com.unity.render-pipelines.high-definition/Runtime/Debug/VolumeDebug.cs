@@ -73,15 +73,9 @@ namespace UnityEngine.Rendering.HighDefinition
             {
 #if UNITY_EDITOR
                 if (m_SelectedCamera <= 0 || m_SelectedCamera > cameras.Count + 1)
-                    return 0;
+                    return (LayerMask)0;
                 if (m_SelectedCamera == 1)
-                {
-                    // For scene view, use main camera volum layer mask. See HDCamera.cs
-                    var mainCamera = Camera.main;
-                    if (mainCamera != null && mainCamera.TryGetComponent<HDAdditionalCameraData>(out var mainCamAdditionalData))
-                        return mainCamAdditionalData.volumeLayerMask;
-                    return HDCamera.GetSceneViewLayerMaskFallback();
-                }
+                    return -1;
                 return cameras[m_SelectedCamera - 2].volumeLayerMask;
 #else
                 if (m_SelectedCamera <= 0 || m_SelectedCamera > cameras.Count)

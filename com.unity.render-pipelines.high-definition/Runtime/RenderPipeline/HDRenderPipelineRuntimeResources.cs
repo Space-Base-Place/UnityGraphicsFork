@@ -39,8 +39,6 @@ namespace UnityEngine.Rendering.HighDefinition
             public Shader materialError;
             [Reload("Runtime/Debug/ProbeVolumeDebug.shader")]
             public Shader probeVolumeDebugShader;
-            [Reload("Runtime/Debug/ClearDebugBuffer.compute")]
-            public ComputeShader clearDebugBufferCS;
 
             // Lighting
             [Reload("Runtime/Lighting/Deferred.Shader")]
@@ -315,8 +313,6 @@ namespace UnityEngine.Rendering.HighDefinition
             public Shader temporalAntialiasingPS;
             [Reload("Runtime/PostProcessing/Shaders/LensFlareDataDriven.shader")]
             public Shader lensFlareDataDrivenPS;
-            [Reload("Runtime/PostProcessing/Shaders/LensFlareMergeOcclusionDataDriven.compute")]
-            public ComputeShader lensFlareMergeOcclusionCS;
             [Reload("Runtime/PostProcessing/Shaders/DLSSBiasColorMask.shader")]
             public Shader DLSSBiasColorMaskPS;
 
@@ -329,8 +325,6 @@ namespace UnityEngine.Rendering.HighDefinition
             public ComputeShader dofCoCMinMaxCS;
             [Reload("Runtime/PostProcessing/Shaders/DoFMinMaxDilate.compute")]
             public ComputeShader dofMinMaxDilateCS;
-            [Reload("Runtime/PostProcessing/Shaders/DoFCombine.compute")]
-            public ComputeShader dofCombineCS;
 
             [Reload("Runtime/PostProcessing/Shaders/ContrastAdaptiveSharpen.compute")]
             public ComputeShader contrastAdaptiveSharpenCS;
@@ -360,12 +354,6 @@ namespace UnityEngine.Rendering.HighDefinition
             public ComputeShader temporalFilterCS;
             [Reload("Runtime/RenderPipeline/Raytracing/Shaders/Denoising/DiffuseDenoiser.compute")]
             public ComputeShader diffuseDenoiserCS;
-
-#if UNITY_EDITOR
-            // Furnace Testing (BSDF Energy Conservation)
-            [Reload("Tests/Editor/Utilities/FurnaceTests.compute")]
-            public ComputeShader furnaceTestCS;
-#endif
 
 #if UNITY_EDITOR
             // Iterator to retrieve all compute shaders in reflection so we don't have to keep a list of
@@ -423,6 +411,10 @@ namespace UnityEngine.Rendering.HighDefinition
             public Texture2D rankingTile256SPP;
             [Reload("Runtime/RenderPipelineResources/Texture/CoherentNoise/ScramblingTile256SPP.png")]
             public Texture2D scramblingTile256SPP;
+
+            // Pre-integration LUTs
+            [Reload("Runtime/RenderPipelineResources/Texture/PreintegratedAzimuthalScattering.exr")]
+            public Texture2D preintegratedAzimuthalScattering;
 
             // Clouds textures
             [Reload("Runtime/RenderPipelineResources/Texture/VolumetricClouds/CloudLutRainAO.png")]

@@ -281,24 +281,18 @@ namespace UnityEditor.Rendering.HighDefinition
 
                 if (useEmissiveIntensity.floatValue == 0.0f)
                 {
-                    if (updateEmissiveColor)
-                        emissiveColorHDR.colorValue = emissiveColor.colorValue;
-
                     EditorGUI.BeginChangeCheck();
                     EmissionUIBlock.DoEmissiveTextureProperty(materialEditor, emissiveColorMap, emissiveColorHDR);
-                    if (EditorGUI.EndChangeCheck())
+                    if (EditorGUI.EndChangeCheck() || updateEmissiveColor)
                         emissiveColor.colorValue = emissiveColorHDR.colorValue;
                 }
                 else
                 {
-                    if (updateEmissiveColor)
-                        EmissionUIBlock.UpdateEmissiveColorLDRAndIntensityFromEmissiveColor(emissiveColorLDR, emissiveIntensity, emissiveColor);
-
                     EditorGUI.BeginChangeCheck();
                     EmissionUIBlock.DoEmissiveTextureProperty(materialEditor, emissiveColorMap, emissiveColorLDR);
                     EmissionUIBlock.DoEmissiveIntensityGUI(materialEditor, emissiveIntensity, emissiveIntensityUnit);
                     if (EditorGUI.EndChangeCheck() || updateEmissiveColor)
-                        EmissionUIBlock.UpdateEmissiveColorFromIntensityAndEmissiveColorLDR(emissiveColorLDR, emissiveIntensity, emissiveColor);
+                        EmissionUIBlock.UpdateEmissiveColorFromIntensityAndEmissiveColorLDR(materialEditor, materials);
                 }
 
                 materialEditor.ShaderProperty(emissiveExposureWeight, Styles.emissiveExposureWeightText);

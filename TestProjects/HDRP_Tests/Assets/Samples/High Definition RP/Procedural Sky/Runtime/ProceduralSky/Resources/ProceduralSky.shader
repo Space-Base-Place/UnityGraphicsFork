@@ -291,7 +291,6 @@ Shader "Hidden/HDRP/Sky/ProceduralSky"
 
     SubShader
     {
-        Tags{ "RenderPipeline" = "HDRenderPipeline" }
         // For cubemap
         Pass
         {

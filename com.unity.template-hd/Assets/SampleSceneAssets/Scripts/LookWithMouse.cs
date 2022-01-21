@@ -26,7 +26,7 @@ public class LookWithMouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        bool unlockPressed = false, lockPressed = false;
+        bool unlockPressed, lockPressed;
 
 #if ENABLE_INPUT_SYSTEM
         float mouseX = 0, mouseY = 0;
@@ -36,7 +36,6 @@ public class LookWithMouse : MonoBehaviour
             var delta = Mouse.current.delta.ReadValue() / 15.0f;
             mouseX += delta.x;
             mouseY += delta.y;
-            lockPressed = Mouse.current.leftButton.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame;
         }
         if (Gamepad.current != null)
         {
@@ -44,17 +43,16 @@ public class LookWithMouse : MonoBehaviour
             mouseX += value.x;
             mouseY += value.y;
         }
-        if (Keyboard.current != null)
-        {
-            unlockPressed = Keyboard.current.escapeKey.wasPressedThisFrame;
-        }
+
+        unlockPressed = Keyboard.current.escapeKey.wasPressedThisFrame;
+        lockPressed = Mouse.current.leftButton.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame;
 
         mouseX *= mouseSensitivity * k_MouseSensitivityMultiplier;
         mouseY *= mouseSensitivity * k_MouseSensitivityMultiplier;
 #else
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * k_MouseSensitivityMultiplier;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * k_MouseSensitivityMultiplier;
-
+        
         unlockPressed = Input.GetKeyDown(KeyCode.Escape);
         lockPressed = Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1);
 #endif

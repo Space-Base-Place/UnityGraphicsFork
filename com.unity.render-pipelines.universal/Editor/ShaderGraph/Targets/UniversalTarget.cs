@@ -1006,7 +1006,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGraph
     {
         public static readonly FieldCollection ShadowCaster = new FieldCollection()
         {
-            StructFields.Varyings.normalWS,
+            StructFields.Attributes.normalOS,
         };
 
         public static readonly FieldCollection DepthNormals = new FieldCollection()

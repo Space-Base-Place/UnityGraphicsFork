@@ -30,9 +30,7 @@ To initialize a `RenderGraph` instance, call the constructor with an optional na
 
 ### Starting a render graph
 
-Before you add any render passes to the render graph, you first need to initialize the render graph. To do this, call the `RecordAndExecute` method. This method will return a disposable struct of type `RenderGraphExecution` that you can use with a scope. When the `RenderGraphExecution` struct exits the scope or its Dispose function is called, the render graph is executed.
-This pattern ensures that the render graph is always executed correctly even in the case of an exception during the recording of the graph.
-For details about this method's parameters, see the [API documentation](../api/UnityEngine.Experimental.Rendering.RenderGraphModule.RenderGraph.html)
+Before you add any render passes to the render graph, you first need to initialize the render graph. To do this, call the `Begin` method. For details about this method's parameters, see the [API documentation](../api/UnityEngine.Experimental.Rendering.RenderGraphModule.RenderGraph.html)
 
 ```c#
 var renderGraphParams = new RenderGraphExecuteParams()
@@ -42,10 +40,7 @@ var renderGraphParams = new RenderGraphExecuteParams()
     currentFrameIndex = frameIndex
 };
 
-using (m_RenderGraph.RecordAndExecute(renderGraphParams))
-{
-    // Add your passes here
-}
+m_RenderGraph.Begin(renderGraphParams);
 ```
 
 ### Creating resources for the render graph
@@ -237,6 +232,16 @@ TextureHandle MyRenderPass(RenderGraph renderGraph, TextureHandle inputTexture, 
     }
 }
 ```
+
+### Execution of the Render Graph
+
+After you declare all the render passes, you then need to execute the render graph. To do this, call the Execute method.
+
+```c#
+m_RenderGraph.Execute();
+```
+
+This triggers the process that compiles and executes the render graph.
 
 ### Ending the frame
 

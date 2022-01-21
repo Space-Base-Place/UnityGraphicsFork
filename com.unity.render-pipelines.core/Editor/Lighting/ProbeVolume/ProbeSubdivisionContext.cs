@@ -159,8 +159,7 @@ namespace UnityEngine.Experimental.Rendering
                 if ((flags & StaticEditorFlags.ContributeGI) == 0)
                     continue;
 
-                // Inflate a bit the volume in case it's too small (plane case)
-                var volume = ProbePlacement.ToVolume(new Bounds(r.bounds.center, r.bounds.size + Vector3.one * 0.01f));
+                var volume = ProbePlacement.ToVolume(r.bounds);
 
                 renderers.Add((r, volume));
             }

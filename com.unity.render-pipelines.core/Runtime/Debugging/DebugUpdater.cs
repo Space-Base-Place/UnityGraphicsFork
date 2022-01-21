@@ -16,10 +16,10 @@ namespace UnityEngine.Rendering
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void RuntimeInit()
         {
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-            if (DebugManager.instance.enableRuntimeUI)
-                EnableRuntime();
-#endif
+            if (!Debug.isDebugBuild || !DebugManager.instance.enableRuntimeUI || FindObjectOfType<DebugUpdater>() != null)
+                return;
+
+            EnableRuntime();
         }
 
         internal static void SetEnabled(bool enabled)

@@ -94,9 +94,10 @@ void RayGenContactShadows()
     uint contactShadowMask = 0;
     UnpackContactShadowData(_ContactShadowTextureUAV[COORD_TEXTURE2D_X(pixelCoord)], fade, contactShadowMask);
 
-	for (int i = 0; i < _DirectionalLightCount; ++i)
+    // Let's first process the directional shadow
+    if (_DirectionalShadowIndex >= 0)
     {
-        DirectionalLightData light = _DirectionalLightDatas[i];
+        DirectionalLightData light = _DirectionalLightDatas[_DirectionalShadowIndex];
 
         if (light.contactShadowMask != 0 && light.isRayTracedContactShadow == 1.0)
         {

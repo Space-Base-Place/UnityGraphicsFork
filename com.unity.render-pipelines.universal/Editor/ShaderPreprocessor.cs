@@ -48,8 +48,6 @@ namespace UnityEditor.Rendering.Universal
         MainLightShadowsCascade = (1 << 26),
         DrawProcedural = (1 << 27),
         ScreenSpaceOcclusionAfterOpaque = (1 << 28),
-        AdditionalLightsKeepOffVariants = (1 << 29),
-        ShadowsKeepOffVariants = (1 << 30),
     }
 
     [Flags]
@@ -360,22 +358,12 @@ namespace UnityEditor.Rendering.Universal
             var stripTool = new StripTool<ShaderFeatures>(features, shader, snippetData, compilerData.shaderKeywordSet, stripUnusedVariants);
 
             // strip main light shadows, cascade and screen variants
-            if (IsFeatureEnabled(ShaderFeatures.ShadowsKeepOffVariants, features))
-            {
-                if (stripTool.StripMultiCompileKeepOffVariant(
-                    m_MainLightShadows, ShaderFeatures.MainLightShadows,
-                    m_MainLightShadowsCascades, ShaderFeatures.MainLightShadowsCascade,
-                    m_MainLightShadowsScreen, ShaderFeatures.ScreenSpaceShadows))
-                    return true;
-            }
-            else
-            {
-                if (stripTool.StripMultiCompile(
-                    m_MainLightShadows, ShaderFeatures.MainLightShadows,
-                    m_MainLightShadowsCascades, ShaderFeatures.MainLightShadowsCascade,
-                    m_MainLightShadowsScreen, ShaderFeatures.ScreenSpaceShadows))
-                    return true;
-            }
+            // TODO: Strip disabled keyword once no light will re-use same variant
+            if (stripTool.StripMultiCompileKeepOffVariant(
+                m_MainLightShadows, ShaderFeatures.MainLightShadows,
+                m_MainLightShadowsCascades, ShaderFeatures.MainLightShadowsCascade,
+                m_MainLightShadowsScreen, ShaderFeatures.ScreenSpaceShadows))
+                return true;
 
             // TODO: Strip off variants once we have global soft shadows option for forcing instead as support
             if (stripTool.StripMultiCompileKeepOffVariant(m_SoftShadows, ShaderFeatures.SoftShadows))
@@ -412,16 +400,9 @@ namespace UnityEditor.Rendering.Universal
                 return true;
 
             // No additional light shadows
-            if (IsFeatureEnabled(ShaderFeatures.ShadowsKeepOffVariants, features))
-            {
-                if (stripTool.StripMultiCompileKeepOffVariant(m_AdditionalLightShadows, ShaderFeatures.AdditionalLightShadows))
-                    return true;
-            }
-            else
-            {
-                if (stripTool.StripMultiCompile(m_AdditionalLightShadows, ShaderFeatures.AdditionalLightShadows))
-                    return true;
-            }
+            // TODO: Strip off variants once we support no shadow lights re-use same variant
+            if (stripTool.StripMultiCompileKeepOffVariant(m_AdditionalLightShadows, ShaderFeatures.AdditionalLightShadows))
+                return true;
 
             if (stripTool.StripMultiCompile(m_ReflectionProbeBlending, ShaderFeatures.ReflectionProbeBlending))
                 return true;
@@ -444,18 +425,10 @@ namespace UnityEditor.Rendering.Universal
             }
 
             // Additional light are shaded per-vertex or per-pixel.
-            if (IsFeatureEnabled(ShaderFeatures.AdditionalLightsKeepOffVariants, features))
-            {
-                if (stripTool.StripMultiCompileKeepOffVariant(m_AdditionalLightsVertex, ShaderFeatures.VertexLighting,
-                    m_AdditionalLightsPixel, ShaderFeatures.AdditionalLights))
-                    return true;
-            }
-            else
-            {
-                if (stripTool.StripMultiCompile(m_AdditionalLightsVertex, ShaderFeatures.VertexLighting,
-                    m_AdditionalLightsPixel, ShaderFeatures.AdditionalLights))
-                    return true;
-            }
+            // TODO: Strip off variants once we support no additional lights re-used variants
+            if (stripTool.StripMultiCompileKeepOffVariant(m_AdditionalLightsVertex, ShaderFeatures.VertexLighting,
+                m_AdditionalLightsPixel, ShaderFeatures.AdditionalLights))
+                return true;
 
             if (stripTool.StripMultiCompile(m_ClusteredRendering, ShaderFeatures.ClusteredRendering))
                 return true;
@@ -671,7 +644,7 @@ namespace UnityEditor.Rendering.Universal
             Profiler.BeginSample(k_ProcessShaderTag);
 #endif
 
-            UniversalRenderPipelineAsset urpAsset = UniversalRenderPipeline.asset;
+            UniversalRenderPipelineAsset urpAsset = GraphicsSettings.renderPipelineAsset as UniversalRenderPipelineAsset;
             if (urpAsset == null || compilerDataList == null || compilerDataList.Count == 0)
                 return;
 
@@ -947,12 +920,6 @@ namespace UnityEditor.Rendering.Universal
                         usesRenderPass |= universalRenderer.useRenderPassEnabled;
                     }
                 }
-
-                if (!renderer.stripShadowsOffVariants)
-                    shaderFeatures |= ShaderFeatures.ShadowsKeepOffVariants;
-
-                if (!renderer.stripAdditionalLightOffVariants)
-                    shaderFeatures |= ShaderFeatures.AdditionalLightsKeepOffVariants;
 
                 var rendererClustered = false;
 

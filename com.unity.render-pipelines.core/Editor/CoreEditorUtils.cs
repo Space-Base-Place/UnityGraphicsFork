@@ -56,7 +56,7 @@ namespace UnityEditor.Rendering
                 // For properties, get the name of the backing field
                 var name = me.Member is FieldInfo
                     ? me.Member.Name
-                    : "m_" + me.Member.Name.Substring(0, 1).ToUpperInvariant() + me.Member.Name.Substring(1);
+                    : "m_" + me.Member.Name.Substring(0, 1).ToUpper() + me.Member.Name.Substring(1);
                 members.Add(name);
                 me = me.Expression as MemberExpression;
             }
@@ -991,16 +991,7 @@ namespace UnityEditor.Rendering
             GameObjectUtility.SetParentAndAlign(go, context as GameObject);
             Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
             Selection.activeObject = go;
-
-            if (parent != null)
-                go.transform.localPosition = Vector3.zero;
-            else
-            {
-                if (EditorPrefs.GetBool("Create3DObject.PlaceAtWorldOrigin", false))
-                    go.transform.localPosition = Vector3.zero;
-                else
-                    EditorApplication.ExecuteMenuItem("GameObject/Move To View");
-            }
+            EditorApplication.ExecuteMenuItem("GameObject/Move To View");
             return go;
         }
 

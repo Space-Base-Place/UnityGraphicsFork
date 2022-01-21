@@ -926,7 +926,7 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
                 // Collections
                 structs = CoreStructCollections.BasicRaytracing,
                 pragmas = CorePragmas.BasicRaytracing,
-                defines = supportLighting ? RaytracingIndirectDefines : RaytracingIndirectUnlitDefines,
+                defines = supportLighting ? RaytracingIndirectDefines : null,
                 keywords = supportLighting ? IndirectDiffuseKeywordCollection : null,
                 includes = GenerateIncludes(),
             };
@@ -961,12 +961,6 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
                 return includes;
             }
         }
-
-        public static DefineCollection RaytracingIndirectUnlitDefines = new DefineCollection
-        {
-            { Defines.shadowLow },
-            { Defines.raytracingRaytraced },
-        };
 
         public static DefineCollection RaytracingIndirectDefines = new DefineCollection
         {
@@ -1052,7 +1046,7 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
                 // Collections
                 structs = CoreStructCollections.BasicRaytracing,
                 pragmas = CorePragmas.BasicRaytracing,
-                defines = supportLighting ? RaytracingForwardDefines : RaytracingForwardUnlitDefines,
+                defines = supportLighting ? RaytracingForwardDefines : null,
                 includes = GenerateIncludes(),
             };
 
@@ -1097,12 +1091,6 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
             { CoreKeywordDescriptors.HasLightloop, 1 },
         };
 
-        public static DefineCollection RaytracingForwardUnlitDefines = new DefineCollection
-        {
-            { Defines.shadowLow },
-            { Defines.raytracingRaytraced },
-        };
-
         #endregion
 
         #region Raytracing GBuffer
@@ -1125,7 +1113,7 @@ namespace UnityEditor.Rendering.HighDefinition.ShaderGraph
                 // Collections
                 structs = CoreStructCollections.BasicRaytracing,
                 pragmas = CorePragmas.BasicRaytracing,
-                defines = RaytracingGBufferDefines,
+                defines = supportLighting ? RaytracingGBufferDefines : null,
                 keywords = supportLighting ? CoreKeywords.RaytracingGBuffer : null,
                 includes = GenerateIncludes(),
             };

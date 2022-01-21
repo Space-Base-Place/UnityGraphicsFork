@@ -1,5 +1,5 @@
 {
-    "m_SGVersion": 3,
+    "m_SGVersion": 2,
     "m_Type": "UnityEditor.ShaderGraph.GraphData",
     "m_ObjectId": "0d4f1785e3f944a281c554a6ec5aac7b",
     "m_Properties": [
@@ -74,12 +74,6 @@
         }
     ],
     "m_Keywords": [],
-    "m_Dropdowns": [],
-    "m_CategoryData": [
-        {
-            "m_Id": "739d977e4e924b299265e7cd460cc37e"
-        }
-    ],
     "m_Nodes": [
         {
             "m_Id": "e1d3a60351964fcd9ec01e3a99ea3880"
@@ -1278,12 +1272,10 @@
         "serializedMesh": {
             "m_SerializedMesh": "{\"mesh\":{\"instanceID\":0}}",
             "m_Guid": ""
-        },
-        "preventRotation": false
+        }
     },
     "m_Path": "HDRP",
-    "m_GraphPrecision": 0,
-    "m_PreviewMode": 2,
+    "m_ConcretePrecision": 0,
     "m_OutputNode": {
         "m_Id": ""
     },
@@ -1301,6 +1293,7 @@
     "m_Id": 6,
     "m_DisplayName": "B",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 2,
@@ -1337,8 +1330,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -1371,8 +1362,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -1426,14 +1415,11 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
     "m_TextureType": 0,
-    "m_NormalMapSpace": 0,
-    "m_EnableGlobalMipBias": true
+    "m_NormalMapSpace": 0
 }
 
 {
@@ -1443,6 +1429,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha Clip Threshold Depth Prepass",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -1460,6 +1447,7 @@
     "m_Id": 0,
     "m_DisplayName": "Transmission Rim",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -1477,6 +1465,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha Clip Threshold",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "AlphaClipThreshold",
     "m_StageCapability": 2,
@@ -1492,6 +1481,7 @@
     "m_Id": 0,
     "m_DisplayName": "Tangent",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Tangent",
     "m_StageCapability": 1,
@@ -1516,6 +1506,7 @@
     "m_Id": 0,
     "m_DisplayName": "Specular Tint",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "SpecularTint",
     "m_StageCapability": 2,
@@ -1530,13 +1521,7 @@
         "z": 0.0
     },
     "m_Labels": [],
-    "m_ColorMode": 0,
-    "m_DefaultColor": {
-        "r": 0.5,
-        "g": 0.5,
-        "b": 0.5,
-        "a": 1.0
-    }
+    "m_ColorMode": 0
 }
 
 {
@@ -1546,6 +1531,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -1571,17 +1557,11 @@
         "m_GuidSerialized": "439dfb93-a294-4e23-bf72-d387b4bed6fa"
     },
     "m_Name": "AO Use Lightmap UV",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Boolean_9609B74F",
     "m_OverrideReferenceName": "_LightmapUV",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": false
 }
@@ -1612,8 +1592,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -1629,6 +1607,7 @@
     "m_Id": 0,
     "m_DisplayName": "Rim Transmission Intensity",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "RimTransmissionIntensity",
     "m_StageCapability": 2,
@@ -1672,8 +1651,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -1686,6 +1663,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -1753,8 +1731,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -1768,6 +1744,7 @@
     "m_Id": 0,
     "m_DisplayName": "Transmittance",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Transmittance",
     "m_StageCapability": 2,
@@ -1797,6 +1774,7 @@
     "m_Id": -1319696916,
     "m_DisplayName": "UV Tile and Offset",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "_uvST",
     "m_StageCapability": 3,
@@ -1822,6 +1800,7 @@
     "m_Id": 3,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -1870,8 +1849,6 @@
     ],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -1885,6 +1862,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -1931,9 +1909,7 @@
     "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.HairData",
     "m_ObjectId": "0eb5e9427f59433bbe0bcd4f9b198087",
     "m_MaterialType": 0,
-    "m_ScatteringMode": 0,
-    "m_ColorParameterization": 0,
-    "m_GeometryType": 0
+    "m_UseLightFacingNormal": false
 }
 
 {
@@ -1943,6 +1919,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -2010,8 +1987,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -2027,6 +2002,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -2075,6 +2051,7 @@
     "m_Id": 7,
     "m_DisplayName": "A",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 2,
@@ -2092,6 +2069,7 @@
     "m_Id": 0,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -2117,6 +2095,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -2165,6 +2144,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha Clip Threshold Depth Prepass",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "AlphaClipThresholdDepthPrepass",
     "m_StageCapability": 2,
@@ -2180,6 +2160,7 @@
     "m_Id": 0,
     "m_DisplayName": "In",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "In",
     "m_StageCapability": 3,
@@ -2223,8 +2204,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -2240,6 +2219,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -2283,8 +2263,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -2340,14 +2318,11 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
     "m_TextureType": 1,
-    "m_NormalMapSpace": 0,
-    "m_EnableGlobalMipBias": true
+    "m_NormalMapSpace": 0
 }
 
 {
@@ -2358,24 +2333,16 @@
         "m_GuidSerialized": "d5937b9c-e726-47e2-9096-c64bd42839d2"
     },
     "m_Name": "AO Map",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Texture2D_E48D0DF2",
     "m_OverrideReferenceName": "_MaskMap",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"355608f109270dc4bb6156ba0601da8d\",\"type\":3}}",
         "m_Guid": ""
     },
-    "isMainTexture": false,
-    "useTilingAndOffset": false,
     "m_Modifiable": true,
     "m_DefaultType": 0
 }
@@ -2387,6 +2354,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -2411,10 +2379,10 @@
     "m_Id": 0,
     "m_DisplayName": "Smoothness Mask",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -2424,6 +2392,7 @@
     "m_Id": 7,
     "m_DisplayName": "A",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 2,
@@ -2445,7 +2414,6 @@
     "m_TransparentWritesMotionVec": true,
     "m_AlphaToMask": false,
     "m_DepthOffset": false,
-    "m_ConservativeDepthOffset": false,
     "m_TransparencyFog": true,
     "m_AlphaTestShadow": true,
     "m_BackThenFrontRendering": true,
@@ -2480,8 +2448,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -2497,6 +2463,7 @@
     "m_Id": 1,
     "m_DisplayName": "X",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "X",
     "m_StageCapability": 3,
@@ -2544,8 +2511,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -2561,10 +2526,10 @@
     "m_Id": 3,
     "m_DisplayName": "Sampler",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Sampler",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -2614,14 +2579,11 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
     "m_TextureType": 0,
-    "m_NormalMapSpace": 0,
-    "m_EnableGlobalMipBias": true
+    "m_NormalMapSpace": 0
 }
 
 {
@@ -2631,6 +2593,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -2704,8 +2667,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -2718,10 +2679,10 @@
     "m_Id": 3,
     "m_DisplayName": "Sampler",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Sampler",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -2731,6 +2692,7 @@
     "m_Id": 0,
     "m_DisplayName": "Secondary Specular Tint",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "SecondarySpecularTint",
     "m_StageCapability": 2,
@@ -2745,13 +2707,7 @@
         "z": 0.0
     },
     "m_Labels": [],
-    "m_ColorMode": 0,
-    "m_DefaultColor": {
-        "r": 0.5,
-        "g": 0.5,
-        "b": 0.5,
-        "a": 1.0
-    }
+    "m_ColorMode": 0
 }
 
 {
@@ -2780,8 +2736,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -2795,6 +2749,7 @@
     "m_Id": 0,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -2812,6 +2767,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -2855,8 +2811,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -2891,8 +2845,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -2906,6 +2858,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -2948,24 +2901,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector4ShaderProperty",
     "m_ObjectId": "340703d105f5445fa9071fa6fb1e196b",
     "m_Guid": {
         "m_GuidSerialized": "8cdbfb43-feb7-4816-9cea-ca9952679ecb"
     },
     "m_Name": "Base UV Scale Transform",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector4_84AAB3AE",
     "m_OverrideReferenceName": "_uvBaseST",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "x": 1.0,
@@ -3001,8 +2948,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -3016,6 +2961,7 @@
     "m_Id": 0,
     "m_DisplayName": "Smoothness",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Smoothness",
     "m_StageCapability": 2,
@@ -3031,10 +2977,10 @@
     "m_Id": 1,
     "m_DisplayName": "Texture",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Texture",
     "m_StageCapability": 3,
-    "m_BareResource": false,
     "m_Texture": {
         "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
         "m_Guid": ""
@@ -3049,6 +2995,7 @@
     "m_Id": 1,
     "m_DisplayName": "Strength",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Strength",
     "m_StageCapability": 3,
@@ -3066,6 +3013,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -3114,6 +3062,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -3162,6 +3111,7 @@
     "m_Id": 0,
     "m_DisplayName": "Normal",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Normal",
     "m_StageCapability": 1,
@@ -3180,24 +3130,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "3955439a550a451c8279e8001cdcd973",
     "m_Guid": {
         "m_GuidSerialized": "08ee1c25-529f-4fca-8392-271b44871553"
     },
     "m_Name": "Alpha Clip Threshold Shadows",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_CAFF147E",
     "m_OverrideReferenceName": "_AlphaThresholdShadow",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.5,
     "m_FloatType": 1,
@@ -3208,24 +3152,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "396c340765b8478d937f256ac87c8a86",
     "m_Guid": {
         "m_GuidSerialized": "45256b52-4919-4436-824f-6f9e813fe9b1"
     },
     "m_Name": "Normal Strength",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_2B87C9F0",
     "m_OverrideReferenceName": "_NormalScale",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 1.0,
     "m_FloatType": 1,
@@ -3242,6 +3180,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -3315,8 +3254,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -3348,8 +3285,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -3365,6 +3300,7 @@
     "m_Id": 2,
     "m_DisplayName": "T",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "T",
     "m_StageCapability": 3,
@@ -3389,6 +3325,7 @@
     "m_Id": 0,
     "m_DisplayName": "RGBA",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "RGBA",
     "m_StageCapability": 2,
@@ -3453,8 +3390,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -3486,8 +3421,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -3503,6 +3436,7 @@
     "m_Id": 0,
     "m_DisplayName": "Secondary Smoothness",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "SecondarySmoothness",
     "m_StageCapability": 2,
@@ -3518,6 +3452,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -3577,6 +3512,7 @@
     "m_Id": 1,
     "m_DisplayName": "UV",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "UV",
     "m_StageCapability": 3,
@@ -3598,10 +3534,10 @@
     "m_Id": 3,
     "m_DisplayName": "Sampler",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Sampler",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -3611,10 +3547,10 @@
     "m_Id": 3,
     "m_DisplayName": "Sampler",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Sampler",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -3664,14 +3600,11 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
     "m_TextureType": 0,
-    "m_NormalMapSpace": 0,
-    "m_EnableGlobalMipBias": true
+    "m_NormalMapSpace": 0
 }
 
 {
@@ -3681,6 +3614,7 @@
     "m_Id": 2,
     "m_DisplayName": "T",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "T",
     "m_StageCapability": 3,
@@ -3705,6 +3639,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -3777,8 +3712,6 @@
     ],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -3792,10 +3725,10 @@
     "m_Id": 0,
     "m_DisplayName": "AO Map",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -3824,8 +3757,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -3841,6 +3772,7 @@
     "m_Id": 0,
     "m_DisplayName": "Secondary Specular Multiplier",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -3858,6 +3790,7 @@
     "m_Id": 0,
     "m_DisplayName": "Specular Shift",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -3875,6 +3808,7 @@
     "m_Id": 5,
     "m_DisplayName": "G",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "G",
     "m_StageCapability": 2,
@@ -3917,8 +3851,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -3950,8 +3882,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -3965,6 +3895,7 @@
     "m_Id": 0,
     "m_DisplayName": "Normal (Tangent Space)",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "NormalTS",
     "m_StageCapability": 2,
@@ -3989,6 +3920,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -4037,6 +3969,7 @@
     "m_Id": 5,
     "m_DisplayName": "G",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "G",
     "m_StageCapability": 2,
@@ -4054,6 +3987,7 @@
     "m_Id": 3,
     "m_DisplayName": "B",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -4071,6 +4005,7 @@
     "m_Id": 0,
     "m_DisplayName": "RGBA",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "RGBA",
     "m_StageCapability": 2,
@@ -4121,8 +4056,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -4135,6 +4068,7 @@
     "m_Id": 5,
     "m_DisplayName": "G",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "G",
     "m_StageCapability": 2,
@@ -4152,6 +4086,7 @@
     "m_Id": 6,
     "m_DisplayName": "B",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 2,
@@ -4169,6 +4104,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -4217,6 +4153,7 @@
     "m_Id": 2,
     "m_DisplayName": "UV",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "UV",
     "m_StageCapability": 3,
@@ -4242,6 +4179,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -4290,6 +4228,7 @@
     "m_Id": 4,
     "m_DisplayName": "A",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -4307,6 +4246,7 @@
     "m_Id": 0,
     "m_DisplayName": "Normal Strength",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -4324,6 +4264,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha Clip Threshold Depth Postpass",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -4366,8 +4307,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -4399,8 +4338,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -4416,6 +4353,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -4468,8 +4406,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -4482,6 +4418,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -4530,6 +4467,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -4578,6 +4516,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -4626,6 +4565,7 @@
     "m_Id": 0,
     "m_DisplayName": "Base Color",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "BaseColor",
     "m_StageCapability": 2,
@@ -4640,13 +4580,7 @@
         "z": 0.0
     },
     "m_Labels": [],
-    "m_ColorMode": 0,
-    "m_DefaultColor": {
-        "r": 0.5,
-        "g": 0.5,
-        "b": 0.5,
-        "a": 1.0
-    }
+    "m_ColorMode": 0
 }
 
 {
@@ -4656,6 +4590,7 @@
     "m_Id": 1,
     "m_DisplayName": "X",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "X",
     "m_StageCapability": 3,
@@ -4673,6 +4608,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -4716,108 +4652,22 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.CategoryData",
-    "m_ObjectId": "739d977e4e924b299265e7cd460cc37e",
-    "m_Name": "",
-    "m_ChildObjectList": [
-        {
-            "m_Id": "7454317b6c6b4ef6b2a51478f9c541ba"
-        },
-        {
-            "m_Id": "b7a42964d4cb42bdb75f175c4f3c9da6"
-        },
-        {
-            "m_Id": "8c60779426cc490b8d97b1f1a1388d77"
-        },
-        {
-            "m_Id": "9154c3c6411645eea93945fb39e3c7f1"
-        },
-        {
-            "m_Id": "ea829be01a7f4ee9b31b2f9e40e53794"
-        },
-        {
-            "m_Id": "3955439a550a451c8279e8001cdcd973"
-        },
-        {
-            "m_Id": "340703d105f5445fa9071fa6fb1e196b"
-        },
-        {
-            "m_Id": "e03d6acc11764e8681759398850b02a8"
-        },
-        {
-            "m_Id": "396c340765b8478d937f256ac87c8a86"
-        },
-        {
-            "m_Id": "1aea263d78ab46599dfd9f92178355ca"
-        },
-        {
-            "m_Id": "04b95d988fee4b808f9ddbae78d297f4"
-        },
-        {
-            "m_Id": "bac3b779c50d41be9f5404776a52617a"
-        },
-        {
-            "m_Id": "ec26979e230c4de3afafcadf636713aa"
-        },
-        {
-            "m_Id": "f81665c35c714382a5f81c2c4cf86327"
-        },
-        {
-            "m_Id": "776b4c30334746239491bcd71aba4b7c"
-        },
-        {
-            "m_Id": "ef452e55dad7406ba530baf0097777c7"
-        },
-        {
-            "m_Id": "c90cbe93e6984e079c06c2d2c9a2e7b1"
-        },
-        {
-            "m_Id": "d919e06b1ea443c5bd0d5f590e595d13"
-        },
-        {
-            "m_Id": "7e709f6676c74ef4ae9638b35ab46067"
-        },
-        {
-            "m_Id": "f5ed299748154016bec78637f5283ea8"
-        },
-        {
-            "m_Id": "977e9f31cbef42b1bfbe006d5e0193a9"
-        },
-        {
-            "m_Id": "ede9e2ec23234abfb209e7704db35f46"
-        },
-        {
-            "m_Id": "962a14c48d3a48f39f834438f61e4ccb"
-        }
-    ]
-}
-
-{
-    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Texture2DShaderProperty",
     "m_ObjectId": "7454317b6c6b4ef6b2a51478f9c541ba",
     "m_Guid": {
         "m_GuidSerialized": "6343a65d-92e9-4ea6-a610-b17eff7c3712"
     },
     "m_Name": "Base Color Map",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Texture2D_1DA0BB85",
     "m_OverrideReferenceName": "_BaseColorMap",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"0697ae22221206446aa716c9d674c3ba\",\"type\":3}}",
         "m_Guid": ""
     },
-    "isMainTexture": false,
-    "useTilingAndOffset": false,
     "m_Modifiable": true,
     "m_DefaultType": 0
 }
@@ -4829,10 +4679,10 @@
     "m_Id": 3,
     "m_DisplayName": "Sampler",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Sampler",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -4842,6 +4692,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -4884,24 +4735,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "776b4c30334746239491bcd71aba4b7c",
     "m_Guid": {
         "m_GuidSerialized": "4005f9a0-1e7b-4422-9591-2d7900dc14a5"
     },
     "m_Name": "Smoothness Max",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_A659E432",
     "m_OverrideReferenceName": "_SmoothnessMax",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.699999988079071,
     "m_FloatType": 1,
@@ -4918,6 +4763,7 @@
     "m_Id": 2,
     "m_DisplayName": "UV",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "UV",
     "m_StageCapability": 3,
@@ -4962,8 +4808,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -4979,6 +4823,7 @@
     "m_Id": 0,
     "m_DisplayName": "Specular Multiplier",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -4996,10 +4841,10 @@
     "m_Id": 1,
     "m_DisplayName": "Texture",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Texture",
     "m_StageCapability": 3,
-    "m_BareResource": false,
     "m_Texture": {
         "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
         "m_Guid": ""
@@ -5033,8 +4878,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5069,8 +4912,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5078,24 +4919,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "7e709f6676c74ef4ae9638b35ab46067",
     "m_Guid": {
         "m_GuidSerialized": "7bad42e8-0c76-4876-8271-807c4aeaf174"
     },
     "m_Name": "Secondary Specular Multiplier",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_CB3E2EAA",
     "m_OverrideReferenceName": "_SecondarySpecular",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 1.0,
     "m_FloatType": 1,
@@ -5131,8 +4966,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5146,6 +4979,7 @@
     "m_Id": 0,
     "m_DisplayName": "Secondary Specular Shift",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -5163,6 +4997,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -5211,6 +5046,7 @@
     "m_Id": 3,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -5235,6 +5071,7 @@
     "m_Id": 4,
     "m_DisplayName": "R",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "R",
     "m_StageCapability": 2,
@@ -5271,8 +5108,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5288,10 +5123,10 @@
     "m_Id": 1,
     "m_DisplayName": "Texture",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Texture",
     "m_StageCapability": 3,
-    "m_BareResource": false,
     "m_Texture": {
         "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
         "m_Guid": ""
@@ -5310,7 +5145,6 @@
     "m_TransparentWritesMotionVec": false,
     "m_AlphaToMask": false,
     "m_DepthOffset": false,
-    "m_ConservativeDepthOffset": false,
     "m_TransparencyFog": true,
     "m_AlphaTestShadow": false,
     "m_BackThenFrontRendering": false,
@@ -5326,6 +5160,7 @@
     "m_Id": 2,
     "m_DisplayName": "G",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "G",
     "m_StageCapability": 3,
@@ -5362,8 +5197,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5377,6 +5210,7 @@
     "m_Id": 0,
     "m_DisplayName": "In",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "In",
     "m_StageCapability": 3,
@@ -5423,8 +5257,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5440,6 +5272,7 @@
     "m_Id": 0,
     "m_DisplayName": "Base Color",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -5484,8 +5317,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5493,24 +5324,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "8c60779426cc490b8d97b1f1a1388d77",
     "m_Guid": {
         "m_GuidSerialized": "1c11679b-cbb6-4fa9-8f37-996c04d07707"
     },
     "m_Name": "Alpha Clip Threshold",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_15C6E93B",
     "m_OverrideReferenceName": "_AlphaClipThreshold",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.0,
     "m_FloatType": 1,
@@ -5527,6 +5352,7 @@
     "m_Id": 7,
     "m_DisplayName": "A",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 2,
@@ -5556,16 +5382,8 @@
     "m_SupportLodCrossFade": false,
     "m_DoubleSidedMode": 1,
     "m_DOTSInstancing": false,
-    "m_CustomVelocity": false,
-    "m_Tessellation": false,
-    "m_TessellationMode": 0,
-    "m_TessellationFactorMinDistance": 20.0,
-    "m_TessellationFactorMaxDistance": 50.0,
-    "m_TessellationFactorTriangleSize": 100.0,
-    "m_TessellationShapeFactor": 0.75,
-    "m_TessellationBackFaceCullEpsilon": -0.25,
-    "m_TessellationMaxDisplacement": 0.009999999776482582,
-    "m_Version": 1,
+    "m_Version": 0,
+    "m_FirstTimeMigrationExecuted": true,
     "inspectorFoldoutMask": 1
 }
 
@@ -5576,6 +5394,7 @@
     "m_Id": 0,
     "m_DisplayName": "Secondary Specular Shift",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "SecondarySpecularShift",
     "m_StageCapability": 2,
@@ -5591,6 +5410,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -5618,6 +5438,7 @@
     "m_Id": 0,
     "m_DisplayName": "AO Use Lightmap UV",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -5651,8 +5472,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5660,24 +5479,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "9154c3c6411645eea93945fb39e3c7f1",
     "m_Guid": {
         "m_GuidSerialized": "d91fd1a5-e079-4844-b874-c9c0ca592f79"
     },
     "m_Name": "Alpha Clip Threshold Depth Prepass",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_AD26FB16",
     "m_OverrideReferenceName": "_AlphaClipThresholdDepthPrepass",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.8999999761581421,
     "m_FloatType": 1,
@@ -5719,8 +5532,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -5752,8 +5563,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -5767,6 +5576,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -5838,8 +5648,7 @@
             "m_Id": "d27a4b142de94d0bb54774719e878fbe"
         }
     ],
-    "m_CustomEditorGUI": "",
-    "m_SupportVFX": false
+    "m_CustomEditorGUI": ""
 }
 
 {
@@ -5850,40 +5659,28 @@
         "m_GuidSerialized": "f92728bc-dfc4-4fa9-aafe-4ae8d350dd77"
     },
     "m_Name": "Alpha Clipping",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Boolean_F3E030FB",
     "m_OverrideReferenceName": "_Alpha",
     "m_GeneratePropertyBlock": false,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": true
 }
 
 {
-    "m_SGVersion": 2,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.ColorShaderProperty",
     "m_ObjectId": "977e9f31cbef42b1bfbe006d5e0193a9",
     "m_Guid": {
         "m_GuidSerialized": "b732a011-0ef7-4d90-a9ef-b5c7601d2c35"
     },
     "m_Name": "Transmission Color",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Color_634902EC",
     "m_OverrideReferenceName": "_TransmissionColor",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "r": 1.0,
@@ -5891,7 +5688,6 @@
         "b": 0.6274510025978088,
         "a": 1.0
     },
-    "isMainColor": false,
     "m_ColorMode": 1
 }
 
@@ -5902,6 +5698,7 @@
     "m_Id": 2,
     "m_DisplayName": "UV",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "UV",
     "m_StageCapability": 3,
@@ -5927,6 +5724,7 @@
     "m_Id": 2,
     "m_DisplayName": "UV",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "UV",
     "m_StageCapability": 3,
@@ -5952,6 +5750,7 @@
     "m_Id": -1533382448,
     "m_DisplayName": "UV Channel Mask",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "_uvMask",
     "m_StageCapability": 3,
@@ -5977,6 +5776,7 @@
     "m_Id": 0,
     "m_DisplayName": "Hair Strand Direction",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "HairStrandDirection",
     "m_StageCapability": 2,
@@ -6000,6 +5800,7 @@
     "m_Id": 0,
     "m_DisplayName": "Transmission Color",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -6025,6 +5826,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -6092,8 +5894,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -6126,8 +5926,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -6141,10 +5939,10 @@
     "m_Id": 1,
     "m_DisplayName": "Texture",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Texture",
     "m_StageCapability": 3,
-    "m_BareResource": false,
     "m_Texture": {
         "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
         "m_Guid": ""
@@ -6159,6 +5957,7 @@
     "m_Id": 0,
     "m_DisplayName": "Smoothness UV Scale Transform",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -6184,6 +5983,7 @@
     "m_Id": 4,
     "m_DisplayName": "R",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "R",
     "m_StageCapability": 2,
@@ -6201,6 +6001,7 @@
     "m_Id": 0,
     "m_DisplayName": "RGBA",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "RGBA",
     "m_StageCapability": 2,
@@ -6251,8 +6052,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -6265,6 +6064,7 @@
     "m_Id": 1,
     "m_DisplayName": "R",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "R",
     "m_StageCapability": 3,
@@ -6282,6 +6082,7 @@
     "m_Id": 4,
     "m_DisplayName": "R",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "R",
     "m_StageCapability": 2,
@@ -6299,6 +6100,7 @@
     "m_Id": 3,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -6323,6 +6125,7 @@
     "m_Id": 0,
     "m_DisplayName": "Specular Color",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -6348,6 +6151,7 @@
     "m_Id": 0,
     "m_DisplayName": "Specular Shift",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "SpecularShift",
     "m_StageCapability": 2,
@@ -6382,8 +6186,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -6418,8 +6220,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -6452,8 +6252,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -6469,6 +6267,7 @@
     "m_Id": 0,
     "m_DisplayName": "Smoothness Min",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -6514,8 +6313,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -6539,6 +6336,7 @@
     "m_Id": -1319696916,
     "m_DisplayName": "UV Tile and Offset",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "_uvST",
     "m_StageCapability": 3,
@@ -6564,6 +6362,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -6612,10 +6411,10 @@
     "m_Id": 0,
     "m_DisplayName": "Normal Map",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -6639,6 +6438,7 @@
     "m_Id": 0,
     "m_DisplayName": "RGBA",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "RGBA",
     "m_StageCapability": 2,
@@ -6683,8 +6483,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -6694,24 +6492,18 @@
 }
 
 {
-    "m_SGVersion": 2,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.ColorShaderProperty",
     "m_ObjectId": "b7a42964d4cb42bdb75f175c4f3c9da6",
     "m_Guid": {
         "m_GuidSerialized": "cdb23723-972f-4d49-9f82-4ac5e80e2d1d"
     },
     "m_Name": "Base Color",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Color_22DC9E2D",
     "m_OverrideReferenceName": "_BaseColor",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "r": 0.5,
@@ -6719,7 +6511,6 @@
         "b": 0.5,
         "a": 1.0
     },
-    "isMainColor": false,
     "m_ColorMode": 0
 }
 
@@ -6730,6 +6521,7 @@
     "m_Id": 1,
     "m_DisplayName": "UV",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "UV",
     "m_StageCapability": 3,
@@ -6751,6 +6543,7 @@
     "m_Id": 6,
     "m_DisplayName": "B",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 2,
@@ -6768,6 +6561,7 @@
     "m_Id": 3,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -6823,8 +6617,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -6837,6 +6629,7 @@
     "m_Id": 0,
     "m_DisplayName": "Base UV Scale Transform",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -6863,24 +6656,16 @@
         "m_GuidSerialized": "156dbcf4-f428-4daf-ad4c-002c5e38047c"
     },
     "m_Name": "Smoothness Mask",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Texture2D_C1E96520",
     "m_OverrideReferenceName": "_SmoothnessMask",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "m_SerializedTexture": "{\"texture\":{\"fileID\":2800000,\"guid\":\"355608f109270dc4bb6156ba0601da8d\",\"type\":3}}",
         "m_Guid": ""
     },
-    "isMainTexture": false,
-    "useTilingAndOffset": false,
     "m_Modifiable": true,
     "m_DefaultType": 0
 }
@@ -6911,8 +6696,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -6947,8 +6730,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -6964,6 +6745,7 @@
     "m_Id": -1533382448,
     "m_DisplayName": "UV Channel Mask",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "_uvMask",
     "m_StageCapability": 3,
@@ -7014,8 +6796,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -7028,6 +6808,7 @@
     "m_Id": 0,
     "m_DisplayName": "Smoothness Max",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -7045,6 +6826,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -7118,8 +6900,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -7132,6 +6912,7 @@
     "m_Id": 5,
     "m_DisplayName": "G",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "G",
     "m_StageCapability": 2,
@@ -7149,6 +6930,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha Clip Threshold Depth Postpass",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "AlphaClipThresholdDepthPostpass",
     "m_StageCapability": 2,
@@ -7175,6 +6957,7 @@
     "m_Id": 2,
     "m_DisplayName": "False",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "False",
     "m_StageCapability": 3,
@@ -7218,8 +7001,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7273,14 +7054,11 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
     "m_TextureType": 0,
-    "m_NormalMapSpace": 0,
-    "m_EnableGlobalMipBias": true
+    "m_NormalMapSpace": 0
 }
 
 {
@@ -7290,6 +7068,7 @@
     "m_Id": 0,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -7326,8 +7105,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7335,24 +7112,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "c90cbe93e6984e079c06c2d2c9a2e7b1",
     "m_Guid": {
         "m_GuidSerialized": "30baad2a-79b4-4e7a-a0a0-359486015c37"
     },
     "m_Name": "Specular Multiplier",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_DB18215D",
     "m_OverrideReferenceName": "_Specular",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 1.0,
     "m_FloatType": 1,
@@ -7369,6 +7140,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha Clip Threshold Shadow",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "AlphaClipThresholdShadow",
     "m_StageCapability": 2,
@@ -7384,6 +7156,7 @@
     "m_Id": 0,
     "m_DisplayName": "Ambient Occlusion",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Occlusion",
     "m_StageCapability": 2,
@@ -7410,7 +7183,7 @@
     "m_Group": {
         "m_Id": ""
     },
-    "m_Name": "UVCombine",
+    "m_Name": "UV Combine",
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -7423,20 +7196,18 @@
     },
     "m_Slots": [
         {
-            "m_Id": "9b7ec406bb3241a3a9d568a1a46fe68a"
-        },
-        {
             "m_Id": "0c9c79c276b9495d859ed7e4cf48edf2"
         },
         {
             "m_Id": "422accb22cba4ae89a98c6b310f298af"
+        },
+        {
+            "m_Id": "9b7ec406bb3241a3a9d568a1a46fe68a"
         }
     ],
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7448,9 +7219,7 @@
     "m_PropertyIds": [
         -1533382448,
         -1319696916
-    ],
-    "m_Dropdowns": [],
-    "m_DropdownSelectedEntries": []
+    ]
 }
 
 {
@@ -7460,7 +7229,7 @@
     "m_Group": {
         "m_Id": ""
     },
-    "m_Name": "UVCombine",
+    "m_Name": "UV Combine",
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -7473,20 +7242,18 @@
     },
     "m_Slots": [
         {
-            "m_Id": "bd8b55925f3a48429d83c1be9630403c"
-        },
-        {
             "m_Id": "b22483ba7b304b72b425dc0edee85479"
         },
         {
             "m_Id": "b8178181816e46258bb82c33b9dd283f"
+        },
+        {
+            "m_Id": "bd8b55925f3a48429d83c1be9630403c"
         }
     ],
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7498,9 +7265,7 @@
     "m_PropertyIds": [
         -1533382448,
         -1319696916
-    ],
-    "m_Dropdowns": [],
-    "m_DropdownSelectedEntries": []
+    ]
 }
 
 {
@@ -7529,8 +7294,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7563,8 +7326,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7578,6 +7339,7 @@
     "m_Id": 1,
     "m_DisplayName": "B",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
@@ -7645,8 +7407,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7660,6 +7420,7 @@
     "m_Id": 0,
     "m_DisplayName": "Bent Normal",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "BentNormal",
     "m_StageCapability": 2,
@@ -7684,6 +7445,7 @@
     "m_Id": 4,
     "m_DisplayName": "R",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "R",
     "m_StageCapability": 2,
@@ -7701,6 +7463,7 @@
     "m_Id": 5,
     "m_DisplayName": "G",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "G",
     "m_StageCapability": 2,
@@ -7718,6 +7481,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -7742,6 +7506,7 @@
     "m_Id": 0,
     "m_DisplayName": "RGBA",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "RGBA",
     "m_StageCapability": 2,
@@ -7767,6 +7532,7 @@
     "m_Id": 1,
     "m_DisplayName": "X",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "X",
     "m_StageCapability": 3,
@@ -7796,16 +7562,8 @@
     "m_SupportLodCrossFade": false,
     "m_DoubleSidedMode": 0,
     "m_DOTSInstancing": false,
-    "m_CustomVelocity": false,
-    "m_Tessellation": false,
-    "m_TessellationMode": 0,
-    "m_TessellationFactorMinDistance": 20.0,
-    "m_TessellationFactorMaxDistance": 50.0,
-    "m_TessellationFactorTriangleSize": 100.0,
-    "m_TessellationShapeFactor": 0.75,
-    "m_TessellationBackFaceCullEpsilon": -0.25,
-    "m_TessellationMaxDisplacement": 0.009999999776482582,
     "m_Version": 0,
+    "m_FirstTimeMigrationExecuted": false,
     "inspectorFoldoutMask": 0
 }
 
@@ -7841,8 +7599,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -7855,6 +7611,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -7922,8 +7679,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7958,8 +7713,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -7967,24 +7720,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "d919e06b1ea443c5bd0d5f590e595d13",
     "m_Guid": {
         "m_GuidSerialized": "f6b1080a-6719-4e29-8e2d-7479348c4ef3"
     },
     "m_Name": "Specular Shift",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_2ED6936D",
     "m_OverrideReferenceName": "_SpecularShift",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.5,
     "m_FloatType": 1,
@@ -8001,6 +7748,7 @@
     "m_Id": 0,
     "m_DisplayName": "Specular Color",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -8027,24 +7775,16 @@
         "m_GuidSerialized": "f713fd50-191c-4103-85a2-925a51d5dd5b"
     },
     "m_Name": "Normal Map",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Texture2D_272FF350",
     "m_OverrideReferenceName": "_NormalMap",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
         "m_Guid": ""
     },
-    "isMainTexture": false,
-    "useTilingAndOffset": false,
     "m_Modifiable": true,
     "m_DefaultType": 3
 }
@@ -8056,10 +7796,10 @@
     "m_Id": 0,
     "m_DisplayName": "Base Color Map",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -8094,8 +7834,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": false,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     }
@@ -8108,6 +7846,7 @@
     "m_Id": 0,
     "m_DisplayName": "Position",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Position",
     "m_StageCapability": 1,
@@ -8132,6 +7871,7 @@
     "m_Id": 6,
     "m_DisplayName": "B",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 2,
@@ -8163,6 +7903,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Alpha",
     "m_StageCapability": 2,
@@ -8178,6 +7919,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -8226,6 +7968,7 @@
     "m_Id": 0,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -8243,6 +7986,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha Clip Threshold",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -8254,24 +7998,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "ea829be01a7f4ee9b31b2f9e40e53794",
     "m_Guid": {
         "m_GuidSerialized": "2fbe22fb-2883-4e21-974b-0e58cf6fa5a8"
     },
     "m_Name": "Alpha Clip Threshold Depth Postpass",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_4B895F81",
     "m_OverrideReferenceName": "_AlphaClipThresholdDepthPostpass",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.6000000238418579,
     "m_FloatType": 1,
@@ -8307,8 +8045,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -8318,24 +8054,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector4ShaderProperty",
     "m_ObjectId": "ec26979e230c4de3afafcadf636713aa",
     "m_Guid": {
         "m_GuidSerialized": "2ae5ee18-50bd-44b6-a382-b6103c28a191"
     },
     "m_Name": "Smoothness UV Scale Transform",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector4_B1E8AD59",
     "m_OverrideReferenceName": "_uvSmoothnessST",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "x": 20.0,
@@ -8352,6 +8082,7 @@
     "m_Id": 0,
     "m_DisplayName": "Alpha Clip Threshold Shadows",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -8393,8 +8124,6 @@
     ],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -8408,6 +8137,7 @@
     "m_Id": 6,
     "m_DisplayName": "B",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "B",
     "m_StageCapability": 2,
@@ -8419,24 +8149,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "ede9e2ec23234abfb209e7704db35f46",
     "m_Guid": {
         "m_GuidSerialized": "05d86d4b-2f71-4057-a9d1-94a47098b6bb"
     },
     "m_Name": "Transmission Rim",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_61510805",
     "m_OverrideReferenceName": "_TransmissionRim",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.20000000298023225,
     "m_FloatType": 1,
@@ -8453,6 +8177,7 @@
     "m_Id": 2,
     "m_DisplayName": "T",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "T",
     "m_StageCapability": 3,
@@ -8477,6 +8202,7 @@
     "m_Id": 0,
     "m_DisplayName": "A",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 3,
@@ -8519,24 +8245,18 @@
 }
 
 {
-    "m_SGVersion": 2,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.ColorShaderProperty",
     "m_ObjectId": "ef452e55dad7406ba530baf0097777c7",
     "m_Guid": {
         "m_GuidSerialized": "b4a05d66-058e-4286-b129-93c8a70a29f0"
     },
     "m_Name": "Specular Color",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Color_4A6C7251",
     "m_OverrideReferenceName": "_SpecularColor",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": {
         "r": 0.6039215922355652,
@@ -8544,7 +8264,6 @@
         "b": 0.0,
         "a": 1.0
     },
-    "isMainColor": false,
     "m_ColorMode": 0
 }
 
@@ -8574,8 +8293,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -8610,8 +8327,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -8625,6 +8340,7 @@
     "m_Id": 2,
     "m_DisplayName": "Out",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
@@ -8673,6 +8389,7 @@
     "m_Id": 7,
     "m_DisplayName": "A",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 2,
@@ -8684,24 +8401,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "f5ed299748154016bec78637f5283ea8",
     "m_Guid": {
         "m_GuidSerialized": "ee3a9099-a106-4e67-9881-37e1e2767167"
     },
     "m_Name": "Secondary Specular Shift",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_80025A86",
     "m_OverrideReferenceName": "_SecondarySpecularShift",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.8999999761581421,
     "m_FloatType": 1,
@@ -8718,10 +8429,10 @@
     "m_Id": 0,
     "m_DisplayName": "AO Map",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
-    "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_StageCapability": 3
 }
 
 {
@@ -8731,6 +8442,7 @@
     "m_Id": 1,
     "m_DisplayName": "True",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "True",
     "m_StageCapability": 3,
@@ -8749,24 +8461,18 @@
 }
 
 {
-    "m_SGVersion": 1,
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "f81665c35c714382a5f81c2c4cf86327",
     "m_Guid": {
         "m_GuidSerialized": "e4dc662e-3747-4770-96eb-43812b6540e3"
     },
     "m_Name": "Smoothness Min",
-    "m_DefaultRefNameVersion": 0,
-    "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector1_4F7BB2EA",
     "m_OverrideReferenceName": "_SmoothnessMin",
     "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_GPUInstanced": false,
     "m_Hidden": false,
     "m_Value": 0.30000001192092898,
     "m_FloatType": 1,
@@ -8783,6 +8489,7 @@
     "m_Id": 7,
     "m_DisplayName": "A",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "A",
     "m_StageCapability": 2,
@@ -8800,6 +8507,7 @@
     "m_Id": 2,
     "m_DisplayName": "UV",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "UV",
     "m_StageCapability": 3,
@@ -8825,6 +8533,7 @@
     "m_Id": 0,
     "m_DisplayName": "Emission",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Emission",
     "m_StageCapability": 2,
@@ -8839,13 +8548,7 @@
         "z": 0.0
     },
     "m_Labels": [],
-    "m_ColorMode": 1,
-    "m_DefaultColor": {
-        "r": 0.5,
-        "g": 0.5,
-        "b": 0.5,
-        "a": 1.0
-    }
+    "m_ColorMode": 1
 }
 
 {
@@ -8855,10 +8558,10 @@
     "m_Id": 1,
     "m_DisplayName": "Texture",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Texture",
     "m_StageCapability": 3,
-    "m_BareResource": false,
     "m_Texture": {
         "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
         "m_Guid": ""
@@ -8892,8 +8595,6 @@
     "synonyms": [],
     "m_Precision": 0,
     "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
     "m_CustomColors": {
         "m_SerializableColors": []
     },
@@ -8909,6 +8610,7 @@
     "m_Id": 0,
     "m_DisplayName": "Predicate",
     "m_SlotType": 0,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "Predicate",
     "m_StageCapability": 3,
@@ -8923,6 +8625,7 @@
     "m_Id": 4,
     "m_DisplayName": "R",
     "m_SlotType": 1,
+    "m_Priority": 2147483647,
     "m_Hidden": false,
     "m_ShaderOutputName": "R",
     "m_StageCapability": 2,

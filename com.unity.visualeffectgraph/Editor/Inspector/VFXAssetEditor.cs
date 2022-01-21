@@ -153,7 +153,7 @@ class VisualEffectAssetEditor : Editor
     {
         for (int i = 0; i < m_OutputContexts.Count(); ++i)
         {
-            m_OutputContexts[i].vfxSystemSortPriority = i;
+            m_OutputContexts[i].sortPriority = i;
         }
     }
 
@@ -184,7 +184,7 @@ class VisualEffectAssetEditor : Editor
         {
             m_CurrentGraph = resource.GetOrCreateGraph();
             m_CurrentGraph.systemNames.Sync(m_CurrentGraph);
-            m_OutputContexts.AddRange(m_CurrentGraph.children.OfType<IVFXSubRenderer>().OrderBy(t => t.vfxSystemSortPriority));
+            m_OutputContexts.AddRange(m_CurrentGraph.children.OfType<IVFXSubRenderer>().OrderBy(t => t.sortPriority));
         }
 
         m_ReorderableList = new ReorderableList(m_OutputContexts, typeof(IVFXSubRenderer));
@@ -526,37 +526,17 @@ class VisualEffectAssetEditor : Editor
                 }
             }
         }
-        VisualEffectAsset asset = (VisualEffectAsset)target;
-        VisualEffectResource resource = asset.GetResource();
 
-        //The following should be working, and works for newly created systems, but fails for old systems,
-        //due probably to incorrectly pasting the VFXData when creating them.
-        // bool hasAutomaticBoundsSystems = resource.GetOrCreateGraph().children
-        //     .OfType<VFXDataParticle>().Any(d => d.boundsMode == BoundsSettingMode.Automatic);
-
-        bool hasAutomaticBoundsSystems = resource.GetOrCreateGraph().children
-            .OfType<VFXBasicInitialize>().Any(d => (d.GetData() as VFXDataParticle).boundsMode == BoundsSettingMode.Automatic);
-        using (new EditorGUI.DisabledScope(hasAutomaticBoundsSystems))
+        EditorGUILayout.BeginHorizontal();
+        EditorGUI.showMixedValue = cullingFlagsProperty.hasMultipleDifferentValues;
+        EditorGUILayout.PrefixLabel(EditorGUIUtility.TrTextContent("Culling Flags", "Specifies how the system recomputes its bounds and simulates when off-screen."));
+        EditorGUI.BeginChangeCheck();
+        int newOption = EditorGUILayout.Popup(Array.IndexOf(k_CullingOptionsValue, (VFXCullingFlags)cullingFlagsProperty.intValue), k_CullingOptionsContents);
+        if (EditorGUI.EndChangeCheck())
         {
-            EditorGUILayout.BeginHorizontal();
-            EditorGUI.showMixedValue = cullingFlagsProperty.hasMultipleDifferentValues;
-            string forceSimulateTooltip = hasAutomaticBoundsSystems
-                ? " When using systems with Bounds Mode set to Automatic, this has to be set to Always recompute bounds and simulate."
-                : "";
-            EditorGUILayout.PrefixLabel(EditorGUIUtility.TrTextContent("Culling Flags", "Specifies how the system recomputes its bounds and simulates when off-screen." + forceSimulateTooltip));
-            EditorGUI.BeginChangeCheck();
-
-            int newOption =
-                EditorGUILayout.Popup(
-                    Array.IndexOf(k_CullingOptionsValue, (VFXCullingFlags)cullingFlagsProperty.intValue),
-                    k_CullingOptionsContents);
-            if (EditorGUI.EndChangeCheck())
-            {
-                cullingFlagsProperty.intValue = (int)k_CullingOptionsValue[newOption];
-                resourceObject.ApplyModifiedProperties();
-            }
+            cullingFlagsProperty.intValue = (int)k_CullingOptionsValue[newOption];
+            resourceObject.ApplyModifiedProperties();
         }
-
         EditorGUILayout.EndHorizontal();
 
         VisualEffectEditor.ShowHeader(EditorGUIUtility.TrTextContent("Initial state"), false, false);
@@ -663,11 +643,11 @@ class VisualEffectAssetEditor : Editor
 
         if (!serializedObject.isEditingMultipleObjects)
         {
-            asset = (VisualEffectAsset)target;
-            resource = asset.GetResource();
+            VisualEffectAsset asset = (VisualEffectAsset)target;
+            VisualEffectResource resource = asset.GetResource();
 
             m_OutputContexts.Clear();
-            m_OutputContexts.AddRange(resource.GetOrCreateGraph().children.OfType<IVFXSubRenderer>().OrderBy(t => t.vfxSystemSortPriority));
+            m_OutputContexts.AddRange(resource.GetOrCreateGraph().children.OfType<IVFXSubRenderer>().OrderBy(t => t.sortPriority));
 
             m_ReorderableList.DoLayoutList();
 

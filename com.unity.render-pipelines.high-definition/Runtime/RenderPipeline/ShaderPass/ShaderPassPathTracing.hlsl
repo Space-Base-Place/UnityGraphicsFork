@@ -4,8 +4,10 @@
 
 // Path tracing includes
 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/PathTracing/Shaders/PathTracingIntersection.hlsl"
-#ifdef HAS_LIGHTLOOP
 #include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/PathTracing/Shaders/PathTracingVolume.hlsl"
+#ifdef HAS_LIGHTLOOP
+#include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/PathTracing/Shaders/PathTracingLight.hlsl"
+#include "Packages/com.unity.render-pipelines.high-definition/Runtime/RenderPipeline/PathTracing/Shaders/PathTracingSampling.hlsl"
 #endif
 
 float PowerHeuristic(float f, float b)
@@ -23,12 +25,7 @@ float3 GetPositionBias(float3 geomNormal, float bias, bool below)
 // Compute scalar visibility for shadow mattes, between 0 and 1
 float ComputeVisibility(float3 position, float3 normal, float3 inputSample)
 {
-    // Select active types of lights
-    bool withPoint = asuint(_ShadowMatteFilter) & LIGHTFEATUREFLAGS_PUNCTUAL;
-    bool withArea = asuint(_ShadowMatteFilter) & LIGHTFEATUREFLAGS_AREA;
-    bool withDistant = asuint(_ShadowMatteFilter) & LIGHTFEATUREFLAGS_DIRECTIONAL;
-
-    LightList lightList = CreateLightList(position, normal, DEFAULT_LIGHT_LAYERS, withPoint, withArea, withDistant);
+    LightList lightList = CreateLightList(position, normal);
 
     RayDesc rayDescriptor;
     rayDescriptor.Origin = position + normal * _RaytracingRayBias;
@@ -39,9 +36,9 @@ float ComputeVisibility(float3 position, float3 normal, float3 inputSample)
 
     // We will ignore value and pdf here, as we only want to catch occluders (no distance falloffs, cosines, etc.)
     float3 value;
-    float pdf, shadowOpacity;
+    float pdf;
 
-    if (SampleLights(lightList, inputSample, rayDescriptor.Origin, normal, false, rayDescriptor.Direction, value, pdf, rayDescriptor.TMax, shadowOpacity))
+    if (SampleLights(lightList, inputSample, rayDescriptor.Origin, normal, false, rayDescriptor.Direction, value, pdf, rayDescriptor.TMax))
     {
         // Shoot a transmission ray (to mark it as such, purposedly set remaining depth to an invalid value)
         PathIntersection intersection;
@@ -53,7 +50,7 @@ float ComputeVisibility(float3 position, float3 normal, float3 inputSample)
         TraceRay(_RaytracingAccelerationStructure, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_FORCE_NON_OPAQUE | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER,
                  RAYTRACINGRENDERERFLAG_CAST_SHADOW, 0, 1, 1, rayDescriptor, intersection);
 
-        visibility = Luminance(GetLightTransmission(intersection.value, shadowOpacity));
+        visibility = Luminance(intersection.value);
     }
 
     return visibility;
@@ -146,7 +143,8 @@ void ComputeSurfaceScattering(inout PathIntersection pathIntersection : SV_RayPa
     #endif
         LightList lightList = CreateLightList(shadingPosition, lightNormal, builtinData.renderingLayers);
 
-        float pdf, shadowOpacity;
+        // Bunch of variables common to material and light sampling
+        float pdf;
         float3 value;
         MaterialResult mtlResult;
 
@@ -159,7 +157,7 @@ void ComputeSurfaceScattering(inout PathIntersection pathIntersection : SV_RayPa
         // Light sampling
         if (computeDirect)
         {
-            if (SampleLights(lightList, inputSample.xyz, rayDescriptor.Origin, lightNormal, false, rayDescriptor.Direction, value, pdf, rayDescriptor.TMax, shadowOpacity))
+            if (SampleLights(lightList, inputSample.xyz, rayDescriptor.Origin, lightNormal, false, rayDescriptor.Direction, value, pdf, rayDescriptor.TMax))
             {
                 EvaluateMaterial(mtlData, rayDescriptor.Direction, mtlResult);
 
@@ -176,7 +174,7 @@ void ComputeSurfaceScattering(inout PathIntersection pathIntersection : SV_RayPa
                              RAYTRACINGRENDERERFLAG_CAST_SHADOW, 0, 1, 1, rayDescriptor, nextPathIntersection);
 
                     float misWeight = PowerHeuristic(pdf, mtlResult.diffPdf + mtlResult.specPdf);
-                    pathIntersection.value += value * GetLightTransmission(nextPathIntersection.value, shadowOpacity) * misWeight;
+                    pathIntersection.value += value * nextPathIntersection.value * misWeight;
                 }
             }
         }
@@ -241,17 +239,17 @@ void ComputeSurfaceScattering(inout PathIntersection pathIntersection : SV_RayPa
 
 #else // SHADER_UNLIT
 
-    pathIntersection.value = computeDirect ? bsdfData.color * GetInverseCurrentExposureMultiplier() + builtinData.emissiveColor : 0.0;
+    pathIntersection.value = (!currentDepth || computeDirect) ? bsdfData.color * GetInverseCurrentExposureMultiplier() + builtinData.emissiveColor : 0.0;
 
-    // Apply shadow matte if requested
-    #ifdef _ENABLE_SHADOW_MATTE
+// Apply shadow matte if requested
+#ifdef _ENABLE_SHADOW_MATTE
     float3 shadowColor = lerp(pathIntersection.value, surfaceData.shadowTint.rgb * GetInverseCurrentExposureMultiplier(), surfaceData.shadowTint.a);
     float visibility = ComputeVisibility(fragInput.positionRWS, surfaceData.normalWS, inputSample.xyz);
     pathIntersection.value = lerp(shadowColor, pathIntersection.value, visibility);
-    #endif
+#endif
 
-    // Simulate opacity blending by simply continuing along the current ray
-    #ifdef _SURFACE_TYPE_TRANSPARENT
+// Simulate opacity blending by simply continuing along the current ray
+#ifdef _SURFACE_TYPE_TRANSPARENT
     if (builtinData.opacity < 1.0)
     {
         RayDesc rayDescriptor;
@@ -268,7 +266,7 @@ void ComputeSurfaceScattering(inout PathIntersection pathIntersection : SV_RayPa
 
         pathIntersection.value = lerp(nextPathIntersection.value, pathIntersection.value, builtinData.opacity);
     }
-    #endif
+#endif
 
 #endif // SHADER_UNLIT
 }
@@ -291,33 +289,31 @@ void ClosestHit(inout PathIntersection pathIntersection : SV_RayPayload, Attribu
 
     // Grab depth information
     int currentDepth = _RaytracingMaxRecursion - pathIntersection.remainingDepth;
-    bool computeDirect = currentDepth >= _RaytracingMinRecursion - 1;
 
     float4 inputSample = 0.0;
-    float pdf = 1.0;
 
 #ifdef HAS_LIGHTLOOP
 
-    float3 lightPosition;
+    float pdf = 1.0;
     bool sampleLocalLights, sampleVolume = false;
 
-    // Skip this code if getting out of a SSS random walk (currentDepth < 0)
     if (currentDepth >= 0)
     {
         // Generate a 4D unit-square sample for this depth, from our QMC sequence
         inputSample = GetSample4D(pathIntersection.pixelCoord, _RaytracingSampleIndex, 4 * currentDepth);
 
         // For the time being, we test for volumetric scattering only on camera rays
-        if (!currentDepth && computeDirect)
-            sampleVolume = SampleVolumeScatteringPosition(pathIntersection.pixelCoord, inputSample.w, pathIntersection.t, pdf, sampleLocalLights, lightPosition);
+        if (!currentDepth)
+            sampleVolume = SampleVolumeScatteringPosition(inputSample.w, pathIntersection.t, pdf, sampleLocalLights);
     }
 
     if (sampleVolume)
-        ComputeVolumeScattering(pathIntersection, inputSample.xyz, sampleLocalLights, lightPosition);
+        ComputeVolumeScattering(pathIntersection, inputSample.xyz, sampleLocalLights);
     else
         ComputeSurfaceScattering(pathIntersection, attributeData, inputSample);
 
-    computeDirect &= !sampleVolume;
+    // Apply the volume/surface pdf
+    pathIntersection.value /= pdf;
 
 #else // HAS_LIGHTLOOP
 
@@ -325,29 +321,23 @@ void ClosestHit(inout PathIntersection pathIntersection : SV_RayPayload, Attribu
 
 #endif // HAS_LIGHTLOOP
 
-    // Skip this code if getting out of a SSS random walk (currentDepth < 0)
-    if (currentDepth >= 0)
+    // Apply volumetric attenuation
+    bool computeDirect = currentDepth >= _RaytracingMinRecursion - 1;
+    ApplyFogAttenuation(WorldRayOrigin(), WorldRayDirection(), pathIntersection.t, pathIntersection.value, computeDirect);
+
+    if (currentDepth)
     {
-        // Apply volumetric attenuation
-        ApplyFogAttenuation(WorldRayOrigin(), WorldRayDirection(), pathIntersection.t, pathIntersection.value, computeDirect);
-
-        // Apply the volume/surface pdf
-        pathIntersection.value /= pdf;
-
-        if (currentDepth)
-        {
-            // Bias the result (making it too dark), but reduces fireflies a lot
-            float intensity = Luminance(pathIntersection.value) * GetCurrentExposureMultiplier();
-            if (intensity > _RaytracingIntensityClamp)
-                pathIntersection.value *= _RaytracingIntensityClamp / intensity;
-        }
+        // Bias the result (making it too dark), but reduces fireflies a lot
+        float intensity = Luminance(pathIntersection.value) * GetCurrentExposureMultiplier();
+        if (intensity > _RaytracingIntensityClamp)
+            pathIntersection.value *= _RaytracingIntensityClamp / intensity;
     }
 }
 
 [shader("anyhit")]
 void AnyHit(inout PathIntersection pathIntersection : SV_RayPayload, AttributeData attributeData : SV_IntersectionAttributes)
 {
-    // The first thing that we should do is grab the intersection vertex
+    // The first thing that we should do is grab the intersection vertice
     IntersectionVertex currentVertex;
     GetCurrentIntersectionVertex(attributeData, currentVertex);
 

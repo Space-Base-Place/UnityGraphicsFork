@@ -72,7 +72,6 @@ struct DirectionalLightData
     real minRoughness;
     int screenSpaceShadowIndex;
     real4 shadowMaskSelector;
-    float2 cascadesBorderFadeScaleBias;
     float diffuseDimmer;
     float specularDimmer;
     float penumbraTint;
@@ -80,8 +79,6 @@ struct DirectionalLightData
     float distanceFromCamera;
     float angularDiameter;
     float flareFalloff;
-    float flareCosInner;
-    float flareCosOuter;
     float __unused__;
     float3 flareTint;
     float flareSize;

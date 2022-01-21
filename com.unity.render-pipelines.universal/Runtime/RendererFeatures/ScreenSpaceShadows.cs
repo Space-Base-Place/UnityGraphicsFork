@@ -34,7 +34,7 @@ namespace UnityEngine.Rendering.Universal
 
             LoadMaterial();
 
-            m_SSShadowsPass.renderPassEvent = RenderPassEvent.AfterRenderingGbuffer;
+            m_SSShadowsPass.renderPassEvent = RenderPassEvent.AfterRenderingPrePasses;
             m_SSShadowsPostPass.renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
         }
 
@@ -54,12 +54,6 @@ namespace UnityEngine.Rendering.Universal
 
             if (shouldEnqueue)
             {
-                bool isDeferredRenderingMode = renderer is UniversalRenderer && ((UniversalRenderer)renderer).renderingMode == RenderingMode.Deferred;
-
-                m_SSShadowsPass.renderPassEvent = isDeferredRenderingMode
-                    ? RenderPassEvent.AfterRenderingGbuffer
-                    : RenderPassEvent.AfterRenderingPrePasses;
-
                 renderer.EnqueuePass(m_SSShadowsPass);
                 renderer.EnqueuePass(m_SSShadowsPostPass);
             }

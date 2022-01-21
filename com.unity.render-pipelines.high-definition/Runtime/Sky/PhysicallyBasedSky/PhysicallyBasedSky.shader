@@ -111,17 +111,19 @@ Shader "Hidden/HDRP/Sky/PbrSky"
                     float LdotV    = -dot(L, V);
                     float rad      = acos(LdotV);
                     float radInner = 0.5 * light.angularDiameter;
+                    float cosInner = cos(radInner);
+                    float cosOuter = cos(radInner + light.flareSize);
 
-                    float solidAngle = TWO_PI * (1 - light.flareCosInner);
+                    float solidAngle = TWO_PI * (1 - cosInner);
 
-                    if (LdotV >= light.flareCosOuter)
+                    if (LdotV >= cosOuter)
                     {
                         // Sun flare is visible. Sun disk may or may not be visible.
                         // Assume uniform emission.
                         float3 color = light.color.rgb;
                         float  scale = rcp(solidAngle);
 
-                        if (LdotV >= light.flareCosInner) // Sun disk.
+                        if (LdotV >= cosInner) // Sun disk.
                         {
                             tFrag = lightDist;
 
@@ -245,7 +247,6 @@ Shader "Hidden/HDRP/Sky/PbrSky"
 
     SubShader
     {
-        Tags{ "RenderPipeline" = "HDRenderPipeline" }
         Pass
         {
             ZWrite Off

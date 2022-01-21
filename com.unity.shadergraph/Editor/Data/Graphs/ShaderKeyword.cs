@@ -196,7 +196,6 @@ namespace UnityEditor.ShaderGraph
                 keywordDefinition = keywordDefinition,
                 keywordScope = keywordScope,
                 entries = entries,
-                keywordStages = keywordStages
             };
         }
 

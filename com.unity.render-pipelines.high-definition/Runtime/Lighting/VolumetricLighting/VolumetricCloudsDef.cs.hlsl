@@ -61,8 +61,7 @@ CBUFFER_START(ShaderVariablesClouds)
     int _ShadowCookieResolution;
     float _ShadowPlaneOffset;
     float2 _ShadowRegionSize;
-    float2 _PaddingVC0;
-    float4 _WorldSpaceShadowCenter;
+    float2 _WorldSpaceShadowCenter;
     float4x4 _CameraViewProjection_NO;
     float4x4 _CameraInverseViewProjection_NO;
     float4x4 _CameraPrevViewProjection_NO;
@@ -72,9 +71,8 @@ CBUFFER_START(ShaderVariablesClouds)
     int _EnableFastToneMapping;
     int _IsPlanarReflection;
     int _ValidMaxZMask;
-    int _ImprovedTransmittanceBlend;
-    int _CubicTransmittance;
-    int _Padding1;
+    int _Padding0;
+    float2 _Padding1;
     float4 _DistanceBasedWeights[12];
 CBUFFER_END
 

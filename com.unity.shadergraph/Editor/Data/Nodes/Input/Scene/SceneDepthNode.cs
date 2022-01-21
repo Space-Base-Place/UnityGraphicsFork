@@ -93,14 +93,7 @@ namespace UnityEditor.ShaderGraph
             return
 @"
 {
-    if (unity_OrthoParams.w == 1.0)
-    {
-        Out = LinearEyeDepth(ComputeWorldSpacePosition(UV.xy, SHADERGRAPH_SAMPLE_SCENE_DEPTH(UV.xy), UNITY_MATRIX_I_VP), UNITY_MATRIX_V);
-    }
-    else
-    {
-        Out = LinearEyeDepth(SHADERGRAPH_SAMPLE_SCENE_DEPTH(UV.xy), _ZBufferParams);
-    }
+    Out = LinearEyeDepth(SHADERGRAPH_SAMPLE_SCENE_DEPTH(UV.xy), _ZBufferParams);
 }
 ";
         }
