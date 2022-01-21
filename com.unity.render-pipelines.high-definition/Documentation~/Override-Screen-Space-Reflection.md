@@ -8,9 +8,16 @@ HDRP implements [ray-traced reflection](Ray-Traced-Reflections.md) on top of thi
 
 [!include[](snippets/Volume-Override-Enable-Override.md)]
 
-For this feature:
-The property to enable in your HDRP Asset is: **Lighting > Reflections > Screen Space Reflection**.
-The property to enable in your Frame Settings is: **Lighting > Screen Space Reflection**.
+To enable Screen Space Reflection:
+
+1. In your HDRP Asset Inspector window, go to **Lighting** > **Reflections** and enable **Screen Space Reflection**
+
+2. Enable Screen Space Reflection in Frame Settings
+
+   * If you want to enable Screen Space Reflection for all cameras, go to **Edit** > **Project Settings** > **Graphics** > **HDRP Global Settings** > **Frame Settings (Default Values)** > **Lighting** and enable **Screen Space Reflection**
+   * If you want to enable Screen Space Reflection for specific cameras, in the Inspector window of each camera:
+      1. Go to **Rendering** and enable **Custom Frame Settings**
+      2. Go to **Frame Settings Overrides** > **Lighting** and enable **Screen Space Reflection**
 
 ## Using Screen Space Reflection
 
@@ -34,7 +41,8 @@ HDRP uses the [Volume](Volumes.md) framework to calculate SSR, so to enable and 
 
 | **Property**                  | **Description**                                              |
 | ----------------------------- | ------------------------------------------------------------ |
-| **Enable**                    | Indicates whether HDRP processes SSR for Cameras in the influence of this effect's Volume. |
+| **Enable (Opaque)**           | Indicates whether HDRP processes SSR on opaque objects for Cameras in the influence of this effect's Volume. |
+| **Enable (Transparent)**      | Indicates whether HDRP processes SSR on transparent objects for Cameras in the influence of this effect's Volume. |
 | **Tracing**                   | Specifies the method HDRP uses to calculate reflections. Depending on the option you select, the properties visible in the Inspector change. For more information on what the options do, see [tracing modes](#tracing-modes). The options are:<br/>&#8226; **Ray Marching**: Uses a screen-space ray marching solution to calculate reflections. For the list of properties this option exposes, see [Screen-space](#screen-space).<br/>&#8226; **Ray Tracing**: Uses ray tracing to calculate reflections. For information on ray-traced reflections, see [ray-traced reflection](Ray-Traced-Reflections.md). For the list of properties this option exposes, see [Ray-traced](#ray-traced).<br/>&#8226; **Mixed**: Uses a combination of ray tracing and ray marching to calculate reflections. For the list of properties this option exposes, see [Ray-traced](#ray-traced). |
 | **Algorithm**                 | Specifies the algorithm to use for the screen-space reflection effect. The options are:<br/>&#8226; **Approximation**: Approximates screen-space reflection to quickly calculate a result. This solution is less precise than **PBR Accumulation**, particularly for rough surfaces, but is less resource intensive.<br/>&#8226; **PBR Accumulation**: Accumulates multiple frames to calculate a more accurate result. You can control the amount of accumulation using **Accumulation Factor**. This solution might produce more ghosting than **Approximation**, due to the accumulation, and is also more resources intensive. HDRP does not apply this algorithm to transparent material and instead always uses **Approximation**. |
 | **Minimum Smoothness**        | Use the slider to set the minimum amount of surface smoothness at which HDRP performs SSR tracing. Lower values result in HDRP performing SSR tracing for less smooth GameObjects. If the smoothness value of the pixel is lower than this value, HDRP falls back to the next available reflection method in the [reflection hierarchy](Reflection-in-HDRP.md#ReflectionHierarchy). |
@@ -78,8 +86,10 @@ To calculate SSR, HDRP reads a color buffer with a blurred mipmap generated duri
 
 If a transparent material has **Receive SSR Transparent** enabled, HDRP always uses the **Approximation** algorithm to calculate SSR, even you select **PBR Accumulation**.
 
-
+When a transparent material has rendering pass set to **Low Resolution**, then **Receive SSR Transparent** can't be selected.
 
 ### Ray-traced reflection
 
 Currently, ray tracing in HDRP does not support [decals](decal.md). This means that, when you use ray-traced reflection, decals do not appear in reflective surfaces.
+
+If a transparent material has **Receive SSR Transparent** enabled, HDRP will evaluate the reflections as smooth.

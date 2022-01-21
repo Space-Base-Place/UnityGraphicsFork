@@ -71,6 +71,34 @@ namespace UnityEngine.Rendering
         }
 
         /// <summary>
+        /// Adds the elements of the specified collection to the end of the DynamicArray.
+        /// </summary>
+        /// <param name="array">The array whose elements should be added to the end of the DynamicArray. The array itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
+        public void AddRange(DynamicArray<T> array)
+        {
+            Reserve(size + array.size, true);
+            for (int i = 0; i < array.size; ++i)
+                m_Array[size++] = array[i];
+        }
+
+        /// <summary>
+        /// Removes the first occurrence of a specific object from the DynamicArray.
+        /// </summary>
+        /// <param name="item">The object to remove from the DynamicArray. The value can be null for reference types.</param>
+        /// <returns>true if item is successfully removed; otherwise, false. This method also returns false if item was not found in the DynamicArray.</returns>
+        public bool Remove(T item)
+        {
+            int index = IndexOf(item);
+            if (index != -1)
+            {
+                RemoveAt(index);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Resize the Dynamic Array.
         /// This will reallocate memory if necessary and set the current size of the array to the provided size.
         /// </summary>

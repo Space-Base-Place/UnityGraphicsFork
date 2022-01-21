@@ -143,7 +143,7 @@ namespace UnityEngine.Experimental.Rendering
         {
             if (requestID >= 0 && requestID < m_RequestPositions.Count)
             {
-                Debug.Assert(ComputeCapturePositionIsValid(m_RequestPositions[requestID]));
+                Debug.Assert(ComputeCapturePositionIsValid(newPosition));
                 m_RequestPositions[requestID] = newPosition;
                 m_SHCoefficients[requestID] = new SphericalHarmonicsL2();
                 return requestID;
@@ -545,6 +545,15 @@ namespace UnityEngine.Experimental.Rendering
         // List of info for cells that are yet to be loaded.
         private List<CellSortInfo> m_CellsToBeLoaded = new List<CellSortInfo>();
 
+
+        // Ref counting here as a separate dictionary as a temporary measure to facilitate future changes that will soon go in.
+        // cell.index, refCount
+        Dictionary<int, int> m_CellRefCounting = new Dictionary<int, int>();
+        void InvalidateAllCellRefs()
+        {
+            m_CellRefCounting.Clear();
+        }
+
         bool m_NeedLoadAsset = false;
         bool m_ProbeReferenceVolumeInit = false;
         bool m_EnabledBySRP = false;
@@ -688,20 +697,34 @@ namespace UnityEngine.Experimental.Rendering
         {
             if (cell.loaded)
             {
-                if (cells.ContainsKey(cell.index))
-                    cells.Remove(cell.index);
-
-                if (m_ChunkInfo.ContainsKey(cell.index))
-                    m_ChunkInfo.Remove(cell.index);
-
-                if (cell.flatIdxInCellIndices >= 0)
-                    m_CellIndices.MarkCellAsUnloaded(cell.flatIdxInCellIndices);
-
-                RegId cellBricksID = new RegId();
-                if (m_CellToBricks.TryGetValue(cell, out cellBricksID))
+                bool needsUnloading = true;
+                if (m_CellRefCounting.ContainsKey(cell.index))
                 {
-                    ReleaseBricks(cellBricksID);
-                    m_CellToBricks.Remove(cell);
+                    m_CellRefCounting[cell.index]--;
+                    needsUnloading = m_CellRefCounting[cell.index] <= 0;
+                    if (needsUnloading)
+                    {
+                        m_CellRefCounting[cell.index] = 0;
+                    }
+                }
+
+                if (needsUnloading)
+                {
+                    if (cells.ContainsKey(cell.index))
+                        cells.Remove(cell.index);
+
+                    if (m_ChunkInfo.ContainsKey(cell.index))
+                        m_ChunkInfo.Remove(cell.index);
+
+                    if (cell.flatIdxInCellIndices >= 0)
+                        m_CellIndices.MarkCellAsUnloaded(cell.flatIdxInCellIndices);
+
+                    RegId cellBricksID = new RegId();
+                    if (m_CellToBricks.TryGetValue(cell, out cellBricksID))
+                    {
+                        ReleaseBricks(cellBricksID);
+                        m_CellToBricks.Remove(cell);
+                    }
                 }
             }
 
@@ -710,6 +733,9 @@ namespace UnityEngine.Experimental.Rendering
 
         void AddCell(Cell cell, List<Chunk> chunks)
         {
+            if (m_CellRefCounting.ContainsKey(cell.index)) m_CellRefCounting[cell.index]++;
+            else m_CellRefCounting.Add(cell.index, 1);
+
             cell.loaded = true;
             cells[cell.index] = cell;
 
@@ -859,6 +885,9 @@ namespace UnityEngine.Experimental.Rendering
             // Load the ones that are already active but reload if we said we need to load
             if (m_HasChangedIndex)
             {
+                // We changed index so all assets are going to be re-loaded, hence the refs will be repopulated from scratch
+                InvalidateAllCellRefs();
+
                 foreach (var asset in m_ActiveAssets.Values)
                 {
                     LoadAsset(asset);
