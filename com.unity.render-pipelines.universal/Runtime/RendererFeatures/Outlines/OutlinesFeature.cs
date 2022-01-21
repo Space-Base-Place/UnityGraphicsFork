@@ -136,7 +136,7 @@ public class OutlinesFeature : ScriptableRendererFeature
         outlinesPass = new OutlinesPass();
 
         outlinesPass.Setup(settings);
-        outlinesPass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox - 2;
+        outlinesPass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox + 2;
 
         //m_CameraDepthAttachment.Init("_CameraDepthTexture");
         //m_DepthCopy.Init("_DepthCopy");
