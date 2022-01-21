@@ -510,7 +510,7 @@ namespace UnityEngine.Rendering.Universal.Internal
 
         internal void SetupLights(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            Profiler.BeginSample(k_SetupLights);
+            //Profiler.BeginSample(k_SetupLights);
 
             DeferredShaderData.instance.ResetBuffers();
 
@@ -716,7 +716,7 @@ namespace UnityEngine.Rendering.Universal.Internal
             if (prePunctualLights.IsCreated)
                 prePunctualLights.Dispose();
 
-            Profiler.EndSample();
+            //Profiler.EndSample();
         }
 
         internal void ResolveMixedLightingMode(ref RenderingData renderingData)
@@ -1577,7 +1577,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                 return;
             }
 
-            Profiler.BeginSample(k_DeferredStencilPass);
+            //Profiler.BeginSample(k_DeferredStencilPass);
 
             using (new ProfilingScope(cmd, m_ProfilingSamplerDeferredStencilPass))
             {
@@ -1591,7 +1591,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                     RenderStencilSpotLights(cmd, ref renderingData, visibleLights);
             }
 
-            Profiler.EndSample();
+            //Profiler.EndSample();
         }
 
         void RenderStencilDirectionalLights(CommandBuffer cmd, ref RenderingData renderingData, NativeArray<VisibleLight> visibleLights, int mainLightIndex)
