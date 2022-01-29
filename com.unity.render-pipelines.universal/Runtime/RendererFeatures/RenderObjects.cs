@@ -91,7 +91,8 @@ namespace UnityEngine.Experimental.Rendering.Universal
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            renderer.EnqueuePass(renderObjectsPass);
+            if (renderingData.cameraData.cameraType != CameraType.Preview)
+                renderer.EnqueuePass(renderObjectsPass);
         }
 
         internal override bool SupportsNativeRenderPass()

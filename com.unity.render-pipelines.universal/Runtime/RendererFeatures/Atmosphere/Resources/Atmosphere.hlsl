@@ -231,12 +231,13 @@ float4 frag(v2f i) : SV_Target
     float3 rayOrigin = _WorldSpaceCameraPos;
     float3 rayDir = normalize(i.viewVector);
 				
-    float dstToOcean = raySphere(planetCentre, oceanRadius, rayOrigin, rayDir);
+    float2 oceanHit = raySphere(planetCentre, oceanRadius, rayOrigin, rayDir);
+    float dstToOcean = oceanHit.x == 0 ? oceanHit.y : oceanHit.x;
     float dstToSurface = min(sceneDepth, dstToOcean);
 				
     float2 hitInfo = raySphere(planetCentre, atmosphereRadius, rayOrigin, rayDir);
-    float dstToAtmosphere = hitInfo.x;
-    float dstThroughAtmosphere = min(hitInfo.y, dstToSurface - dstToAtmosphere);
+    float dstToAtmosphere = oceanHit.x == 0 ? dstToOcean : hitInfo.x;
+    float dstThroughAtmosphere = oceanHit.x == 0 ? hitInfo.y - dstToSurface : min(hitInfo.y, dstToSurface - dstToAtmosphere);
 				
     if (dstThroughAtmosphere > 0)
     {
