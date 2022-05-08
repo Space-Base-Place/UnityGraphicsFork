@@ -166,6 +166,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224131888606727344}
   - component: {fileID: 114161427897257596}
+  - component: {fileID: -563161952966728055}
   m_Layer: 5
   m_Name: DebugUIToggle
   m_TagString: Untagged
@@ -212,6 +213,23 @@ MonoBehaviour:
   nameLabel: {fileID: 114837831741351564}
   valueToggle: {fileID: 114917248682948150}
   checkmarkImage: {fileID: 114292651576274254}
+--- !u!114 &-563161952966728055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437325305121156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GameObject: {fileID: 1437325305121156}
+  networkObject: {fileID: 0}
+  isNetworkObject: 0
+  initialCapacity: 0
+  prefab: {fileID: 1437325305121156}
 --- !u!1 &1827389558877520
 GameObject:
   m_ObjectHideFlags: 0

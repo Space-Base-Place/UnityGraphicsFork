@@ -10,12 +10,19 @@ public class Atmosphere : MonoBehaviour
 
     [InlineEditor] public AtmosphereData Data;
 
+
+    private void Awake()
+    {
+        if (Application.isPlaying)
+            Data = Instantiate(Data);
+    }
+
     private void Update()
     {
         if (Data != null)
             Data.UpdatePlanetCentre(transform.position);
+        
     }
-
 
     private void OnEnable()
     {

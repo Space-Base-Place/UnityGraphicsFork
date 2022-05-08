@@ -8510,6 +8510,7 @@ GameObject:
   - component: {fileID: 5940633483949707567}
   - component: {fileID: 5944332278156944397}
   - component: {fileID: 6048135192916836884}
+  - component: {fileID: -1811247428329919538}
   m_Layer: 0
   m_Name: DebugUIBitField
   m_TagString: Untagged
@@ -8641,6 +8642,23 @@ MonoBehaviour:
   - {fileID: 6749636456503821663}
   - {fileID: 1654229716869570161}
   - {fileID: 4713833427757240811}
+--- !u!114 &-1811247428329919538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6048135192916836887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GameObject: {fileID: 6048135192916836887}
+  networkObject: {fileID: 0}
+  isNetworkObject: 0
+  initialCapacity: 0
+  prefab: {fileID: 6048135192916836887}
 --- !u!1 &6048264713057143749
 GameObject:
   m_ObjectHideFlags: 0

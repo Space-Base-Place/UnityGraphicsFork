@@ -30,6 +30,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 224284813447651300}
   m_RootOrder: 1
@@ -145,6 +146,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 224710425033387306}
   m_RootOrder: 0
@@ -222,6 +224,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 224249004839589914}
   m_Father: {fileID: 224284813447651300}
@@ -245,6 +248,7 @@ GameObject:
   - component: {fileID: 114477368065491246}
   - component: {fileID: 114331217329802032}
   - component: {fileID: 114429264468334814}
+  - component: {fileID: 2017390775146571294}
   m_Layer: 0
   m_Name: DebugUIGroup
   m_TagString: Untagged
@@ -262,6 +266,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 224710425033387306}
   - {fileID: 224838436133260374}
@@ -342,3 +347,20 @@ MonoBehaviour:
   colorSelected: {r: 0.25, g: 0.65, b: 0.8, a: 1}
   nameLabel: {fileID: 114000192492716826}
   header: {fileID: 224710425033387306}
+--- !u!114 &2017390775146571294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1674137683461036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GameObject: {fileID: 1674137683461036}
+  networkObject: {fileID: 0}
+  isNetworkObject: 0
+  initialCapacity: 0
+  prefab: {fileID: 1674137683461036}
