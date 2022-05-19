@@ -19,6 +19,47 @@ public class OutlinesFeature : ScriptableRendererFeature
 
     public Settings settings = new Settings();
 
+
+    OutlinesPass outlinesPass;
+    CopyDepthPass copyDepthPass;
+    
+    RenderTargetHandle m_CameraDepthAttachment;
+    RenderTargetHandle m_DepthCopy;
+
+    Material m_CopyDepthMaterial;
+
+    /// <inheritdoc/>
+    public override void Create()
+    {
+        outlinesPass = new OutlinesPass();
+
+        outlinesPass.Setup(settings);
+        outlinesPass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox - 2;
+
+        //m_CameraDepthAttachment.Init("_CameraDepthTexture");
+        //m_DepthCopy.Init("_DepthCopy");
+        //m_CopyDepthMaterial = CoreUtils.CreateEngineMaterial("Hidden/Universal Render Pipeline/CopyDepth");
+        //copyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox + 3, m_CopyDepthMaterial);
+    }
+
+    // Here you can inject one or multiple render passes in the renderer.
+    // This method is called when setting up the renderer once per-camera.
+    public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+    {
+        if (renderingData.cameraData.cameraType == CameraType.Preview)
+            return;
+
+        renderer.EnqueuePass(outlinesPass);
+        
+        //copyDepthPass.Setup(m_DepthCopy, m_CameraDepthAttachment);
+        //renderer.EnqueuePass(copyDepthPass);
+    }
+
+
+
+
+
+
     class OutlinesPass : ScriptableRenderPass
     {
         private Material material;
@@ -121,44 +162,6 @@ public class OutlinesFeature : ScriptableRendererFeature
             return EnsureRenderTarget(ref rt, descriptor.width, descriptor.height, descriptor.colorFormat, filterMode, descriptor.depthBufferBits, descriptor.msaaSamples);
         }
     }
-
-    OutlinesPass outlinesPass;
-    CopyDepthPass copyDepthPass;
-    
-    RenderTargetHandle m_CameraDepthAttachment;
-    RenderTargetHandle m_DepthCopy;
-
-    Material m_CopyDepthMaterial;
-
-    /// <inheritdoc/>
-    public override void Create()
-    {
-        outlinesPass = new OutlinesPass();
-
-        outlinesPass.Setup(settings);
-        outlinesPass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox - 2;
-
-        //m_CameraDepthAttachment.Init("_CameraDepthTexture");
-        //m_DepthCopy.Init("_DepthCopy");
-        //m_CopyDepthMaterial = CoreUtils.CreateEngineMaterial("Hidden/Universal Render Pipeline/CopyDepth");
-        //copyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox + 3, m_CopyDepthMaterial);
-    }
-
-    // Here you can inject one or multiple render passes in the renderer.
-    // This method is called when setting up the renderer once per-camera.
-    public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
-    {
-        if (renderingData.cameraData.cameraType == CameraType.Preview)
-            return;
-
-        renderer.EnqueuePass(outlinesPass);
-        
-        //copyDepthPass.Setup(m_DepthCopy, m_CameraDepthAttachment);
-        //renderer.EnqueuePass(copyDepthPass);
-    }
-
-
-
 
 }
 

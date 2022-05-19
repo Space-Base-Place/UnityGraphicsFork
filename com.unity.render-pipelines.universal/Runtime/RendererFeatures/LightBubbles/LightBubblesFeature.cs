@@ -15,7 +15,7 @@ public class LightBubblesFeature : ScriptableRendererFeature
     public Settings settings = new Settings();
 
 
-    class CustomRenderPass : ScriptableRenderPass
+    class LightBubblesPass : ScriptableRenderPass
     {
         Material material;
         const int StencilPass = 0;
@@ -127,12 +127,12 @@ public class LightBubblesFeature : ScriptableRendererFeature
         }
     }
 
-    CustomRenderPass m_ScriptablePass;
+    LightBubblesPass m_ScriptablePass;
 
     /// <inheritdoc/>
     public override void Create()
     {
-        m_ScriptablePass = new CustomRenderPass();
+        m_ScriptablePass = new LightBubblesPass();
 
         // Configures where the render pass should be injected.
         m_ScriptablePass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
