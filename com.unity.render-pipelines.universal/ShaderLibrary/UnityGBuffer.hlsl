@@ -46,6 +46,30 @@
     #define GBUFFER_LIGHT_LAYERS GBuffer4
 #endif //#if OUTPUT_SHADOWMASK && defined(_LIGHT_LAYERS)
 #endif //#if _RENDER_PASS_ENABLED
+
+//This skips the above spiderweb of if statements and always keeps the ObjectID target last
+//I understand the irony of making my own spiderweb
+#if _USE_GBUFFER_OBJECTID
+    #if _RENDER_PASS_ENABLED && OUTPUT_SHADOWMASK && defined(_LIGHT_LAYERS)
+        #define GBUFFER_OPTIONAL_SLOT_4 GBuffer7
+        #define GBUFFER_OBJECTID GBuffer7
+        #define GBUFFER_OBJECTID_TEX _GBuffer7
+    #elif _RENDER_PASS_ENABLED && OUTPUT_SHADOWMASK || _RENDER_PASS_ENABLED && defined(_LIGHT_LAYERS) ||  OUTPUT_SHADOWMASK && defined(_LIGHT_LAYERS)
+        #define GBUFFER_OPTIONAL_SLOT_3 GBuffer6
+        #define GBUFFER_OBJECTID GBuffer6
+        #define GBUFFER_OBJECTID_TEX _GBuffer6
+    #elif _RENDER_PASS_ENABLED || OUTPUT_SHADOWMASK || defined(_LIGHT_LAYERS)
+        #define GBUFFER_OPTIONAL_SLOT_2 GBuffer5
+        #define GBUFFER_OBJECTID GBuffer5
+        #define GBUFFER_OBJECTID_TEX _GBuffer5
+    #else
+        #define GBUFFER_OPTIONAL_SLOT_1 GBuffer4
+        #define GBUFFER_OBJECTID GBuffer4
+        #define GBUFFER_OBJECTID_TEX _GBuffer4
+        #define GBUFFER_OPTIONAL_SLOT_1_TYPE half4
+    #endif
+#endif
+
 #define kLightingInvalid  -1  // No dynamic lighting: can aliase any other material type as they are skipped using stencil
 #define kLightingLit       1  // lit shader
 #define kLightingSimpleLit 2  // Simple lit shader
