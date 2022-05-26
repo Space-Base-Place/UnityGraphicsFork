@@ -3,13 +3,12 @@
 
 Texture3D _GITexture;
 SamplerState GILinearClampSampler;
-float4 _GIParams;
+float4x4 AGI_TO_WORLD_MATRIX;
+float4x4 WORLD_TO_AGI_MATRIX;
 
 half3 SampleAtmosphericIllumination(float3 positionWS)
 {
-    float3 centerWS = _GIParams.xyz;
-    float oneOverRadius = _GIParams.w;
-    float3 uvw = (positionWS - centerWS) * oneOverRadius * 0.5 + 0.5;
+    float3 uvw = mul(WORLD_TO_AGI_MATRIX, float4(positionWS, 1)).xyz;
     return _GITexture.Sample(GILinearClampSampler, uvw).xyz;
 }
 
