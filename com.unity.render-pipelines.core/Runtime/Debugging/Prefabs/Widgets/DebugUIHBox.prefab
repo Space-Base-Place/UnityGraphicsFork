@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 114369077888295230}
   - component: {fileID: 114537156113323346}
   - component: {fileID: 114050720182901700}
-  - component: {fileID: 5788257643115109839}
   m_Layer: 5
   m_Name: DebugUIHBox
   m_TagString: Untagged
@@ -39,7 +38,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 26}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &114992251083577052
 MonoBehaviour:
@@ -108,20 +107,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   colorDefault: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   colorSelected: {r: 0.25, g: 0.65, b: 0.8, a: 1}
---- !u!114 &5788257643115109839
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1302053982947836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GameObject: {fileID: 1302053982947836}
-  networkObject: {fileID: 0}
-  isNetworkObject: 0
-  initialCapacity: 0
-  prefab: {fileID: 1302053982947836}

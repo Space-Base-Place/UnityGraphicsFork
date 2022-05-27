@@ -90,7 +90,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8535926254376877601}
   - component: {fileID: 6127496435193308922}
-  - component: {fileID: -5095116022470714136}
   m_Layer: 5
   m_Name: DebugUIEnumHistory
   m_TagString: Untagged
@@ -138,23 +137,6 @@ MonoBehaviour:
   previousButtonText: {fileID: 0}
   nameLabel: {fileID: 2309423972571977096}
   valueLabel: {fileID: 7366739618473192611}
---- !u!114 &-5095116022470714136
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3734445388003485314}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GameObject: {fileID: 3734445388003485314}
-  networkObject: {fileID: 0}
-  isNetworkObject: 0
-  initialCapacity: 0
-  prefab: {fileID: 3734445388003485314}
 --- !u!1 &3930833054956949072
 GameObject:
   m_ObjectHideFlags: 0

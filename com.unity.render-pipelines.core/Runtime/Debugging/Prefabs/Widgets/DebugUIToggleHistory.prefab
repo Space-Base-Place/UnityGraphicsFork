@@ -253,7 +253,6 @@ GameObject:
   m_Component:
   - component: {fileID: 108402283379224504}
   - component: {fileID: 3791955773124009916}
-  - component: {fileID: 5033545711889092496}
   m_Layer: 5
   m_Name: DebugUIToggleHistory
   m_TagString: Untagged
@@ -300,23 +299,6 @@ MonoBehaviour:
   nameLabel: {fileID: 4555019519957560431}
   valueToggle: {fileID: 5350503726096508716}
   checkmarkImage: {fileID: 5560730182145989459}
---- !u!114 &5033545711889092496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7797485299855706120}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GameObject: {fileID: 7797485299855706120}
-  networkObject: {fileID: 0}
-  isNetworkObject: 0
-  initialCapacity: 0
-  prefab: {fileID: 7797485299855706120}
 --- !u!1 &8435239307204561265
 GameObject:
   m_ObjectHideFlags: 0

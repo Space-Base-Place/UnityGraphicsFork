@@ -443,7 +443,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 590, y: 26}
+  m_SizeDelta: {x: 0, y: 26}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &114076865926173440
 MonoBehaviour:
@@ -1063,7 +1063,6 @@ GameObject:
   - component: {fileID: 114979009639786830}
   - component: {fileID: 114737162943421548}
   - component: {fileID: 114898356608901558}
-  - component: {fileID: 18506575687832138}
   m_Layer: 0
   m_Name: DebugUIVector4
   m_TagString: Untagged
@@ -1166,23 +1165,6 @@ MonoBehaviour:
   fieldY: {fileID: 114653118192510232}
   fieldZ: {fileID: 114960921508065172}
   fieldW: {fileID: 114916600697923376}
---- !u!114 &18506575687832138
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1803786589928054}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GameObject: {fileID: 1803786589928054}
-  networkObject: {fileID: 0}
-  isNetworkObject: 0
-  initialCapacity: 0
-  prefab: {fileID: 1803786589928054}
 --- !u!1 &1898795332496792
 GameObject:
   m_ObjectHideFlags: 0

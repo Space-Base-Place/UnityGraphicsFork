@@ -276,7 +276,7 @@ half4 UniversalFragmentPBR(InputData inputData, SurfaceData surfaceData)
     LightingData lightingData = CreateLightingData(inputData, surfaceData);
     
 #ifdef _USE_ATMOSPHERIC_GLOBAL_ILLUMINATION
-    lightingData.giColor = SampleAtmosphericIllumination(inputData.positionWS) * brdfData.albedo;
+    lightingData.giColor = SampleAtmosphericIllumination(inputData.positionWS, inputData.normalWS) * brdfData.albedo;
 #else
     lightingData.giColor = GlobalIllumination(brdfData, brdfDataClearCoat, surfaceData.clearCoatMask,
                                               inputData.bakedGI, aoFactor.indirectAmbientOcclusion, inputData.positionWS,

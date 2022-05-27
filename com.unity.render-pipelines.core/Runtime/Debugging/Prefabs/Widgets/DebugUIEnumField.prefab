@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 224224135738715566}
   - component: {fileID: 114506562444320092}
-  - component: {fileID: -8722978090965398316}
   m_Layer: 5
   m_Name: DebugUIEnumField
   m_TagString: Untagged
@@ -58,23 +57,6 @@ MonoBehaviour:
   previousButtonText: {fileID: 5991968131668804396}
   nameLabel: {fileID: 114749518858187484}
   valueLabel: {fileID: 114525189159037378}
---- !u!114 &-8722978090965398316
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1311110376158742}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GameObject: {fileID: 1311110376158742}
-  networkObject: {fileID: 0}
-  isNetworkObject: 0
-  initialCapacity: 0
-  prefab: {fileID: 1311110376158742}
 --- !u!1 &1318931732956078
 GameObject:
   m_ObjectHideFlags: 0

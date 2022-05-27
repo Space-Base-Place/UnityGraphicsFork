@@ -93,7 +93,6 @@ GameObject:
   - component: {fileID: 114163390439191134}
   - component: {fileID: 114467080906542876}
   - component: {fileID: 114307598231942114}
-  - component: {fileID: -9002649990369348561}
   m_Layer: 5
   m_Name: DebugUIButton
   m_TagString: Untagged
@@ -219,20 +218,3 @@ MonoBehaviour:
   colorDefault: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   colorSelected: {r: 0.25, g: 0.65, b: 0.8, a: 1}
   nameLabel: {fileID: 114152708984687776}
---- !u!114 &-9002649990369348561
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1349998662384948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283e21afd18171a48b2924a30330d051, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GameObject: {fileID: 1349998662384948}
-  networkObject: {fileID: 0}
-  isNetworkObject: 0
-  initialCapacity: 0
-  prefab: {fileID: 1349998662384948}
