@@ -14,6 +14,9 @@ int _NumPlanetShineLights;
 
 half3 _SunsetColor;
 half3 _AGIAmbientColor;
+half3 _AGIAmbientColorX;
+half3 _AGIAmbientColorY;
+half3 _AGIAmbientColorZ;
 
 float _SunsetZoneWidth;
 float _GlobalGIPower;
@@ -34,7 +37,7 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     // account for rotation of source to main light
     float intensity =  dot(_MainLightPosition.xyz, lightDirection) * 0.5 + 0.5;
     // account for size of source, larger planets generate more light
-    intensity *= lightRadius;// * lightRadius;
+    intensity *= 1000 * lightRadius;// * lightRadius;
     // account for distance of source, inv sqr falloff
     intensity *= rcp(lightDist * lightDist);
 
@@ -115,8 +118,13 @@ half3 SampleAtmosphericIllumination(float3 positionWS, float3 normalWS)
     //float undergroundFalloff = smoothstep(-0.8, 0.00, dist01 - surfaceRadius01);
     //float atmosphereFalloff = 1 - saturate((dist01 - surfaceRadius01) / atmosphereDepth01);
     //float falloffPower = undergroundFalloff * atmosphereFalloff;
-    
-    half3 finalColor = _GlobalGIPower * lightSum + _AGIAmbientColor;
+
+    // AMBIENT
+    half3 ambientX = abs(dot(normalWS, float3(1, 0, 0))) * _AGIAmbientColorX;
+    half3 ambientY = abs(dot(normalWS, float3(0, 1, 0))) * _AGIAmbientColorY;
+    half3 ambientZ = abs(dot(normalWS, float3(0, 0, 1))) * _AGIAmbientColorZ;
+
+    half3 finalColor = _GlobalGIPower * lightSum + _AGIAmbientColor + ambientX + ambientY + ambientZ;
 
     return finalColor;
 }
