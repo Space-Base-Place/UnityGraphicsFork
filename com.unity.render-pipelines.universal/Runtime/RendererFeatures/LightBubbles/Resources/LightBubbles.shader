@@ -69,7 +69,7 @@ Shader "Hidden/LightBubbles"
         // we get blur for free by using sphere normals
         half blur = dot(input.viewDirWS, normalize(input.normalWS));
         blur *= blur;
-        blur = smoothstep(0, _EdgeSharpness, blur) * saturate(_LightInstanceIntensity);
+        blur = smoothstep(0, _EdgeSharpness, blur) * _LightInstanceIntensity;
         return half4(blur * _CurrentLightColor.xyz, 0.0);
     }
 

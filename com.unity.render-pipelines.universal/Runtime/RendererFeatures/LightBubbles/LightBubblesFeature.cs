@@ -8,8 +8,10 @@ public class LightBubblesFeature : ScriptableRendererFeature
     [System.Serializable]
     public class Settings
     {
+        public float Intensity = 1;
         public Color Color;
         [Range(0, 1)] public float EdgeSharpness = 0.3f;
+        public RenderPassEvent RenderPassEvent = RenderPassEvent.AfterRenderingSkybox;
     }
 
     public Settings settings = new Settings();
@@ -103,7 +105,7 @@ public class LightBubblesFeature : ScriptableRendererFeature
                     new Vector4(posWS.x, posWS.y, posWS.z, 1.0f)
                 );
 
-                mpb.SetFloat("_LightInstanceIntensity", light.light.intensity);
+                mpb.SetFloat("_LightInstanceIntensity", settings.Intensity);
                 mpb.SetFloat("_EdgeSharpness", settings.EdgeSharpness);
                 mpb.SetVector("_CurrentLightColor", light.finalColor);
 
@@ -135,7 +137,7 @@ public class LightBubblesFeature : ScriptableRendererFeature
         m_ScriptablePass = new LightBubblesPass();
 
         // Configures where the render pass should be injected.
-        m_ScriptablePass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+        m_ScriptablePass.renderPassEvent = settings.RenderPassEvent;
 
         m_ScriptablePass.Setup(settings);
     }
