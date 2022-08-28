@@ -213,6 +213,7 @@ namespace UnityEngine.Rendering.Universal
                 deferredInitParams.lightCookieManager = m_LightCookieManager;
                 m_DeferredLights = new DeferredLights(deferredInitParams, useRenderPassEnabled);
                 m_DeferredLights.AccurateGbufferNormals = data.accurateGbufferNormals;
+                m_DeferredLights.UseGBufferObjectId = data.UseGBufferObjectId;
                 //m_DeferredLights.TiledDeferredShading = data.tiledDeferredShading;
                 m_DeferredLights.TiledDeferredShading = false;
 

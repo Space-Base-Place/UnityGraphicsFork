@@ -142,7 +142,26 @@ namespace UnityEditor.ShaderGraph
 
             var shaderProperties = new PropertyCollector();
             var shaderKeywords = new KeywordCollector();
+
+
+
             m_GraphData.CollectShaderProperties(shaderProperties, m_Mode);
+
+            //------------------------------
+            // Hack 1/3: Declare in PropertyBlock
+            // The other hack is in PropertyCollector.cs
+            shaderProperties.AddShaderProperty(new Vector1ShaderProperty
+            {
+                floatType = FloatType.Default,
+                hidden = true,
+                overrideHLSLDeclaration = true,
+                hlslDeclarationOverride = HLSLDeclaration.UnityPerMaterial,
+                value = 1,
+                displayName = "Object ID",
+                overrideReferenceName = "_ObjectID",
+            });
+            //------------------------------
+
             m_GraphData.CollectShaderKeywords(shaderKeywords, m_Mode);
 
             var graphInputOrderData = new List<GraphInputData>();

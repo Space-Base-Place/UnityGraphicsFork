@@ -73,6 +73,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
             using (new ProfilingScope(cmd, profilingSampler))
             {
+                //cmd.SetKeyword(UseGBufferObjectID, settings.useGBufferObjectId);
 
                 var viewMatrix = camera.worldToCameraMatrix;
                 var projMatrix = currentData.GetJitteredProjectionMatrix();
@@ -110,6 +111,8 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             if (shader == null)
                 return;
 
+            renderSource.Init("_TempRT");
+
             temporalAAMaterial = new Material(shader);
         }
 
@@ -117,7 +120,6 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         {
             renderTarget = renderingData.cameraData.renderer.cameraColorTarget;
 
-            renderSource.Init("_TempRT");
             cmd.GetTemporaryRT(renderSource.id, renderingData.cameraData.cameraTargetDescriptor);
         }
 
@@ -369,6 +371,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
     internal static Dictionary<Camera, TemporalAntiAliasingPassData> cameraDataDict = new Dictionary<Camera, TemporalAntiAliasingPassData>();
     internal static TemporalAntiAliasingPassData currentData;
 
+
     /// <inheritdoc/>
     public override void Create()
     {
@@ -384,22 +387,23 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
     }
 
 
-    public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        if (!renderingData.cameraData.isSceneViewCamera && !renderingData.cameraData.isPreviewCamera)
+        if (renderingData.cameraData.isSceneViewCamera || renderingData.cameraData.isPreviewCamera)
+            return;
+
+        var camera = renderingData.cameraData.camera;
+
+        if (!cameraDataDict.ContainsKey(camera))
         {
-            var camera = renderingData.cameraData.camera;
-            
-            if (!cameraDataDict.ContainsKey(camera))
-            {
-                cameraDataDict.Add(camera, new TemporalAntiAliasingPassData(camera));
-            }
-
-            renderer.EnqueuePass(cameraSettingsPass);
-
-            temporalAntiAliasingPass.ConfigureInput(ScriptableRenderPassInput.Motion);
-            renderer.EnqueuePass(temporalAntiAliasingPass);
+            cameraDataDict.Add(camera, new TemporalAntiAliasingPassData(camera));
         }
+
+        renderer.EnqueuePass(cameraSettingsPass);
+
+        temporalAntiAliasingPass.ConfigureInput(ScriptableRenderPassInput.Motion);
+        renderer.EnqueuePass(temporalAntiAliasingPass);
+
     }
 
     #endregion
@@ -706,6 +710,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
 
         public static readonly int _StencilMask = Shader.PropertyToID("_StencilMask");
         public static readonly int _StencilRef = Shader.PropertyToID("_StencilRef");
+
     }
 
     #endregion

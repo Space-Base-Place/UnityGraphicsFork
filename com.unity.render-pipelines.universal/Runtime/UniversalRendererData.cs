@@ -87,6 +87,7 @@ namespace UnityEngine.Rendering.Universal
         [SerializeField] RenderingMode m_RenderingMode = RenderingMode.Forward;
         [SerializeField] DepthPrimingMode m_DepthPrimingMode = DepthPrimingMode.Disabled; // Default disabled because there are some outstanding issues with Text Mesh rendering.
         [SerializeField] bool m_AccurateGbufferNormals = false;
+        [SerializeField] bool m_UseGBufferObjectId = true;
         //[SerializeField] bool m_TiledDeferredShading = false;
         [SerializeField] bool m_ClusteredRendering = false;
         const TileSize k_DefaultTileSize = TileSize._32;
@@ -188,6 +189,16 @@ namespace UnityEngine.Rendering.Universal
             {
                 SetDirty();
                 m_AccurateGbufferNormals = value;
+            }
+        }
+
+        public bool UseGBufferObjectId
+        {
+            get => m_UseGBufferObjectId;
+            set
+            {
+                SetDirty();
+                m_UseGBufferObjectId = value;
             }
         }
 

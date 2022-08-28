@@ -311,8 +311,12 @@ namespace UnityEngine.Rendering.Universal.Internal
         internal int GbufferDepthIndex { get { return UseRenderPass ? GBufferLightingIndex + 1 : -1; } }
         internal int GBufferShadowMask { get { return UseShadowMask ? GBufferLightingIndex + (UseRenderPass ? 1 : 0) + 1 : -1; } }
         internal int GBufferRenderingLayers { get { return UseRenderingLayers ? GBufferLightingIndex + (UseRenderPass ? 1 : 0) + (UseShadowMask ? 1 : 0) + 1 : -1; } }
+
+        internal int GBufferObjectId { get
+            { return UseGBufferObjectId ? GBufferLightingIndex + (UseRenderingLayers ? 1 : 0) + (UseRenderPass ? 1 : 0) + (UseShadowMask ? 1 : 0) + 1 : -1; } }
+
         // Color buffer count (not including dephStencil).
-        internal int GBufferSliceCount { get { return 4 + (UseRenderPass ? 1 : 0) + (UseShadowMask ? 1 : 0) + (UseRenderingLayers ? 1 : 0); } }
+        internal int GBufferSliceCount { get { return 4 + (UseRenderPass ? 1 : 0) + (UseShadowMask ? 1 : 0) + (UseRenderingLayers ? 1 : 0) + (UseGBufferObjectId ? 1 : 0); } }
 
         internal GraphicsFormat GetGBufferFormat(int index)
         {
@@ -330,6 +334,8 @@ namespace UnityEngine.Rendering.Universal.Internal
                 return GraphicsFormat.R8G8B8A8_UNorm;
             else if (index == GBufferRenderingLayers) // Optional: rendering layers is outputed when light layers are enabled (subset of rendering layers)
                 return GraphicsFormat.R8_UNorm;
+            else if (index == GBufferObjectId)
+                return GraphicsFormat.R16_UNorm;
             else
                 return GraphicsFormat.None;
         }
@@ -344,6 +350,11 @@ namespace UnityEngine.Rendering.Universal.Internal
         internal bool HasDepthPrepass { get; set; }
         //
         internal bool HasNormalPrepass { get; set; }
+        //
+        internal bool UseGBufferObjectId { get => m_UseGBufferObjectId; set => m_UseGBufferObjectId = value; }
+
+        private bool m_UseGBufferObjectId;
+
         // This is an overlay camera being rendered.
         internal bool IsOverlay { get; set; }
         // Not all platforms support R8G8B8A8_SNorm, so we need to check for the support and force accurate GBuffer normals and relevant shader variants
@@ -575,6 +586,7 @@ namespace UnityEngine.Rendering.Universal.Internal
 
                     // Setup global keywords.
                     CoreUtils.SetKeyword(cmd, ShaderKeywordStrings._GBUFFER_NORMALS_OCT, this.AccurateGbufferNormals);
+                    CoreUtils.SetKeyword(cmd, ShaderKeywordStrings._USE_GBUFFER_OBJECTID, this.UseGBufferObjectId);
                     bool isShadowMask = supportsMixedLighting && this.MixedLightingSetup == MixedLightingSetup.ShadowMask;
                     bool isShadowMaskAlways = isShadowMask && QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask;
                     bool isSubtractive = supportsMixedLighting && this.MixedLightingSetup == MixedLightingSetup.Subtractive;

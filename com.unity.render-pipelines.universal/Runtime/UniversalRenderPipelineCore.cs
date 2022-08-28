@@ -429,6 +429,8 @@ namespace UnityEngine.Rendering.Universal
 
         // XR
         public static readonly string UseDrawProcedural = "_USE_DRAW_PROCEDURAL";
+
+        public static readonly string _USE_GBUFFER_OBJECTID = "_USE_GBUFFER_OBJECTID";
     }
 
     public sealed partial class UniversalRenderPipeline

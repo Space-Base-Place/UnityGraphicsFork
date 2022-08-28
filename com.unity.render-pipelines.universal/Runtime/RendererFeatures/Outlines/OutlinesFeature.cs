@@ -12,9 +12,12 @@ public class OutlinesFeature : ScriptableRendererFeature
         public Color color;
         [Min(0)] public float scale = 1;
         [Min(0)] public float depthThreshold = 0.2f;
+        [Min(0)] public float depthThresholdWidth = 0.2f;
         [Min(0)] public float normalThreshold = 0.4f;
+        [Min(0)] public float normalThresholdWidth = 0.4f;
         [Min(0)] public float depthNormalThreshold = 0.5f;
         [Min(0)] public float depthNormalThresholdScale = 7f;
+        public RenderPassEvent RenderPassEvent = RenderPassEvent.AfterRenderingSkybox;
     }
 
     public Settings settings = new Settings();
@@ -34,7 +37,7 @@ public class OutlinesFeature : ScriptableRendererFeature
         outlinesPass = new OutlinesPass();
 
         outlinesPass.Setup(settings);
-        outlinesPass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox - 2;
+        outlinesPass.renderPassEvent = settings.RenderPassEvent - 2;
 
         //m_CameraDepthAttachment.Init("_CameraDepthTexture");
         //m_DepthCopy.Init("_DepthCopy");
@@ -63,18 +66,11 @@ public class OutlinesFeature : ScriptableRendererFeature
     class OutlinesPass : ScriptableRenderPass
     {
         private Material material;
+        MaterialPropertyBlock mpb;
 
         private RenderTargetIdentifier renderTarget;
-        private RenderTargetIdentifier depthTarget;
         private RenderTargetHandle tempRenderTarget;
-        private RenderTargetHandle tempDepthTarget;
-        private RenderTargetHandle tempMotionVectors;
 
-        static int _MainTex = Shader.PropertyToID("_MainTex");
-        static int _DepthTex = Shader.PropertyToID("_DepthTex");
-
-        static int cameraDepthTexture = Shader.PropertyToID("_CameraDepthTexture");
-        static int motionVectorsTexture = Shader.PropertyToID("_MotionVectorTexture");
 
         public void Setup(Settings settings)
         {
@@ -87,12 +83,15 @@ public class OutlinesFeature : ScriptableRendererFeature
             }
 
             material = new Material(shader);
-            material.SetColor("_Color", settings.color);
-            material.SetFloat("_Scale", settings.scale);
-            material.SetFloat("_DepthThreshold", settings.depthThreshold);
-            material.SetFloat("_NormalThreshold", settings.normalThreshold);
-            material.SetFloat("_DepthNormalThreshold", settings.depthNormalThreshold);
-            material.SetFloat("_DepthNormalThresholdScale", settings.depthNormalThresholdScale);
+            mpb = new();
+            mpb.SetColor(OutlinesIDs._Color, settings.color);
+            mpb.SetFloat(OutlinesIDs._Scale, settings.scale);
+            mpb.SetFloat(OutlinesIDs._DepthThreshold, settings.depthThreshold);
+            mpb.SetFloat(OutlinesIDs._DepthThresholdWidth, settings.depthThresholdWidth);
+            mpb.SetFloat(OutlinesIDs._NormalThreshold, settings.normalThreshold);
+            mpb.SetFloat(OutlinesIDs._NormalThresholdWidth, settings.normalThresholdWidth);
+            mpb.SetFloat(OutlinesIDs._DepthNormalThreshold, settings.depthNormalThreshold);
+            mpb.SetFloat(OutlinesIDs._DepthNormalThresholdScale, settings.depthNormalThresholdScale);
 
             tempRenderTarget.Init("_TempRenderTarget");
         }
@@ -100,7 +99,6 @@ public class OutlinesFeature : ScriptableRendererFeature
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             renderTarget = renderingData.cameraData.renderer.cameraColorTarget;
-            depthTarget = renderingData.cameraData.renderer.cameraDepthTarget;
             var descriptor = renderingData.cameraData.cameraTargetDescriptor;
 
             cmd.GetTemporaryRT(tempRenderTarget.id, descriptor);
@@ -114,11 +112,12 @@ public class OutlinesFeature : ScriptableRendererFeature
                 return;
             }
 
+            
             CommandBuffer cmd = CommandBufferPool.Get("Outlines");
-
+            
             cmd.SetRenderTarget(tempRenderTarget.Identifier());
-            cmd.SetGlobalTexture(_MainTex, renderTarget);
-            cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, 0);
+            cmd.SetGlobalTexture(OutlinesIDs._MainTex, renderTarget);
+            cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, 0, mpb);
             Blit(cmd, tempRenderTarget.Identifier(), renderTarget);
 
             context.ExecuteCommandBuffer(cmd);
@@ -165,4 +164,24 @@ public class OutlinesFeature : ScriptableRendererFeature
 
 }
 
+internal static class OutlinesIDs
+{
+    internal static int _MainTex = Shader.PropertyToID("_MainTex");
+    internal static int _CanvasTex = Shader.PropertyToID("_CanvasTex");
+    internal static int _Color = Shader.PropertyToID("_Color");
+    internal static int _FlatColor = Shader.PropertyToID("_FlatColor");
+    internal static int _Scale = Shader.PropertyToID("_Scale");
+    internal static int _DepthThreshold = Shader.PropertyToID("_DepthThreshold");
+    internal static int _DepthThresholdWidth = Shader.PropertyToID("_DepthThresholdWidth");
+    internal static int _NormalThreshold = Shader.PropertyToID("_NormalThreshold");
+    internal static int _NormalThresholdWidth = Shader.PropertyToID("_NormalThresholdWidth");
+    internal static int _DepthNormalThreshold = Shader.PropertyToID("_DepthNormalThreshold");
+    internal static int _DepthNormalThresholdScale = Shader.PropertyToID("_DepthNormalThresholdScale");
 
+
+    internal static int OutlinesPassIndex = 0;
+    internal static int CopyDepthPassIndex = 1;
+    internal static int DepthOnlyPassIndex = 2;
+    internal static int FlatColorPassIndex = 3;
+    internal static int SimpleSobelPassIndex = 4;
+}

@@ -47,14 +47,12 @@ public class ObjectID : MonoBehaviour
     {
         var renderers = transform.GetComponentsInChildren<Renderer>(true);
 
-        List<Material> materials = new List<Material>();
+        MaterialPropertyBlock mpb = new();
+        mpb.SetFloat("_ObjectID", normalizedID);
+
         foreach (var renderer in renderers)
         {
-            renderer.GetMaterials(materials);
-            foreach (var material in materials)
-            {
-                material.SetFloat("_ObjectID", normalizedID);
-            }
+            renderer.SetPropertyBlock(mpb);
         }
     }
 

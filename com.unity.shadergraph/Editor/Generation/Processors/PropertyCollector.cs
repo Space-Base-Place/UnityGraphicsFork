@@ -179,6 +179,13 @@ namespace UnityEditor.ShaderGraph
                     }
                     builder.AppendLine("#endif");
                 }
+
+                //----------------------
+                // Hack 2/3: Declare in CBUFFER
+                // The other hack is in Generator.cs
+                builder.AppendLine("float _ObjectID;");
+                //----------------------
+
                 builder.AppendLine("CBUFFER_END");
                 builder.AppendLine("#define UNITY_ACCESS_HYBRID_INSTANCED_PROP(var, type) var");
                 return;
@@ -209,6 +216,12 @@ namespace UnityEditor.ShaderGraph
                     hlslProp.AppendTo(builder);
                 builder.AppendLine("#endif");
             }
+
+            //----------------------
+            // Hack 3/3: Declare in CBUFFER
+            builder.AppendLine("float _ObjectID;");
+            //----------------------
+
             builder.AppendLine("CBUFFER_END");
 #else
             // TODO: need to test this path with HYBRID_RENDERER_V2 ...
