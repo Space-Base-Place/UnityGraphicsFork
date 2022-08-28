@@ -374,9 +374,10 @@ Shader "Hidden/Outlines"
         float edgeId = sqrt(u*u + v*v);
 
         //final color
-        half4 edgeColor = half4(_Color.rgb, _Color.a * edgeId);
+        half4 edgeColor = half4(_Color.rgb, saturate(_Color.a * edgeId));
         half4 sceneColor = LOAD_TEXTURE2D(_MainTex, coords);
-        
+        //return half4(edgeId,0,0,1);
+
         return alphaBlend(edgeColor, sceneColor);
     }
     
