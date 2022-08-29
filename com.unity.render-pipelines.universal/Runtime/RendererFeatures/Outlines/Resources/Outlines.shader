@@ -236,14 +236,15 @@ Shader "Hidden/Outlines"
         float u = objIds[0] + 2 * objIds[3] + objIds[5] - objIds[2] - 2 * objIds[4] - objIds[7];
         float v = objIds[0] + 2 * objIds[1] + objIds[2] - objIds[5] - 2 * objIds[6] - objIds[7];
         float edgeId = sqrt(u*u + v*v);
-
+        
 
         float dThresh = _DepthThreshold * depth * normalThreshold;
         float depthT = smoothstep(dThresh, dThresh + _DepthThresholdWidth, edgeDepth);
         float normalT = smoothstep(_NormalThreshold, _NormalThreshold + _NormalThresholdWidth, edgeNormal);
-        float edgeT = step(0.1, edgeId);
+        float edgeT = step(0.001, edgeId);
+        //return half4(edgeId,0,0,1);
 
-        float isEdge = max(edgeId, max(depthT, normalT));
+        float isEdge = max(edgeT, max(depthT, normalT));
                 //return half4(isEdge,0,0,1);
 
         //return half4((abs(maxDepth - minDepth) < _DepthThreshold ? 1 : 0).xxx, 1);
