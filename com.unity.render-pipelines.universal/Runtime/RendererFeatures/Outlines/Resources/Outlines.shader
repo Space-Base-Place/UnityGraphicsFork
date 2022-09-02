@@ -127,14 +127,12 @@ Shader "Hidden/Outlines"
         float4 positionCS : SV_POSITION;
         float2 uv : TEXCOORD0;
         float3 viewSpaceDir : TEXCOORD1;
-        UNITY_VERTEX_INPUT_INSTANCE_ID
     };
 
     Varyings VertFullscreen(Attributes input)
     {
         Varyings output;
         UNITY_SETUP_INSTANCE_ID(input);
-        UNITY_TRANSFER_INSTANCE_ID(input, output);
 
         output.positionCS = float4(input.positionHCS.xyz, 1.0);
         output.uv = input.uv.xy;
@@ -172,7 +170,7 @@ Shader "Hidden/Outlines"
     }
 
 
-    half4 SobelFilter(Varyings input)
+    half4 SobelFilter(Varyings input, out float outDepth)
     {
         // Sobel filter kernel
         const int2 texAddrOffsets[8] = {
@@ -242,7 +240,7 @@ Shader "Hidden/Outlines"
         float depthT = smoothstep(dThresh, dThresh + _DepthThresholdWidth, edgeDepth);
         float normalT = smoothstep(_NormalThreshold, _NormalThreshold + _NormalThresholdWidth, edgeNormal);
         float edgeT = step(0.001, edgeId);
-        //return half4(edgeId,0,0,1);
+        //return half4(edgeT,0,0,1);
 
         float isEdge = max(edgeT, max(depthT, normalT));
                 //return half4(isEdge,0,0,1);
@@ -250,17 +248,106 @@ Shader "Hidden/Outlines"
         //return half4((abs(maxDepth - minDepth) < _DepthThreshold ? 1 : 0).xxx, 1);
         bool isOnSurface = abs(depth - minDepth) > abs(depth - maxDepth); // || abs(maxDepth - minDepth) < _DepthThreshold;
         float finalEdge = isOnSurface ? isEdge : 0;
+        //return half4(finalEdge,0,0,1);
 
         //final color
         //half4 edgeColor = half4(_Color.rgb, min(_Color.a, isEdge * maxDepth * 100));
-        half4 edgeColor = half4(_Color.rgb, _Color.a * finalEdge);
+        half4 edgeColor = half4(_Color.rgb, _Color.a * isEdge);
         half4 sceneColor = LOAD_TEXTURE2D(_MainTex, coords);
+
+        outDepth = isEdge > 0 ? maxDepth : depth;
+
+        //return half4(depthT,0,0,1);
 
         return alphaBlend(edgeColor, sceneColor);
     }
 
+    half4 RobertsCrossFilter(Varyings input, out float outDepth)
+    {
 
-    half4 RobertsCrossFilter(Varyings input)
+
+        float depths[4];
+        half3 normals[4];
+        half objIds[4];
+
+		int f = -floor(_Scale * 0.5);
+		int c = ceil(_Scale * 0.5);
+
+        // RobertsCross filter kernel
+        int2 texAddrOffsets[4] = {
+            int2(f, f), 
+            int2(c, f),
+            int2(c, c),
+            int2(f, c),
+        };
+
+        int2 coords = int2(input.uv * _MainTex_TexelSize.zw);
+
+        // Setup depth info
+        float depth = LoadDepth(coords);
+        float minDepth = depth, maxDepth = depth;
+
+        // Setup normal info
+        float3 normal = UnpackNormal(LOAD_TEXTURE2D(_GBuffer2, coords).rgb);
+        float NdotV = 1 - dot(normal, -input.viewSpaceDir);
+        // Return a value in the 0...1 range depending on where NdotV lies 
+        // between _DepthNormalThreshold and 1.
+        float normalThreshold01 = saturate((NdotV - _DepthNormalThreshold) / (1 - _DepthNormalThreshold));
+        // Scale the threshold, and add 1 so that it is in the range of 1..._NormalThresholdScale + 1.
+        float normalThreshold = normalThreshold01 * _DepthNormalThresholdScale + 1;
+
+        // Get objectId;
+        half objId = LoadObjectID(coords).r;
+
+        // Collect data
+        for (int i = 0; i < 4; i++)
+        {
+            int2 offsetCoord = clamp(coords + texAddrOffsets[i], 0, _MainTex_TexelSize.zw);
+            depths[i] = LoadDepth(offsetCoord);
+            minDepth = min(depths[i], minDepth);
+            maxDepth = max(depths[i], maxDepth);
+            normals[i] = UnpackNormal(LOAD_TEXTURE2D(_GBuffer2, offsetCoord).rgb);
+            objIds[i] = LoadObjectID(offsetCoord).r;
+        }
+
+        // Sobel operator on depth
+        float x = depths[2] - depths[0];
+        float y = depths[3] - depths[1];
+        float edgeDepth = sqrt(x*x + y*y);
+
+        // Sobel operator on normal
+        half3 n = normals[2] - normals[0];
+        half3 m = normals[3] - normals[1];
+        float edgeNormal = sqrt(dot(n, n) + dot(m, m));
+
+        // Sobel operator on objectId
+        float u = objIds[2] - objIds[0];
+        float v = objIds[3] - objIds[1];
+        float edgeId = sqrt(u*u + v*v);
+        
+
+        float dThresh = _DepthThreshold * depth * normalThreshold;
+        float depthT = smoothstep(dThresh, dThresh + _DepthThresholdWidth, edgeDepth);
+        float normalT = smoothstep(_NormalThreshold, _NormalThreshold + _NormalThresholdWidth, edgeNormal);
+        float edgeT = step(0.001, edgeId);
+
+        float isEdge = max(edgeT, max(depthT, normalT));
+
+        bool isOnSurface = abs(depth - minDepth) > abs(depth - maxDepth);
+        float finalEdge = isOnSurface ? isEdge : 0;
+
+        //final color
+        half4 edgeColor = half4(_Color.rgb, _Color.a * isEdge);
+        half4 sceneColor = LOAD_TEXTURE2D(_MainTex, coords);
+
+        outDepth = isEdge > 0 ? maxDepth : depth;
+
+        //return half4(edgeDepth,0,0,1);
+
+        return alphaBlend(edgeColor, sceneColor);
+    }
+
+    half4 RobertsCrossFilterOld(Varyings input)
     {
         float2 uv = input.uv;
         float scale = floor(_Scale);
@@ -381,11 +468,23 @@ Shader "Hidden/Outlines"
 
         return alphaBlend(edgeColor, sceneColor);
     }
+
     
-    half4 Frag(Varyings input) : SV_Target0
+    struct PixelData
     {
-        return SobelFilter(input);
-        //return RobertsCrossFilter(input);
+        half4  color : SV_Target;
+        float  depth : SV_Depth;
+    };
+
+    PixelData Frag(Varyings input)
+    {
+        PixelData pd;
+        float depth;
+        //half4 color = SobelFilter(input, depth);
+        half4 color = RobertsCrossFilter(input, depth);
+        pd.color = color;
+        pd.depth = depth;
+        return pd;
     }
 
     half4 CopyFrag(Varyings input, out float outDepth : SV_Depth) : SV_Target0
@@ -421,7 +520,8 @@ Shader "Hidden/Outlines"
         
         Pass // 0 - Outlines
         {
-            Cull Off ZWrite Off ZTest Always 
+            Name "Outlines"
+            Cull Off ZWrite On ZTest Always 
 
             HLSLPROGRAM
             #pragma exclude_renderers gles gles3 glcore
@@ -435,6 +535,7 @@ Shader "Hidden/Outlines"
 
         Pass // 1 - copy with depth
         {
+            Name "CopyWithDepth"
             Cull Off ZWrite Off ZTest Always 
 
             HLSLPROGRAM
@@ -449,6 +550,7 @@ Shader "Hidden/Outlines"
 
         Pass // 2 - copy depth only
         {
+            Name "CopyDepth"
             Cull Off ZWrite On ZTest Always 
 
             HLSLPROGRAM
@@ -464,6 +566,7 @@ Shader "Hidden/Outlines"
         
         Pass // 3 - flat draw
         {
+            Name "FlatDraw"
             Cull Off ZWrite On ZTest Always 
 
             HLSLPROGRAM
@@ -478,6 +581,7 @@ Shader "Hidden/Outlines"
                 
         Pass // 4 - simple sobel
         {
+            Name "SimpleSobel"
             Cull Off ZWrite On ZTest Always 
 
             HLSLPROGRAM

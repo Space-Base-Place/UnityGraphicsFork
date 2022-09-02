@@ -69,7 +69,9 @@ public class OutlinesFeature : ScriptableRendererFeature
         MaterialPropertyBlock mpb;
 
         private RenderTargetIdentifier renderTarget;
+        private RenderTargetIdentifier depthTarget;
         private RenderTargetHandle tempRenderTarget;
+        private RenderTargetHandle tempDepthTarget;
 
 
         public void Setup(Settings settings)
@@ -94,14 +96,20 @@ public class OutlinesFeature : ScriptableRendererFeature
             mpb.SetFloat(OutlinesIDs._DepthNormalThresholdScale, settings.depthNormalThresholdScale);
 
             tempRenderTarget.Init("_TempRenderTarget");
+            tempDepthTarget.Init("_TempDepthTarget");
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             renderTarget = renderingData.cameraData.renderer.cameraColorTarget;
+            depthTarget = renderingData.cameraData.renderer.cameraDepthTarget;
             var descriptor = renderingData.cameraData.cameraTargetDescriptor;
 
             cmd.GetTemporaryRT(tempRenderTarget.id, descriptor);
+            descriptor.colorFormat = RenderTextureFormat.Depth;
+            descriptor.depthBufferBits = 32; //TODO: do we really need this. double check;
+            descriptor.msaaSamples = 1;
+            cmd.GetTemporaryRT(tempDepthTarget.id, descriptor, FilterMode.Point);
         }
 
 
@@ -115,9 +123,18 @@ public class OutlinesFeature : ScriptableRendererFeature
             
             CommandBuffer cmd = CommandBufferPool.Get("Outlines");
             
-            cmd.SetRenderTarget(tempRenderTarget.Identifier());
             cmd.SetGlobalTexture(OutlinesIDs._MainTex, renderTarget);
-            cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, 0, mpb);
+
+            cmd.SetRenderTarget(tempRenderTarget.Identifier(), tempDepthTarget.Identifier());
+
+            cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, OutlinesIDs.OutlinesPassIndex, mpb);
+            //CoreUtils.DrawFullScreen(cmd, material, tempRenderTarget.id, mpb, OutlinesIDs.OutlinesPassIndex);
+
+            cmd.SetGlobalTexture("_CameraDepthTexture", tempDepthTarget.Identifier());
+            //cmd.SetRenderTarget(depthTarget, depthTarget);
+
+            //cmd.DrawMesh(RenderingUtils.fullscreenMesh, Matrix4x4.identity, material, 0, OutlinesIDs.DepthOnlyPassIndex, mpb);
+
             Blit(cmd, tempRenderTarget.Identifier(), renderTarget);
 
             context.ExecuteCommandBuffer(cmd);
@@ -129,6 +146,7 @@ public class OutlinesFeature : ScriptableRendererFeature
         public override void OnCameraCleanup(CommandBuffer cmd)
         {
             cmd.ReleaseTemporaryRT(tempRenderTarget.id);
+            cmd.ReleaseTemporaryRT(tempDepthTarget.id);
         }
 
 
