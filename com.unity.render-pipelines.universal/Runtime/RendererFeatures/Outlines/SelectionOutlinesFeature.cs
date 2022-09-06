@@ -172,7 +172,7 @@ public class SelectionOutlinesFeature : ScriptableRendererFeature
             CommandBuffer cmd = CommandBufferPool.Get("Selection Outlines");
 
             cmd.SetRenderTarget(canvas.Identifier());
-            cmd.ClearRenderTarget(false, true, Color.black);
+            cmd.ClearRenderTarget(true, true, Color.black);
 
             for (int i = 0; i < objects.Count; i++)
             {
@@ -194,6 +194,8 @@ public class SelectionOutlinesFeature : ScriptableRendererFeature
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }
+
+        private static List<Material> materials = new();
 
         private void DrawRenderers(CommandBuffer cmd, GameObject obj)
         {
@@ -218,9 +220,12 @@ public class SelectionOutlinesFeature : ScriptableRendererFeature
                     {
                         subMeshCount = smr.sharedMesh.subMeshCount;
                     }
+                    renderers[i].GetMaterials(materials);
                     for (int subMeshIndex = 0; subMeshIndex < subMeshCount; subMeshIndex++)
                     {
-                        cmd.DrawRenderer(renderers[i], material, subMeshIndex, OutlinesIDs.FlatColorPassIndex);
+                        Material m = materials.Count == subMeshCount ? materials[subMeshIndex] : materials[0];
+                        int pass = m.FindPass("Forward");
+                        cmd.DrawRenderer(renderers[i], m, subMeshIndex, pass);
                     }
                 }
 

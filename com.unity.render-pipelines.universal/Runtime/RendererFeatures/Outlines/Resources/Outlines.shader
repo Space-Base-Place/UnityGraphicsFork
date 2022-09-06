@@ -6,6 +6,7 @@ Shader "Hidden/Outlines"
     #pragma target 4.5
     #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
     #pragma multi_compile_fragment _ _USE_GBUFFER_OBJECTID
+    #pragma shader_feature_local SOBEL_FILTER
 
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/UnityGBuffer.hlsl"
@@ -240,22 +241,17 @@ Shader "Hidden/Outlines"
         float depthT = smoothstep(dThresh, dThresh + _DepthThresholdWidth, edgeDepth);
         float normalT = smoothstep(_NormalThreshold, _NormalThreshold + _NormalThresholdWidth, edgeNormal);
         float edgeT = step(0.001, edgeId);
-        //return half4(edgeT,0,0,1);
 
         float isEdge = max(edgeT, max(depthT, normalT));
-                //return half4(isEdge,0,0,1);
 
-        //return half4((abs(maxDepth - minDepth) < _DepthThreshold ? 1 : 0).xxx, 1);
-        bool isOnSurface = abs(depth - minDepth) > abs(depth - maxDepth); // || abs(maxDepth - minDepth) < _DepthThreshold;
+        bool isOnSurface = abs(depth - minDepth) > abs(depth - maxDepth); 
         float finalEdge = isOnSurface ? isEdge : 0;
-        //return half4(finalEdge,0,0,1);
 
         //final color
-        //half4 edgeColor = half4(_Color.rgb, min(_Color.a, isEdge * maxDepth * 100));
         half4 edgeColor = half4(_Color.rgb, _Color.a * isEdge);
         half4 sceneColor = LOAD_TEXTURE2D(_MainTex, coords);
 
-        outDepth = isEdge > 0 ? maxDepth : depth;
+        outDepth = isEdge > 0.1 ? maxDepth : depth;
 
         //return half4(depthT,0,0,1);
 
@@ -270,8 +266,8 @@ Shader "Hidden/Outlines"
         half3 normals[4];
         half objIds[4];
 
-		int f = -floor(_Scale * 0.5);
-		int c = ceil(_Scale * 0.5);
+        int f = -floor(_Scale * 0.5);
+        int c = ceil(_Scale * 0.5);
 
         // RobertsCross filter kernel
         int2 texAddrOffsets[4] = {
@@ -326,8 +322,8 @@ Shader "Hidden/Outlines"
         float edgeId = sqrt(u*u + v*v);
         
 
-        float dThresh = _DepthThreshold * depth * normalThreshold;
-        float depthT = smoothstep(dThresh, dThresh + _DepthThresholdWidth, edgeDepth);
+        float dThresh = _DepthThreshold * depth;
+        float depthT = step(0.8, edgeDepth);// smoothstep(dThresh, dThresh + _DepthThresholdWidth, edgeDepth);
         float normalT = smoothstep(_NormalThreshold, _NormalThreshold + _NormalThresholdWidth, edgeNormal);
         float edgeT = step(0.001, edgeId);
 
@@ -340,9 +336,9 @@ Shader "Hidden/Outlines"
         half4 edgeColor = half4(_Color.rgb, _Color.a * isEdge);
         half4 sceneColor = LOAD_TEXTURE2D(_MainTex, coords);
 
-        outDepth = isEdge > 0 ? maxDepth : depth;
+        outDepth = isEdge > 0.1 ? maxDepth : depth;
 
-        //return half4(edgeDepth,0,0,1);
+        //return half4(step(NdotV, depthT), 0,0,1);
 
         return alphaBlend(edgeColor, sceneColor);
     }
@@ -446,14 +442,14 @@ Shader "Hidden/Outlines"
         int2 coords = int2(uv * _MainTex_TexelSize.zw);
 
         // Get objectId;
-        half objId = LOAD_TEXTURE2D(_CanvasTex, coords).r;
+        //half objId = LOAD_TEXTURE2D(_CanvasTex, coords).r;
         //return half4(objId,0,0,1);
 
         // Collect data
         for (int i = 0; i < 8; i++)
         {
             int2 offsetCoord = clamp(coords + texAddrOffsets[i] * scale, 0, _MainTex_TexelSize.zw);
-            objIds[i] = LOAD_TEXTURE2D(_CanvasTex, offsetCoord).r;
+            objIds[i] = LOAD_TEXTURE2D(_CanvasTex, offsetCoord).r > 0 ? 1 : 0;
         }
 
         // Sobel operator on objectId
@@ -480,8 +476,11 @@ Shader "Hidden/Outlines"
     {
         PixelData pd;
         float depth;
-        //half4 color = SobelFilter(input, depth);
+    #if defined(SOBEL_FILTER)
+        half4 color = SobelFilter(input, depth);
+    #else
         half4 color = RobertsCrossFilter(input, depth);
+    #endif
         pd.color = color;
         pd.depth = depth;
         return pd;

@@ -18,6 +18,7 @@ public class OutlinesFeature : ScriptableRendererFeature
         [Min(0)] public float depthNormalThreshold = 0.5f;
         [Min(0)] public float depthNormalThresholdScale = 7f;
         public RenderPassEvent RenderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+        public bool sobelFilter;
     }
 
     public Settings settings = new Settings();
@@ -73,7 +74,6 @@ public class OutlinesFeature : ScriptableRendererFeature
         private RenderTargetHandle tempRenderTarget;
         private RenderTargetHandle tempDepthTarget;
 
-
         public void Setup(Settings settings)
         {
             var shader = Shader.Find("Hidden/Outlines");
@@ -94,6 +94,9 @@ public class OutlinesFeature : ScriptableRendererFeature
             mpb.SetFloat(OutlinesIDs._NormalThresholdWidth, settings.normalThresholdWidth);
             mpb.SetFloat(OutlinesIDs._DepthNormalThreshold, settings.depthNormalThreshold);
             mpb.SetFloat(OutlinesIDs._DepthNormalThresholdScale, settings.depthNormalThresholdScale);
+
+            LocalKeyword sobelFilter = new(shader, OutlinesIDs.SOBEL_FILTER);
+            material.SetKeyword(sobelFilter, settings.sobelFilter);
 
             tempRenderTarget.Init("_TempRenderTarget");
             tempDepthTarget.Init("_TempDepthTarget");
@@ -196,6 +199,7 @@ internal static class OutlinesIDs
     internal static int _DepthNormalThreshold = Shader.PropertyToID("_DepthNormalThreshold");
     internal static int _DepthNormalThresholdScale = Shader.PropertyToID("_DepthNormalThresholdScale");
 
+    internal static string SOBEL_FILTER = "SOBEL_FILTER";
 
     internal static int OutlinesPassIndex = 0;
     internal static int CopyDepthPassIndex = 1;
