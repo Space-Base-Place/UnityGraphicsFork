@@ -108,6 +108,9 @@ public class OutlinesFeature : ScriptableRendererFeature
             depthTarget = renderingData.cameraData.renderer.cameraDepthTarget;
             var descriptor = renderingData.cameraData.cameraTargetDescriptor;
 
+            Debug.Assert(descriptor.height > 0);
+            Debug.Assert(descriptor.msaaSamples > 0);
+
             cmd.GetTemporaryRT(tempRenderTarget.id, descriptor);
             descriptor.colorFormat = RenderTextureFormat.Depth;
             descriptor.depthBufferBits = 32; //TODO: do we really need this. double check;
@@ -152,35 +155,6 @@ public class OutlinesFeature : ScriptableRendererFeature
             cmd.ReleaseTemporaryRT(tempDepthTarget.id);
         }
 
-
-        /// <summary>
-        /// Returns true if new target created
-        /// </summary>
-        private bool EnsureRenderTarget(ref RenderTexture rt, int width, int height, RenderTextureFormat format, FilterMode filterMode, int depthBits = 0, int antiAliasing = 1)
-        {
-            if (rt != null && (rt.width != width || rt.height != height || rt.format != format || rt.filterMode != filterMode || rt.antiAliasing != antiAliasing))
-            {
-                RenderTexture.ReleaseTemporary(rt);
-                rt = null;
-            }
-            if (rt == null)
-            {
-                rt = RenderTexture.GetTemporary(width, height, depthBits, format, RenderTextureReadWrite.Default, antiAliasing);
-                rt.filterMode = filterMode;
-                rt.wrapMode = TextureWrapMode.Clamp;
-                //rt.enableRandomWrite = true;
-                return true;// new target
-            }
-            return false;// same target
-        }
-
-        /// <summary>
-        /// Returns true if new target created
-        /// </summary>
-        private bool EnsureRenderTarget(ref RenderTexture rt, RenderTextureDescriptor descriptor, FilterMode filterMode)
-        {
-            return EnsureRenderTarget(ref rt, descriptor.width, descriptor.height, descriptor.colorFormat, filterMode, descriptor.depthBufferBits, descriptor.msaaSamples);
-        }
     }
 
 }

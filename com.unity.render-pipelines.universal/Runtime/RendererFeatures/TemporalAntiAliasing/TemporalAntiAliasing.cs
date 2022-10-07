@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -59,6 +60,9 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
                 var descriptor = new RenderTextureDescriptor(camera.scaledPixelWidth, camera.scaledPixelHeight, RenderTextureFormat.DefaultHDR, 16);
                 var objectIDDescriptor = new RenderTextureDescriptor(camera.scaledPixelWidth, camera.scaledPixelHeight, RenderTextureFormat.R16, 0);
 
+                Debug.Assert(descriptor.height > 0);
+                Debug.Assert(descriptor.msaaSamples > 0);
+
                 currentData.resetPostProcessingHistory = currentData.EnsureBuffers(ref descriptor, ref objectIDDescriptor);
 
                 // Update the jitter state
@@ -93,7 +97,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         private Material temporalAAMaterial;
         private Settings settings;
 
-        public static ObjectPool<MaterialPropertyBlock> MaterialPropertyBlockPool = new ObjectPool<MaterialPropertyBlock>((x) => x.Clear(), null);
+        public static ObjectPool<MaterialPropertyBlock> MaterialPropertyBlockPool = new((x) => x.Clear(), null);
 
         internal const float TAABaseBlendFactorMin = 0.6f;
         internal const float TAABaseBlendFactorMax = 0.95f;
@@ -179,7 +183,10 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             // Object ID
             var taaObjectIdParams = new Vector4(currentData.cameraVelocity, settings.taaObjectIdRejection, settings.taaBaseBlendFactor, 0);
             mpb.SetVector(ShaderIDs._TaaObjectIDParameters, taaObjectIdParams);
-            cmd.SetGlobalTexture(ShaderIDs._CurrentObjectIDTexture, ShaderIDs._CurrentObjectIDTexture);
+            if (!Shader.IsKeywordEnabled(ShaderKeywordStrings._USE_GBUFFER_OBJECTID))
+            {
+                cmd.SetGlobalTexture(ShaderIDs._CurrentObjectIDTexture, ShaderIDs._CurrentObjectIDTexture);
+            }
             mpb.SetTexture(ShaderIDs._PreviousObjectIDTexture, currentData.prevObjectID);
             cmd.SetRandomWriteTarget(3, currentData.nextObjectID);
 
@@ -368,7 +375,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
     TAACameraSettingsPass cameraSettingsPass;
     TemporalAntiAliasingPass temporalAntiAliasingPass;
 
-    internal static Dictionary<Camera, TemporalAntiAliasingPassData> cameraDataDict = new Dictionary<Camera, TemporalAntiAliasingPassData>();
+    internal static Dictionary<Camera, TemporalAntiAliasingPassData> cameraDataDict = new();
     internal static TemporalAntiAliasingPassData currentData;
 
 
@@ -410,7 +417,7 @@ public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingD
 
     #region SUPPORT CLASSES
 
-    internal class TemporalAntiAliasingPassData
+    internal class TemporalAntiAliasingPassData : IDisposable
     {
         // TAA parameters from HDRP
         public Material temporalAAMaterial;
@@ -596,7 +603,7 @@ public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingD
         /// <summary>
         /// Returns true if new array created
         /// </summary>
-        private bool EnsureArray<T>(ref T[] array, int size, T initialValue = default(T))
+        private bool EnsureArray<T>(ref T[] array, int size, T initialValue = default)
         {
             if (array == null || array.Length != size)
             {
@@ -617,16 +624,19 @@ public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingD
             if (rt != null && (rt.width != width || rt.height != height || rt.format != format || rt.filterMode != filterMode || rt.antiAliasing != antiAliasing))
             {
                 //RenderTexture.ReleaseTemporary(rt);
+                rt.Release();
                 rt = null;
             }
             if (rt == null)
             {
-                rt = new RenderTexture(width, height, depthBits, format, 0);
                 //rt = RenderTexture.GetTemporary(width, height, depthBits, format, RenderTextureReadWrite.Default, antiAliasing);
-                rt.antiAliasing = antiAliasing;
-                rt.filterMode = filterMode;
-                rt.wrapMode = TextureWrapMode.Clamp;
-                rt.enableRandomWrite = true;
+                rt = new RenderTexture(width, height, depthBits, format, 0)
+                {
+                    antiAliasing = antiAliasing,
+                    filterMode = filterMode,
+                    wrapMode = TextureWrapMode.Clamp,
+                    enableRandomWrite = true
+                };
                 rt.Create();
                 return true;// new target
             }
@@ -645,11 +655,17 @@ public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingD
 
                 if (renderTexture != null)
                 {
-                    RenderTexture.ReleaseTemporary(renderTexture);
-                    renderTexture = null;
+                    renderTexture.Release();
                 }
             }
             renderTextures = null;
+        }
+
+        public void Dispose()
+        {
+            Clear(ref historyBuffer);
+            Clear(ref velocityBuffer);
+            Clear(ref objectIDBuffer);
         }
     }
 

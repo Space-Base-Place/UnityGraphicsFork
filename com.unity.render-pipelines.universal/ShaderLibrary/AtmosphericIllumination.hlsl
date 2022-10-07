@@ -42,12 +42,10 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     intensity *= rcp(lightDist * lightDist);
 
     // Falloff beneath surface
-    //float maxRadius = max(lightRadius, lightAtmosRadius);
     float surfaceFactor = smoothstep(lightRadius * 0.75, lightRadius, lightDist);
     
     // normal
     float NdotL = -dot(normal, lightDirection);
-    NdotL = saturate(NdotL);
 
 
     // account for shadowing from local body
@@ -62,15 +60,18 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     float inAtmosComponent = 0;
     if (lightAtmosRadius > 0)
     {
+        float NdotML = dot(normal, _MainLightPosition.xyz) * 0.5 + 0.5;
+        float occlusion = -NdotL * 0.5 + 0.5;
         float UdotML = dot(lightDirection, _MainLightPosition.xyz);
         float MLshadow = smoothstep(-_SunsetZoneWidth, _SunsetZoneWidth, UdotML);
         float atmosHeight = 1 - saturate((lightDist - lightRadius) / (lightAtmosRadius - lightRadius));
         atmosHeight = atmosHeight * atmosHeight;
-        inAtmosComponent = surfaceFactor * atmosHeight * MLshadow * _AtmosGIPower;
+        //inAtmosComponent = NdotML * surfaceFactor * atmosHeight * MLshadow * _AtmosGIPower;
+        inAtmosComponent = smoothstep(0, _SunsetZoneWidth, UdotML) * surfaceFactor * atmosHeight * _AtmosGIPower;
     }
 
     float heightBelowSurface = 1 - saturate(-heightAboveSurface);
-    float planetShineComponent = NdotL * intensity * surfaceFactor * shadow;
+    float planetShineComponent = smoothstep(0.1, 0.12, NdotL) * saturate(NdotL) * intensity * surfaceFactor * shadow;
     float finalIntensity =  max(inAtmosComponent, planetShineComponent);
     return heightBelowSurface * finalIntensity * lightColor;
 

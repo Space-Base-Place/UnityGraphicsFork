@@ -13,15 +13,12 @@ public static class ObjectIDUtils
     {
         var objectID = Mathf.Abs(gameObject.GetInstanceID()) % 65535;
         var normalizedID = objectID / 65535f;
-        //Debug.Log($"instanceID of {gameObject} is {objectID}, {normalizedID}");
-        //mpb.SetFloat(_ObjectID, normalizedID);
 
         gameObject.GetComponentsInChildren(true, renderers);
 
         foreach (var renderer in renderers)
         {
             renderer.GetMaterials(materials);
-            //renderer.SetPropertyBlock(mpb);
             foreach (var materal in materials)
             {
                 materal.SetFloat(_ObjectID, normalizedID);

@@ -70,10 +70,14 @@ public class LightBubblesFeature : ScriptableRendererFeature
 
             renderTarget = renderingData.cameraData.renderer.cameraColorTarget;
             depthTarget = renderingData.cameraData.renderer.cameraDepthTarget;
+            var descriptor = renderingData.cameraData.cameraTargetDescriptor;
 
-            cmd.GetTemporaryRT(temporaryRTId, renderingData.cameraData.cameraTargetDescriptor);
+            Debug.Assert(descriptor.height > 0);
+            Debug.Assert(descriptor.msaaSamples > 0);
+
+            cmd.GetTemporaryRT(temporaryRTId, descriptor);
             renderSource = new RenderTargetIdentifier(temporaryRTId);
-            cmd.GetTemporaryRT(bufferRTId, renderingData.cameraData.cameraTargetDescriptor);
+            cmd.GetTemporaryRT(bufferRTId, descriptor);
             bubbleBuffer = new RenderTargetIdentifier(bufferRTId);
 
             //you're supposed to do this instead of cmd.SetRenderTarget, but it doesnt work
