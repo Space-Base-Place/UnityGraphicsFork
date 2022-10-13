@@ -182,7 +182,7 @@ FragmentOutput SurfaceDataToGbuffer(SurfaceData surfaceData, InputData inputData
     FragmentOutput output = SurfaceDataToGbuffer(surfaceData, inputData, globalIllumination, lightingMode);
 
 #if _USE_GBUFFER_OBJECTID
-    output.GBUFFER_OBJECTID = half4(objectId, 0, 0, 0);
+    output.GBUFFER_OBJECTID = half4(objectId == 0 ? 1 : objectId, 0, 0, 0);
 #endif
 
     return output;
@@ -266,7 +266,7 @@ FragmentOutput BRDFDataToGbuffer(BRDFData brdfData, InputData inputData, half sm
     FragmentOutput output = BRDFDataToGbuffer(brdfData, inputData, smoothness, globalIllumination, occlusion);
 
 #if _USE_GBUFFER_OBJECTID
-    output.GBUFFER_OBJECTID = half4(objectId, 0, 0, 0);
+    output.GBUFFER_OBJECTID = half4(objectId == 0 ? 1 : objectId, 0, 0, 0);
 #endif
 
     return output;

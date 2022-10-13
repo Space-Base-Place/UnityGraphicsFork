@@ -144,7 +144,7 @@ FragmentOutput ParticlesLitGBufferFragment(VaryingsParticle input)
 
     half4 color = half4(inputData.bakedGI * surfaceData.albedo + surfaceData.emission, surfaceData.alpha);
 
-    return SurfaceDataToGbuffer(surfaceData, inputData, color.rgb, kLightingSimpleLit);
+    return SurfaceDataToGbuffer(surfaceData, inputData, color.rgb, kLightingSimpleLit, _ObjectID);
 
 }
 

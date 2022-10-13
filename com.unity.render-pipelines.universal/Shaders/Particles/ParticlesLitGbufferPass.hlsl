@@ -129,13 +129,13 @@ FragmentOutput ParticlesGBufferFragment(VaryingsParticle input)
     Light mainLight = GetMainLight(inputData.shadowCoord, inputData.positionWS, inputData.shadowMask);
 
 #ifdef _USE_ATMOSPHERIC_GLOBAL_ILLUMINATION
-    half3 color = SampleAtmosphericIllumination(inputData.positionWS) * brdfData.albedo;
+    half3 color = SampleAtmosphericIllumination(inputData.positionWS, inputData.normalWS) * brdfData.albedo;
 #else
     MixRealtimeAndBakedGI(mainLight, inputData.normalWS, inputData.bakedGI, inputData.shadowMask);
     half3 color = GlobalIllumination(brdfData, inputData.bakedGI, surfaceData.occlusion, inputData.positionWS, inputData.normalWS, inputData.viewDirectionWS);
 #endif
 
-    return BRDFDataToGbuffer(brdfData, inputData, surfaceData.smoothness, surfaceData.emission + color, surfaceData.occlusion);
+    return BRDFDataToGbuffer(brdfData, inputData, surfaceData.smoothness, surfaceData.emission + color, surfaceData.occlusion, _ObjectID);
 }
 
 #endif // UNIVERSAL_PARTICLES_GBUFFER_LIT_PASS_INCLUDED
