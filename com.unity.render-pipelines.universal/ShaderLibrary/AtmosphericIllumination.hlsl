@@ -5,6 +5,7 @@ struct PlanetShineLight
 {
     float3 positionWS;
     float3 color;
+    float3 sunsetColor;
     float3 radius; //x: surface, y: atmosphere
 };
 
@@ -12,11 +13,7 @@ StructuredBuffer<PlanetShineLight> _PlanetShineLightBuffer;
 int _NumPlanetShineLights;
 
 
-half3 _SunsetColor;
 half3 _AGIAmbientColor;
-half3 _AGIAmbientColorX;
-half3 _AGIAmbientColorY;
-half3 _AGIAmbientColorZ;
 
 float _SunsetZoneWidth;
 float _GlobalGIPower;
@@ -28,11 +25,11 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     float lightRadius = planetShineLight.radius.x;
     float lightAtmosRadius = planetShineLight.radius.y;
     float3 lightColor = planetShineLight.color;
+    float3 sunsetColor = planetShineLight.sunsetColor;
 
     float3 lightDirection = positionWS - lightPos;
     float lightDist = length(lightDirection);
     lightDirection /= lightDist; // normalize while saving length
-    float heightAboveSurface = (lightDist - lightRadius) / lightRadius;
 
     // account for rotation of source to main light
     float intensity =  dot(_MainLightPosition.xyz, lightDirection) * 0.5 + 0.5;
@@ -42,6 +39,8 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     intensity *= rcp(lightDist * lightDist);
 
     // Falloff beneath surface
+    //float heightAboveSurface = (lightDist - lightRadius) / lightRadius;
+    //float heightBelowSurface = 1 - saturate(-heightAboveSurface);
     float surfaceFactor = smoothstep(lightRadius * 0.75, lightRadius, lightDist);
     
     // normal
@@ -58,26 +57,34 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     
     // additional component for light when within an atmosphere
     float inAtmosComponent = 0;
+    float3 inAtmosColor = 0;
     if (lightAtmosRadius > 0)
     {
-        float NdotML = dot(normal, _MainLightPosition.xyz) * 0.5 + 0.5;
-        float occlusion = -NdotL * 0.5 + 0.5;
+
         float UdotML = dot(lightDirection, _MainLightPosition.xyz);
         float MLshadow = smoothstep(-_SunsetZoneWidth, _SunsetZoneWidth, UdotML);
         float atmosHeight = 1 - saturate((lightDist - lightRadius) / (lightAtmosRadius - lightRadius));
         atmosHeight = atmosHeight * atmosHeight;
-        inAtmosComponent = MLshadow * surfaceFactor * atmosHeight * _AtmosGIPower;
-        //inAtmosComponent = smoothstep(0, _SunsetZoneWidth, UdotML) * surfaceFactor * atmosHeight * _AtmosGIPower;
+
+        // ignoring normals, simulates general bounce lighting into shadows
+        inAtmosComponent = MLshadow * atmosHeight * _AtmosGIPower;
+
+        // we add 2 additional components to give color differentiation on the normals
+        // main component
+        float NdotML = dot(normal, _MainLightPosition.xyz);
+        inAtmosColor += saturate(NdotML) * lightColor;
+
+        // sunset component
+        float ss = 1 - abs(UdotML);
+        inAtmosColor += smoothstep(ss - _SunsetZoneWidth, ss + _SunsetZoneWidth, NdotML) * sunsetColor;
+
+        inAtmosColor *= atmosHeight * _AtmosGIPower;
     }
 
-    float heightBelowSurface = 1 - saturate(-heightAboveSurface);
-    float planetShineComponent = smoothstep(0.1, 0.12, NdotL) * saturate(NdotL) * intensity * surfaceFactor * shadow;
-    float finalIntensity =  max(inAtmosComponent, planetShineComponent);
-    return heightBelowSurface * finalIntensity * lightColor;
+    float planetShineComponent = smoothstep(0.1, 0.12, NdotL) * saturate(NdotL) * intensity * shadow;
+    float3 finalColor =  max(inAtmosComponent, planetShineComponent) * lightColor + inAtmosColor;
 
-    // this changes colour in sunset zone, TODO
-    //float sunsetZone = 1 - smoothstep(0, _SunsetZoneWidth, abs(NdotL));
-    //return lerp(lightColor, sunsetColor, sunsetZone) * intensity;
+    return surfaceFactor * finalColor;
 }
 
 half3 SampleAtmosphericIllumination(float3 positionWS, float3 normalWS)
@@ -120,12 +127,7 @@ half3 SampleAtmosphericIllumination(float3 positionWS, float3 normalWS)
     //float atmosphereFalloff = 1 - saturate((dist01 - surfaceRadius01) / atmosphereDepth01);
     //float falloffPower = undergroundFalloff * atmosphereFalloff;
 
-    // AMBIENT
-    half3 ambientX = abs(dot(normalWS, float3(1, 0, 0))) * _AGIAmbientColorX;
-    half3 ambientY = abs(dot(normalWS, float3(0, 1, 0))) * _AGIAmbientColorY;
-    half3 ambientZ = abs(dot(normalWS, float3(0, 0, 1))) * _AGIAmbientColorZ;
-
-    half3 finalColor = _GlobalGIPower * lightSum + _AGIAmbientColor + ambientX + ambientY + ambientZ;
+    half3 finalColor = _GlobalGIPower * lightSum + _AGIAmbientColor;
 
     return finalColor;
 }
