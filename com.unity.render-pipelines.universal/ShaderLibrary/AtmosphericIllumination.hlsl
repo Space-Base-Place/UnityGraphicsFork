@@ -60,9 +60,8 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     float3 inAtmosColor = 0;
     if (lightAtmosRadius > 0)
     {
-
-        float UdotML = dot(lightDirection, _MainLightPosition.xyz);
-        float MLshadow = smoothstep(-_SunsetZoneWidth, _SunsetZoneWidth, UdotML);
+        float UdotML = dot(localUp, _MainLightPosition.xyz);
+        float MLshadow = smoothstep(-_SunsetZoneWidth, _SunsetZoneWidth, -UdotML);
         float atmosHeight = 1 - saturate((lightDist - lightRadius) / (lightAtmosRadius - lightRadius));
         atmosHeight = atmosHeight * atmosHeight;
 
@@ -70,19 +69,24 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
         inAtmosComponent = MLshadow * atmosHeight * _AtmosGIPower;
 
         // we add 2 additional components to give color differentiation on the normals
+        float3 BT = cross(localUp, _MainLightPosition.xyz);
+        float3 T = cross(BT, localUp);
+        float TdotN = dot(T, normal);
+
         // main component
-        float NdotML = dot(normal, _MainLightPosition.xyz);
-        inAtmosColor += saturate(NdotML) * lightColor;
+        float b = saturate(-UdotML + _SunsetZoneWidth);
+        inAtmosColor += saturate(b + TdotN * saturate(UdotML - _SunsetZoneWidth)) * b * lightColor;
 
         // sunset component
-        float ss = 1 - abs(UdotML);
-        inAtmosColor += smoothstep(ss - _SunsetZoneWidth, ss + _SunsetZoneWidth, NdotML) * sunsetColor;
+        float a = 1 - abs(UdotML);
+        inAtmosColor += saturate(a + TdotN * UdotML) * (1 - saturate(UdotML)) * sunsetColor;
 
         inAtmosColor *= atmosHeight * _AtmosGIPower;
     }
 
     float planetShineComponent = smoothstep(0.1, 0.12, NdotL) * saturate(NdotL) * intensity * shadow;
     float3 finalColor =  max(inAtmosComponent, planetShineComponent) * lightColor + inAtmosColor;
+    //float3 finalColor = inAtmosColor;
 
     return surfaceFactor * finalColor;
 }
