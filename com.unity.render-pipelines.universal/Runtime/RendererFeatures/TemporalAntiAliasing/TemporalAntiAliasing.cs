@@ -389,7 +389,7 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
         cameraSettingsPass.Setup(settings, true);
 
         temporalAntiAliasingPass = new TemporalAntiAliasingPass();
-        temporalAntiAliasingPass.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+        temporalAntiAliasingPass.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing - 2;
         temporalAntiAliasingPass.Setup(settings);
     }
 
