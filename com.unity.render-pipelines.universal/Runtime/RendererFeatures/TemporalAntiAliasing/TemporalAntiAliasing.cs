@@ -183,10 +183,13 @@ public class TemporalAntiAliasing : ScriptableRendererFeature
             // Object ID
             var taaObjectIdParams = new Vector4(currentData.cameraVelocity, settings.taaObjectIdRejection, settings.taaBaseBlendFactor, 0);
             mpb.SetVector(ShaderIDs._TaaObjectIDParameters, taaObjectIdParams);
-            if (!Shader.IsKeywordEnabled(ShaderKeywordStrings._USE_GBUFFER_OBJECTID))
-            {
-                cmd.SetGlobalTexture(ShaderIDs._CurrentObjectIDTexture, ShaderIDs._CurrentObjectIDTexture);
-            }
+
+            // We only use deferred rendering, no fallback if it is disabled.
+            //if (!Shader.IsKeywordEnabled(ShaderKeywordStrings._USE_GBUFFER_OBJECTID))
+            //{
+            //    cmd.SetGlobalTexture(ShaderIDs._CurrentObjectIDTexture, ShaderIDs._CurrentObjectIDTexture);
+            //}
+
             mpb.SetTexture(ShaderIDs._PreviousObjectIDTexture, currentData.prevObjectID);
             cmd.SetRandomWriteTarget(3, currentData.nextObjectID);
 

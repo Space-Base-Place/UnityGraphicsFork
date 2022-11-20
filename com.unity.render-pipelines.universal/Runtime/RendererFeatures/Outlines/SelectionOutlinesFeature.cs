@@ -210,22 +210,27 @@ public class SelectionOutlinesFeature : ScriptableRendererFeature
                 t.GetComponents(renderers);
                 for (int i = 0; i < renderers.Count; i++)
                 {
+                    var renderer = renderers[i];
+
+                    if (renderer is ParticleSystemRenderer)
+                        continue;
+
                     int subMeshCount = 1;
-                    if (renderers[i] is MeshRenderer mr)
+                    if (renderer is MeshRenderer mr)
                     {
                         if (mr.TryGetComponent(out MeshFilter mf) && mf.sharedMesh != null)
                             subMeshCount = mf.sharedMesh.subMeshCount;
                     }
-                    else if (renderers[i] is SkinnedMeshRenderer smr)
+                    else if (renderer is SkinnedMeshRenderer smr)
                     {
                         subMeshCount = smr.sharedMesh.subMeshCount;
                     }
-                    renderers[i].GetMaterials(materials);
+                    renderer.GetMaterials(materials);
                     for (int subMeshIndex = 0; subMeshIndex < subMeshCount; subMeshIndex++)
                     {
                         Material m = materials.Count == subMeshCount ? materials[subMeshIndex] : materials[0];
                         int pass = m.FindPass("Forward");
-                        cmd.DrawRenderer(renderers[i], m, subMeshIndex, pass);
+                        cmd.DrawRenderer(renderer, m, subMeshIndex, pass);
                     }
                 }
 

@@ -550,6 +550,7 @@ half3 LightingToon(BRDFData brdfData, Light light, half3 normalWS, half3 viewDir
     if (!specularHighlightsOff)
     {
         brdf += brdfData.specular * DirectToonSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
+        //brdf += brdfData.specular * DirectBRDFSpecular(brdfData, normalWS, lightDirectionWS, viewDirectionWS);
     }
     //else
     //{

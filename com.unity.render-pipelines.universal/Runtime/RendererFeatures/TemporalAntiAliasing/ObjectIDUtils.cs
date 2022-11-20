@@ -14,6 +14,11 @@ public static class ObjectIDUtils
         var objectID = Mathf.Abs(gameObject.GetInstanceID()) % 65535;
         var normalizedID = objectID / 65535f;
 
+        SetObjectID(gameObject, normalizedID);
+    }
+
+    public static void SetObjectID(GameObject gameObject, float objectID)
+    {
         gameObject.GetComponentsInChildren(true, renderers);
 
         foreach (var renderer in renderers)
@@ -21,9 +26,14 @@ public static class ObjectIDUtils
             renderer.GetMaterials(materials);
             foreach (var materal in materials)
             {
-                materal.SetFloat(_ObjectID, normalizedID);
+                materal.SetFloat(_ObjectID, objectID);
             }
         }
+    }
+
+    public static void SetObjectID(GameObject gameObject, object obj)
+    {
+        SetObjectID(gameObject, GetObjectID(obj));
     }
 
     public static float GetObjectID(object obj)

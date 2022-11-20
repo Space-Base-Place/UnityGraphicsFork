@@ -41,7 +41,7 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     // Falloff beneath surface
     //float heightAboveSurface = (lightDist - lightRadius) / lightRadius;
     //float heightBelowSurface = 1 - saturate(-heightAboveSurface);
-    float surfaceFactor = smoothstep(lightRadius * 0.75, lightRadius, lightDist);
+    float surfaceFactor = max(smoothstep(lightRadius * 0.75, lightRadius, lightDist), 0.1);
     
     // normal
     float NdotL = -dot(normal, lightDirection);
@@ -61,7 +61,7 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     if (lightAtmosRadius > 0)
     {
         float UdotML = dot(localUp, _MainLightPosition.xyz);
-        float MLshadow = smoothstep(-_SunsetZoneWidth, _SunsetZoneWidth, -UdotML);
+        float MLshadow = max(smoothstep(-_SunsetZoneWidth, _SunsetZoneWidth, -UdotML), 0.1);
         float atmosHeight = 1 - saturate((lightDist - lightRadius) / (lightAtmosRadius - lightRadius));
         atmosHeight = atmosHeight * atmosHeight;
 
@@ -78,7 +78,7 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
         inAtmosColor += saturate(b + TdotN * saturate(UdotML - _SunsetZoneWidth)) * b * lightColor;
 
         // sunset component
-        float a = 1 - abs(UdotML);
+        float a = 1 - abs(max(UdotML, -0.9));
         inAtmosColor += saturate(a + TdotN * UdotML) * (1 - saturate(UdotML)) * sunsetColor;
 
         inAtmosColor *= atmosHeight * _AtmosGIPower;
