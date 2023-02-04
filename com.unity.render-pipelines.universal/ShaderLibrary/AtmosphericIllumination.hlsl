@@ -19,7 +19,7 @@ float _SunsetZoneWidth;
 float _GlobalGIPower;
 float _AtmosGIPower;
 
-half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLight, float3 localUp, float3 normal, float heightAboveClosestBody)
+half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLight, float3 normal)
 {
     float3 lightPos = planetShineLight.positionWS.xyz;
     float lightRadius = planetShineLight.radius.x;
@@ -46,11 +46,15 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
     // normal
     float NdotL = -dot(normal, lightDirection);
 
-
+    float3 localUp = planetShineLight.positionWS - positionWS;
+    float height = length(localUp);
+    localUp /= height; // normalize while saving length
+    float r = planetShineLight.radius.x;
+    float heightAboveSurface = (height - r) / r;
     // account for shadowing from local body
     float UdotL = dot(localUp, lightDirection);
     // fade out shadow based on height
-    UdotL = lerp(UdotL, 1, saturate(heightAboveClosestBody));
+    UdotL = lerp(UdotL, 1, saturate(heightAboveSurface));
     // sharpen shadows around edge
     float shadow = smoothstep(-_SunsetZoneWidth, 0, UdotL);
 
@@ -93,27 +97,6 @@ half3 CalculateLightComponent(float3 positionWS, PlanetShineLight planetShineLig
 
 half3 SampleAtmosphericIllumination(float3 positionWS, float3 normalWS)
 {
-    // Find closest planet
-    int closestIndex;
-    float closestDist = 3.402823466e+38;
-    for (int n = 0; n < _NumPlanetShineLights; n++)
-    {
-        float3 v = positionWS - _PlanetShineLightBuffer[n].positionWS;
-        float dst = dot(v,v);
-        if (dst < closestDist)
-        {
-            closestIndex = n;
-            closestDist = dst;
-        }
-    }
-    PlanetShineLight closestPlanet = _PlanetShineLightBuffer[closestIndex];
-
-    float3 localUp = closestPlanet.positionWS - positionWS;
-    float height = length(localUp);
-    localUp /= height; // normalize while saving length
-    float r = closestPlanet.radius.x;
-    float heightAboveSurface = (height - r) / r;
-    float heightShadowFactor = (heightAboveSurface / (4));
 
     // Main Light
     half3 lightSum;// = CalculateLightComponent(position01, mainLightDirection, mainLightColor, sunsetColor);
@@ -121,7 +104,7 @@ half3 SampleAtmosphericIllumination(float3 positionWS, float3 normalWS)
     // Other Lights
     for (int j = 0; j < _NumPlanetShineLights; j++)
     {
-        lightSum += CalculateLightComponent(positionWS, _PlanetShineLightBuffer[j], localUp, normalWS, heightAboveSurface);
+        lightSum += CalculateLightComponent(positionWS, _PlanetShineLightBuffer[j], normalWS);
     }
 
     // Depth & Falloff - old. a bit more sophisticated than current implementation. left for reference.
