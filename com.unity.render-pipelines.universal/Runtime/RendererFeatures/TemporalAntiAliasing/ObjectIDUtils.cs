@@ -23,6 +23,9 @@ public static class ObjectIDUtils
 
         foreach (var renderer in renderers)
         {
+            if (renderer is ParticleSystemRenderer)
+                continue;
+
             renderer.GetMaterials(materials);
             foreach (var materal in materials)
             {
@@ -35,6 +38,7 @@ public static class ObjectIDUtils
     {
         SetObjectID(gameObject, GetObjectID(obj));
     }
+
 
     public static float GetObjectID(object obj)
     {
